@@ -1,0 +1,286 @@
+#!/bin/bash
+
+# This file is not intended for direct execution
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
+
+# Common aliases and functions
+
+__aliases_main() {
+    local BASH_SOURCE_FILE BASH_SOURCE_DIR
+
+    BASH_SOURCE_FILE=${BASH_SOURCE[0]}
+    while [[ -L "$BASH_SOURCE_FILE" ]]; do
+        BASH_SOURCE_FILE=$(readlink "$BASH_SOURCE_FILE")
+    done
+
+    BASH_SOURCE_DIR=$(dirname "$BASH_SOURCE_FILE")
+    BASH_SOURCE_DIR=`cd $BASH_SOURCE_DIR >/dev/null; pwd`
+    BASH_SOURCE_FILE=$(basename "$BASH_SOURCE_FILE")
+
+    # BASH_SOURCE_DIR is a full path to the location of this script
+
+    eval "$(cat <<EOF
+        __get_aliases_dir() {
+          echo $BASH_SOURCE_DIR
+        }
+        __get_aliases_file() {
+          echo $BASH_SOURCE_FILE
+        }
+EOF
+)"
+
+    eval "$(_bash_color_definitions)"
+    eval "$(_bash_os_definitions)"
+
+    alias cls='clear'
+
+    alias grep='grep --color=auto '
+    alias fgrep='fgrep --color=auto '
+    alias egrep='egrep --color=auto '
+
+    alias dir='ls -al '
+
+    alias ps='ps -ef '
+    alias psu='ps -u ${USER} '
+
+    alias avd='android avd & '
+
+    ec () {
+        ~/eclipse/eclipse "$@" &
+    }
+
+    ff () {
+        find . -name "*" -type f -exec grep --color=auto -HinF "$@" {} \;
+    }
+
+    ff2 () {
+        # Double-grep to filter out grep warnings
+        grep --color=auto -RHinF "$@" * 2>&1 | grep --color=auto -i "$@"
+    }
+
+    fff () {
+        find . -name "$1" -type f -exec grep --color=auto -HinF "${@:2}" {} \;
+    }
+
+    fff2 () {
+        # Double-grep to filter out grep warnings
+        grep --color=auto -RHinF "${@:2}" "$1" 2>&1 | grep --color=auto -i "${@:2}"
+    }
+
+    ffs () {
+        set | grep --color=auto -i "$@"
+    }
+
+    fn () {
+        find -L . -iname "$@"
+    }
+
+    fp () {
+        ps | grep --color=auto -i "$@"
+    }
+
+    rmr () {
+        eval "$(_bash_color_definitions)"
+
+        if [[ $# -eq 0 ]]; then
+            echo -e "Usage: "$COLOR_YELLOW_BOLD"rmr"$COLOR_NONE" "$COLOR_CYAN_BOLD"{pattern}"$COLOR_NONE" "$COLOR_CYAN_BOLD"{rm options}"$COLOR_NONE
+            echo
+            echo -e $COLOR_YELLOW_BOLD"Rmr"$COLOR_NONE" will execute recursive rm on any files matching the "$COLOR_CYAN_BOLD"pattern"$COLOR_NONE
+            echo -e "skipping matching files in hidden subdirectories."
+            echo
+            echo -e $COLOR_RED_BOLD"Warning:"$COLOR_NONE" rmr is dangerous!"
+            echo
+        else
+            find . -name "$1" ! -path '*/.*' -exec rm "${@:2}" {} \;
+        fi
+    }
+
+    check-whitespace () {
+        # Look for trailing spaces
+        grep -n '[[:space:]]$' *
+
+        # Look for leading tabs
+        grep -n '^\t' *
+    }
+
+    get_ssh_client_ip () {
+        local SSH_ARGS=($SSH_CLIENT)
+        echo ${SSH_ARGS[0]}
+    }
+    
+    groot () {
+        local GIT_ROOT=$(git rev-parse --show-toplevel)
+        cd $GIT_ROOT/"$@"
+    }
+
+    ssht () {
+        ssh $* -t 'tmux a || tmux || /bin/bash'
+    }
+
+    # OS-specific aliases and functions
+
+    if [[ $BASH_OS_TYPE == MacOSX ]]; then
+        # Mac OS X aliases
+        alias ls='ls -Gp '
+
+        alias www-on='sudo apachectl start'
+        alias www-off='sudo apachectl stop'
+
+        # Check if Sublime Edit 2 is installed
+        # If not, check if TextMate is installed
+        # If not, use TextEdit
+        e () {
+            local SUBL_COMMAND MATE_COMMAND
+            SUBL_COMMAND=`type -P subl`
+            MATE_COMMAND=`type -P mate`
+            if [[ -n $SUBL_COMMAND ]]; then
+                subl "$@"
+            else
+                if [[ -n $MATE_COMMAND ]]; then
+                    mate -a -d "$@"
+                else
+                    open -e "$@"
+                fi
+            fi
+        }
+
+        ec () {
+            open -a ~/eclipse/eclipse.app -args "$@"
+        }
+        
+        ij () {
+            open -b com.jetbrains.intellij.ce "$@"
+        }
+
+        as () {
+            open -b com.google.android.studio "$@"
+        }
+
+        g () {
+            groot
+            ./gradlew "$@"
+        }
+
+        set-title () {
+            eval "$(_bash_color_definitions)"
+
+            local TITLE="$@"
+            echo -e "Setting terminal title to "$COLOR_YELLOW_BOLD"$TITLE"$COLOR_NONE
+            echo -n -e "\033]0;$TITLE\007"
+        }
+
+        ex () {
+            if [[ $# -eq 0 ]]; then
+                open .
+            else
+                if [[ -d "$1" ]]; then
+                    open "$@"
+                else
+                    open -R "$@"
+                fi
+            fi
+        }
+
+        rep () {
+            eval "$(_bash_color_definitions)"
+
+            if [[ $# -eq 0 ]]; then
+                echo -e "Usage: rep {sed command}"
+                echo
+                echo -e "Rep will execute the sed command on all files in the current directory"
+                echo -e "and subdirectories, excluding any hidden files. All commands will be"
+                echo -e "executed in place using sed's -i option."
+                echo
+                echo -e "For example rep s/a/b/ will replace all instances of 'a' in all files with 'b'"
+                echo
+                echo -e "Read "$COLOR_BOLD"sed"$COLOR_NONE" manual for more details"
+                echo
+            else
+                for x in $(find . -type f -name '*' ! -name '.*' ! -path '*/.*'); do
+                    sed -i "" "$@" $x
+                done
+            fi
+        }
+    fi
+
+    if [[ $BASH_OS_TYPE == Linux ]]; then
+        # Linux aliases and functions
+        alias ls='ls --color=auto '
+
+        rep () {
+            if [[ $# -eq 0 ]]; then
+                echo -e "Usage: rep {sed command}"
+                echo
+                echo -e "Rep will execute the sed command on all files in the current directory"
+                echo -e "and subdirectories, excluding any hidden files. All commands will be"
+                echo -e "executed in place using sed's -i option."
+                echo
+                echo -e "For example rep s/a/b/ will replace all instances of 'a' in all files with 'b'"
+                echo
+                sed --help
+                echo
+            else
+                for x in $(find . -type f -name '*' ! -name '.*' ! -path '*/.*'); do
+                    sed -i "$@" $x
+                done
+            fi
+        }
+
+        #if [[ -n $GNOME_DESKTOP_SESSION_ID ]]; then
+        if [[ $COLORTERM == gnome-terminal ]]; then
+            ex () {
+                if [[ $# -eq 0 ]]; then
+                    nautilus .
+                else
+                    nautilus "$@"
+                fi
+            }
+
+            e () {
+                gedit "$@" &
+            }
+
+            regedit () {
+                gconf-editor "$@" &
+            }
+        else
+            e () {
+                vi "$@"
+            }
+        fi
+
+        if [[ $BASH_OS_DISTRO == CentOS ]]; then
+            # CentOS aliases and functions
+            alias __dummy='echo dummy'
+            # CentOS ls doesn't have --group-directories-first :-(
+        elif [[ $BASH_OS_DISTRO == Ubuntu ]]; then
+            # Ubuntu aliases and functions
+            alias dir='ls -al --group-directories-first '
+
+            set-title () {
+                local TITLE="$@"
+                echo -e "Setting terminal title to "$COLOR_YELLOW_BOLD"$TITLE"$COLOR_NONE
+                export PROMPT_COMMAND="echo -n -e \"\033]0;$TITLE\007\"";
+            }
+
+            # Ubuntu has a weird bug with graphical sudo and DBUS
+            sudo () {
+                local _SUDO_SAVE=$DBUS_SESSION_BUS_ADDRESS
+                unset DBUS_SESSION_BUS_ADDRESS
+                command sudo -E env PATH=$PATH "$@"
+                export DBUS_SESSION_BUS_ADDRESS=$_SUDO_SAVE
+            }
+
+            gksudo () {
+                local _SUDO_SAVE=$DBUS_SESSION_BUS_ADDRESS
+                unset DBUS_SESSION_BUS_ADDRESS
+                command gksudo -k "$@" &
+                export DBUS_SESSION_BUS_ADDRESS=$_SUDO_SAVE
+            }
+        fi
+    fi
+}
+
+__aliases_main "$@"
+unset __aliases_main
+

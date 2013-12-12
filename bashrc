@@ -66,7 +66,7 @@ EOF
     local BASH_FILES BASH_FILE
 
     # Source global, Facebook, and personal definitions
-    BASH_FILES=( /etc/bashrc ~/bashrc_local $BASH_SOURCE_DIR/aliases ~/aliases_local )
+    BASH_FILES=( /etc/bashrc $HOME/bashrc_local $BASH_SOURCE_DIR/aliases $HOME/aliases_local )
     for BASH_FILE in ${BASH_FILES[@]}; do
         if [[ -f $BASH_FILE ]]; then
             [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BASH_FILE$COLOR_NONE
@@ -125,7 +125,7 @@ EOF
 
     local PATH_DIRS PATH_DIR PATH_DIRS_PREFIX
 
-    PATH_DIRS=( $HOME/android-sdk/build-tools/$(ls -1 ~/android-sdk/build-tools/ | tr -d '/' | sort | tail -n 1) $HOME/android-sdk/platform-tools $HOME/android-sdk/tools $HOME/android-ndk $HOME/bin )
+    PATH_DIRS=( $HOME/android-sdk/build-tools/$([ -d $HOME/android-sdk/build-tools/ ] && ls -1 $HOME/android-sdk/build-tools/ | tr -d '/' | sort | tail -n 1) $HOME/android-sdk/platform-tools $HOME/android-sdk/tools $HOME/android-ndk $HOME/bin )
     if [[ $BASH_OS_TYPE == MacOSX ]]; then
         # Mac OS X paths, including Homebrew
         PATH_DIRS=( ${PATH_DIRS[@]} /usr/local/bin /usr/local/sbin )

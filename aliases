@@ -199,6 +199,10 @@ EOF
                 for x in $(find . -type f -name '*' ! -name '.*' ! -path '*/.*'); do
                     sed -i "" "$@" $x
                 done
+                # This is a bit dangerous, and assumes that there are no legitimate files
+                # that start with .!. Probably should be a bit more careful and match
+                # more specifically
+                find . -name "\.\!*" -exec rm {} \;
             fi
         }
     fi

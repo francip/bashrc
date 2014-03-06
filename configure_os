@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# This file is not intended for direct execution
-if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
-
 # Determine the current OS
 
 local BASH_OS_TYPE BASH_OS_DISTRO BASH_OS_RELEASE

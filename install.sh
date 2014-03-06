@@ -25,12 +25,16 @@ EOF
 )"
 
     local BASH_COLOR_DEFS
-    if [[ -e $BASH_SOURCE_DIR/configure_colors ]]; then
+    if [[ -e ~/.configure_colors ]]; then
+        BASH_COLOR_DEFS=`cat ~/.configure_colors`
+    elif [[ -e $BASH_SOURCE_DIR/configure_colors ]]; then
         BASH_COLOR_DEFS=`cat $BASH_SOURCE_DIR/configure_colors`
     fi
 
     local BASH_OS_DEFS
-    if [[ -e $BASH_SOURCE_DIR/configure_os ]]; then
+    if [[ -e ~/.configure_os ]]; then
+        BASH_OS_DEFS=`cat ~/.configure_os`
+    elif [[ -e $BASH_SOURCE_DIR/configure_os ]]; then
         BASH_OS_DEFS=`cat $BASH_SOURCE_DIR/configure_os`
     fi
 
@@ -55,7 +59,7 @@ EOF
 
     local FILES CURRENT_FILE TARGET_FILE SOURCE_FILE
 
-    FILES=( bash_profile bashrc inputrc bash_logout )
+    FILES=( bash_profile bashrc inputrc bash_logout configure_colors configure_os )
     for CURRENT_FILE in ${FILES[@]}; do
         if [[ -e ~/.$CURRENT_FILE ]]; then
             if [[ ! -L ~/.$CURRENT_FILE ]]; then

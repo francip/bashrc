@@ -160,7 +160,6 @@ EOF
     local CDPATH_DIRS CDPATH_DIR CDPATH_DIRS_PREFIX
 
     CDPATH_DIRS=( . $HOME $HOME/Projects $HOME/local )
-
     for CDPATH_DIR in ${CDPATH_DIRS[@]}; do
         if [[ -d $CDPATH_DIR ]]; then
             if [[ ":$CDPATH:" != *":$CDPATH_DIR:"* ]]; then
@@ -184,9 +183,7 @@ EOF
 
     # SSH client
     if [[ -n $SSH_CLIENT ]]; then
-
         [ $BASH_INTERACTIVE ] && echo
-
         [ $BASH_INTERACTIVE ] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
     fi
 
@@ -205,8 +202,6 @@ EOF
         #export GIT_PS1_SHOWDIRTYSTATE=true
         #export GIT_PS1_SHOWUNTRACKEDFILES=true
         #export GIT_PS1_SHOWUPSTREAM=auto
-
-        #GIT_PROMPT='$(__git_ps1 " \[${COLOR_MAGENTA_BOLD}\][%s]\[${COLOR_NONE}\]")'
 
         __git_prompt () {
             eval "$(_bash_color_definitions)"

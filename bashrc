@@ -190,28 +190,31 @@ EOF
     [ $BASH_INTERACTIVE ] && echo
 
     # Prompt
-    local COLOR_ROOT_INVERT GIT_PROMPT
+    local COLOR_ROOT_INVERT VERSION_CONTROL_PROMPT
 
     COLOR_ROOT_INVERT=$COLOR_GREEN_INVERT
     if [[ "`whoami`" == "root" ]]; then
         COLOR_ROOT_INVERT=$COLOR_RED_INVERT
     fi
 
-    if [[ -n `type -t __git_ps1` ]]; then
-        # Sadly on big repositories this makes the prompt really slow
-        #export GIT_PS1_SHOWDIRTYSTATE=true
-        #export GIT_PS1_SHOWUNTRACKEDFILES=true
-        #export GIT_PS1_SHOWUPSTREAM=auto
+    # Show version controlled repository status.
+    # vcprompt is used if installed, otherwise __git_ps1 will be tried as well.
+    __version_control_ps1 () {
+        if [[ $(which vcprompt) ]]; then
+            vcprompt -f "[%n %b] "
+        elif [[ -n `type -t __git_ps1` ]]; then
+            # Sadly on big repositories this makes the prompt really slow
+            #export GIT_PS1_SHOWDIRTYSTATE=true
+            #export GIT_PS1_SHOWUNTRACKEDFILES=true
+            #export GIT_PS1_SHOWUPSTREAM=auto
 
-        __git_prompt () {
-            eval "$(_bash_color_definitions)"
-            __git_ps1 '[%s] '
-        }
+            __git_ps1 '[git %s] '
+        fi
+    }
 
-        GIT_PROMPT='$(__git_prompt)'
-    fi
+    VERSION_CONTROL_PROMPT='$(__version_control_ps1)'
 
-    export PS1='\['$COLOR_BOLD'\]\['$COLOR_ROOT_INVERT'\]\u\['$COLOR_NONE'\] \['$COLOR_BOLD'\]\['$COLOR_YELLOW_INVERT'\]\h\['$COLOR_NONE'\] \['$COLOR_CYAN_BOLD'\]\w\['$COLOR_NONE'\] \['$COLOR_MAGENTA_BOLD'\]'$GIT_PROMPT'\['$COLOR_NONE'\]\$ '
+    export PS1='\['$COLOR_BOLD'\]\['$COLOR_ROOT_INVERT'\]\u\['$COLOR_NONE'\] \['$COLOR_BOLD'\]\['$COLOR_YELLOW_INVERT'\]\h\['$COLOR_NONE'\] \['$COLOR_CYAN_BOLD'\]\w\['$COLOR_NONE'\] \['$COLOR_MAGENTA_BOLD'\]'$VERSION_CONTROL_PROMPT'\['$COLOR_NONE'\]\$ '
 
     # Color directories
     if [[ $BASH_OS_TYPE == MacOSX ]]; then

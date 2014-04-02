@@ -113,6 +113,11 @@ EOF
         cd $GIT_ROOT/"$@"
     }
 
+    hroot () {
+        local HG_ROOT=$(hg root)
+        cd $HG_ROOT/"$@"
+    }
+
     ssht () {
         ssh $* -t 'tmux a || tmux || /bin/bash'
     }

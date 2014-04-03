@@ -60,7 +60,7 @@ EOF
     esac
 
     [ $BASH_INTERACTIVE ] && echo
-    [ $BASH_INTERACTIVE ] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD$BASH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$BASH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$BASH_OS_TYPE$COLOR_NONE')'
+    [ $BASH_INTERACTIVE ] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '$BASH_VERSION$COLOR_NONE' on '$COLOR_GREEN_BOLD$BASH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$BASH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$BASH_OS_TYPE$COLOR_NONE')'
     [ $BASH_INTERACTIVE ] && echo
 
     local BASH_FILES BASH_FILE
@@ -119,6 +119,10 @@ EOF
         . $ADB_COMPLETION
     fi
 
+    # Use hard target resolution in Buck autocompletion
+    export BUCK_COMPLETION_HARDTARGETRESOLUTION=true
+    export BUCK_ENABLE_EXTENSIONS=false
+
     # BUCK completion
     BUCK_COMPLETION=`type -P buck-completion.bash`
     if [[ -z $BUCK_COMPLETION ]]; then
@@ -128,6 +132,16 @@ EOF
     if [[ -f $BUCK_COMPLETION ]]; then
         [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BUCK_COMPLETION$COLOR_NONE
         . $BUCK_COMPLETION
+    fi
+
+    BUCK_EXTENSIONS=`type -P buck-extensions.sh`
+    if [[ -z $BUCK_EXTENSIONS ]]; then
+        BUCK_EXTENSIONS=$HOME/bin/buck-extensions.sh
+    fi
+
+    if [[ -f $BUCK_EXTENSIONS ]]; then
+        [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BUCK_EXTENSIONS$COLOR_NONE
+        . $BUCK_EXTENSIONS
     fi
 
     [ $BASH_INTERACTIVE ] && echo

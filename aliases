@@ -45,10 +45,6 @@ EOF
 
     alias avd='android avd & '
 
-    ec () {
-        ~/eclipse/eclipse "$@" &
-    }
-
     ff () {
         find . -name "*" -type f -exec grep --color=auto -HinF "$@" {} \;
     }
@@ -149,10 +145,6 @@ EOF
             fi
         }
 
-        ec () {
-            open -a ~/eclipse/eclipse.app -args "$@"
-        }
-        
         ij () {
             open -b com.jetbrains.intellij.ce "$@"
         }
@@ -162,6 +154,7 @@ EOF
         }
 
         g () {
+            # Consider hroot if it's a Mercurial repository
             groot
             ./gradlew "$@"
         }
@@ -209,6 +202,10 @@ EOF
                 # more specifically
                 find . -name "\.\!*" -exec rm {} \;
             fi
+        }
+
+        bbash () {
+            [ -e /usr/local/bin/bash ] && /usr/local/bin/bash "$@"
         }
     fi
 

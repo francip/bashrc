@@ -65,7 +65,7 @@ EOF
 
     local BASH_FILES BASH_FILE
 
-    # Source global, Facebook, and personal definitions
+    # Source global, local, and personal definitions
     BASH_FILES=( /etc/bashrc $HOME/bashrc_local $BASH_SOURCE_DIR/aliases $HOME/aliases_local )
     for BASH_FILE in ${BASH_FILES[@]}; do
         if [[ -f $BASH_FILE ]]; then
@@ -92,7 +92,7 @@ EOF
         fi
     fi
 
-    local GIT_COMPLETION ADB_COMPLETION
+    local GIT_COMPLETION ADB_COMPLETION BUCK_COMPLETION
 
     # Git completion
     if [[ -z `type -t __git_ps1` ]]; then
@@ -117,6 +117,17 @@ EOF
     if [[ -f $ADB_COMPLETION ]]; then
         [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$ADB_COMPLETION$COLOR_NONE
         . $ADB_COMPLETION
+    fi
+
+    # BUCK completion
+    BUCK_COMPLETION=`type -P buck-completion.bash`
+    if [[ -z $BUCK_COMPLETION ]]; then
+        BUCK_COMPLETION=$HOME/bin/buck-completion.bash
+    fi
+
+    if [[ -f $BUCK_COMPLETION ]]; then
+        [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BUCK_COMPLETION$COLOR_NONE
+        . $BUCK_COMPLETION
     fi
 
     [ $BASH_INTERACTIVE ] && echo

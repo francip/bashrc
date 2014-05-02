@@ -66,7 +66,7 @@ EOF
     local BASH_FILES BASH_FILE
 
     # Source global, local, and personal definitions
-    BASH_FILES=( /etc/bashrc $HOME/bashrc_local $BASH_SOURCE_DIR/aliases $HOME/aliases_local )
+    BASH_FILES=( /etc/bashrc $HOME/bashrc.local $BASH_SOURCE_DIR/aliases $HOME/aliases.local )
     for BASH_FILE in ${BASH_FILES[@]}; do
         if [[ -f $BASH_FILE ]]; then
             [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BASH_FILE$COLOR_NONE

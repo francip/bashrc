@@ -294,6 +294,11 @@ EOF
         export NDKROOT=$ANDROID_NDK
         export NDK_MODULE_PATH=$ANDROID_NDK
     fi
+
+
+    export PATH="$PATH:/Applications/Muse"
+
+    export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/Applications/Muse"
 }
 
 __bashrc_main "$@"

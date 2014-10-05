@@ -299,6 +299,8 @@ EOF
     export PATH="$PATH:/Applications/Muse"
 
     export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/Applications/Muse"
+
+    export GNUTERM=x11
 }
 
 __bashrc_main "$@"

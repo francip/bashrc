@@ -91,6 +91,21 @@ EOF
         fi
     }
 
+    rmr2 () {
+        eval "$(_bash_color_definitions)"
+
+        if [[ $# -eq 0 ]]; then
+            echo -e "Usage: "$COLOR_YELLOW_BOLD"rmr"$COLOR_NONE" "$COLOR_CYAN_BOLD"{pattern}"$COLOR_NONE" "$COLOR_CYAN_BOLD"{rm options}"$COLOR_NONE
+            echo
+            echo -e $COLOR_YELLOW_BOLD"Rmr"$COLOR_NONE" will execute recursive rm on any files matching the "$COLOR_CYAN_BOLD"pattern"$COLOR_NONE"."
+            echo
+            echo -e $COLOR_RED_BOLD"Warning:"$COLOR_NONE" rmr is dangerous!"
+            echo
+        else
+            find . -name "$1" -exec rm "${@:2}" {} \;
+        fi
+    }
+
     check-whitespace () {
         # Look for trailing spaces
         grep -n '[[:space:]]$' *

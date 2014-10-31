@@ -256,10 +256,14 @@ EOF
     # Misc declarations
     if [[ $BASH_OS_TYPE == MacOSX ]]; then
         # Required for Homebrew version of Meld
-        export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
+        #export PYTHONPATH=/usr/local/lib/python2.7/site-packages:/Library/Python/2.7/site-packages:$PYTHONPATH
 
         # set the number of open files to be 1024
-        ulimit -S -n 1024
+        #ulimit -S -n 1024
+
+        # Required for Muse SDK
+	    export PATH="$PATH:/Applications/Muse"
+    	export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/Applications/Muse"
     fi
 
     if [[ $BASH_OS_TYPE == Linux ]]; then
@@ -284,6 +288,8 @@ EOF
 
     export EDITOR=vim
 
+    export GNUTERM=x11
+
     if [[ -d $HOME/android-sdk ]]; then
         export ANDROID_HOME=$HOME/android-sdk
     fi
@@ -294,13 +300,6 @@ EOF
         export NDKROOT=$ANDROID_NDK
         export NDK_MODULE_PATH=$ANDROID_NDK
     fi
-
-
-    export PATH="$PATH:/Applications/Muse"
-
-    export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/Applications/Muse"
-
-    export GNUTERM=x11
 }
 
 __bashrc_main "$@"

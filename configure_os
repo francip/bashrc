@@ -8,7 +8,9 @@ if [[ $OSTYPE == darwin* ]]; then
     # Mac OS X
     BASH_OS_TYPE=MacOSX
     BASH_OS_RELEASE=`type sw_vers >/dev/null 2>&1 && sw_vers -productVersion`
-    if [[ $OSTYPE == darwin13* ]]; then
+    if [[ $OSTYPE == darwin14* ]]; then
+        BASH_OS_DISTRO=Yosemite
+    elif [[ $OSTYPE == darwin13* ]]; then
         BASH_OS_DISTRO=Mavericks
     elif [[ $OSTYPE == darwin12* ]]; then
         BASH_OS_DISTRO=MountainLion

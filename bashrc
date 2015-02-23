@@ -301,7 +301,7 @@ EOF
         export NDK_MODULE_PATH=$ANDROID_NDK
     fi
 
-    export GOPATH=$HOME/Projects
+    export GOPATH=$HOME/Projects/Go
 }
 
 __bashrc_main "$@"

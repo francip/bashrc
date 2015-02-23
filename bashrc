@@ -300,6 +300,8 @@ EOF
         export NDKROOT=$ANDROID_NDK
         export NDK_MODULE_PATH=$ANDROID_NDK
     fi
+
+    export GOPATH=$HOME/Projects
 }
 
 __bashrc_main "$@"

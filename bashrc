@@ -150,7 +150,7 @@ EOF
 
     local PATH_DIRS PATH_DIR PATH_DIRS_PREFIX
 
-    PATH_DIRS=( $HOME/android-sdk/build-tools/$([ -d $HOME/android-sdk/build-tools/ ] && ls -1 $HOME/android-sdk/build-tools/ | tr -d '/' | sort | tail -n 1) $HOME/android-sdk/platform-tools $HOME/android-sdk/tools $HOME/android-ndk $HOME/bin )
+    PATH_DIRS=( $HOME/android-sdk/build-tools/$([ -d $HOME/android-sdk/build-tools/ ] && ls -1 $HOME/android-sdk/build-tools/ | tr -d '/' | sort | tail -n 1) $HOME/android-sdk/platform-tools $HOME/android-sdk/tools $HOME/android-ndk $HOME/gcc-arm-none-eabi/bin $HOME/bin)
     if [[ $BASH_OS_TYPE == MacOSX ]]; then
         # Mac OS X paths, including Homebrew
         PATH_DIRS=( ${PATH_DIRS[@]} /usr/local/bin /usr/local/sbin )

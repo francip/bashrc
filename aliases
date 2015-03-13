@@ -108,17 +108,17 @@ EOF
 
     check-whitespace () {
         # Look for trailing spaces
-        grep -n '[[:space:]]$' *
+        grep -r -n '[[:space:]]$' *
 
         # Look for leading tabs
-        grep -n '^\t' *
+        grep -r -n '^\t' *
     }
 
     get_ssh_client_ip () {
         local SSH_ARGS=($SSH_CLIENT)
         echo ${SSH_ARGS[0]}
     }
-    
+
     groot () {
         local GIT_ROOT=$(git rev-parse --show-toplevel)
         cd $GIT_ROOT/"$@"
@@ -221,6 +221,16 @@ EOF
 
         bbash () {
             [ -e /usr/local/bin/bash ] && /usr/local/bin/bash "$@"
+        }
+
+        latest () {
+            brew update
+            brew upgrade
+            brew cleanup
+            brew prune
+            npm install -g npm@latest
+            pip install --upgrade pip setuptools
+            brew linkapps python
         }
     fi
 

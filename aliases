@@ -142,7 +142,7 @@ EOF
         alias www-on='sudo apachectl start'
         alias www-off='sudo apachectl stop'
 
-        # Check if Sublime Edit 2 is installed
+        # Check if Sublime Edit is installed
         # If not, check if TextMate is installed
         # If not, use TextEdit
         e () {

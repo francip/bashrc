@@ -238,7 +238,17 @@ EOF
         # Linux aliases and functions
         alias ls='ls --color=auto '
 
+        set-title () {
+            eval "$(_bash_color_definitions)"
+
+            local TITLE="$@"
+            echo -e "Setting terminal title to "$COLOR_YELLOW_BOLD"$TITLE"$COLOR_NONE
+            export PROMPT_COMMAND="echo -n -e \"\033]0;$TITLE\007\"";
+        }
+
         rep () {
+            eval "$(_bash_color_definitions)"
+
             if [[ $# -eq 0 ]]; then
                 echo -e "Usage: rep {sed command}"
                 echo
@@ -254,6 +264,10 @@ EOF
                 for x in $(find . -type f -name '*' ! -name '.*' ! -path '*/.*'); do
                     sed -i "$@" $x
                 done
+                # This is a bit dangerous, and assumes that there are no legitimate files
+                # that start with .!. Probably should be a bit more careful and match
+                # more specifically
+                find . -name "\.\!*" -exec rm {} \;
             fi
         }
 
@@ -261,9 +275,9 @@ EOF
         if [[ $COLORTERM == gnome-terminal ]]; then
             ex () {
                 if [[ $# -eq 0 ]]; then
-                    nautilus .
+                    nautilus . &
                 else
-                    nautilus "$@"
+                    nautilus "$@" &
                 fi
             }
 
@@ -283,16 +297,14 @@ EOF
         if [[ $BASH_OS_DISTRO == CentOS ]]; then
             # CentOS aliases and functions
             alias __dummy='echo dummy'
-            # CentOS ls doesn't have --group-directories-first :-(
-        elif [[ $BASH_OS_DISTRO == Ubuntu ]]; then
-            # Ubuntu aliases and functions
+            # CentOS doesn't have --group-directories-first :-(
+            # Hence why dir is specific for Ubutu and Debian
+        else
             alias dir='ls -al --group-directories-first '
+        fi
 
-            set-title () {
-                local TITLE="$@"
-                echo -e "Setting terminal title to "$COLOR_YELLOW_BOLD"$TITLE"$COLOR_NONE
-                export PROMPT_COMMAND="echo -n -e \"\033]0;$TITLE\007\"";
-            }
+        if [[ $BASH_OS_DISTRO == Ubuntu ]]; then
+            # Ubuntu aliases and functions
 
             # Ubuntu has a weird bug with graphical sudo and DBUS
             sudo () {

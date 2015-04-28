@@ -225,7 +225,7 @@ EOF
 
         latest () {
             brew update
-            brew upgrade
+            brew upgrade --all
             brew cleanup
             brew prune
             npm install -g npm@latest

@@ -66,7 +66,7 @@ EOF
     local BASH_FILES BASH_FILE
 
     # Source global, local, and personal definitions
-    BASH_FILES=( /etc/bashrc $HOME/bashrc.local $BASH_SOURCE_DIR/aliases $HOME/aliases.local )
+    BASH_FILES=( /etc/bashrc $HOME/.bashrc_local $BASH_SOURCE_DIR/aliases $HOME/.aliases_local )
     for BASH_FILE in ${BASH_FILES[@]}; do
         if [[ -f $BASH_FILE ]]; then
             [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BASH_FILE$COLOR_NONE
@@ -117,31 +117,6 @@ EOF
     if [[ -f $ADB_COMPLETION ]]; then
         [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$ADB_COMPLETION$COLOR_NONE
         . $ADB_COMPLETION
-    fi
-
-    # Use hard target resolution in Buck autocompletion
-    export BUCK_COMPLETION_HARDTARGETRESOLUTION=true
-    export BUCK_ENABLE_EXTENSIONS=false
-
-    # BUCK completion
-    BUCK_COMPLETION=`type -P buck-completion.bash`
-    if [[ -z $BUCK_COMPLETION ]]; then
-        BUCK_COMPLETION=$HOME/bin/buck-completion.bash
-    fi
-
-    if [[ -f $BUCK_COMPLETION ]]; then
-        [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BUCK_COMPLETION$COLOR_NONE
-        . $BUCK_COMPLETION
-    fi
-
-    BUCK_EXTENSIONS=`type -P buck-extensions.sh`
-    if [[ -z $BUCK_EXTENSIONS ]]; then
-        BUCK_EXTENSIONS=$HOME/bin/buck-extensions.sh
-    fi
-
-    if [[ -f $BUCK_EXTENSIONS ]]; then
-        [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BUCK_EXTENSIONS$COLOR_NONE
-        . $BUCK_EXTENSIONS
     fi
 
     [ $BASH_INTERACTIVE ] && echo

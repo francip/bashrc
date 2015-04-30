@@ -303,6 +303,15 @@ EOF
             alias dir='ls -al --group-directories-first '
         fi
 
+        if [[ $BASH_OS_DISTRO == Debian ]]; then
+            # Debian aliases and functions
+            latest () {
+                sudo apt-get update
+                sudo apt-get upgrade
+                npm install -g npm@latest
+            }
+        fi
+
         if [[ $BASH_OS_DISTRO == Ubuntu ]]; then
             # Ubuntu aliases and functions
 

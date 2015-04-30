@@ -49,6 +49,19 @@ elif [[ $OSTYPE == linux-gnu ]]; then
         # How to get the release
         BASH_OS_RELEASE=0
     fi
+elif [[ $OSTYPE == linux-gnueabi* ]]; then
+    # Linux Embedded
+    BASH_OS_TYPE=Linux
+    if [[ -f /etc/debian_version ]]; then
+        # Debian
+        BASH_OS_DISTRO=Debian
+        BASH_OS_RELEASE=`cat /etc/debian_version >/dev/null 2>&1 && cat /etc/debian_version`
+    else
+        # How to get the distro
+        BASH_OS_DISTRO=Unknown
+        # How to get the release
+        BASH_OS_RELEASE=0
+    fi
 elif [[ $OSTYPE == msys* ]]; then
     # Linux
     BASH_OS_TYPE=Windows

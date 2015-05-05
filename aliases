@@ -308,7 +308,7 @@ EOF
             latest () {
                 sudo apt-get update
                 sudo apt-get upgrade
-                npm install -g npm@latest
+                sudo npm install -g npm@latest
             }
         fi
 

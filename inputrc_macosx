@@ -21,4 +21,3 @@ set visible-stats on
 
 # List possible completions instead of ringing bell
 # set show-all-if-ambiguous on
-

@@ -290,7 +290,7 @@ EOF
             }
         else
             e () {
-                vi "$@"
+                vim "$@"
             }
         fi
 

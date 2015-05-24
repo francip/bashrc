@@ -59,6 +59,13 @@ EOF
         ;;
     esac
 
+    if [[ $BASH_OS_TYPE == Linux ]]; then
+        if [[ $BASH_OS_DISTRO == Raspbian ]]; then
+            [ $BASH_INTERACTIVE ] && echo -e 'Setting term to 256 colors'
+            [ $BASH_INTERACTIVE ] && export TERM=xterm-256color
+        fi
+    fi
+
     [ $BASH_INTERACTIVE ] && echo
     [ $BASH_INTERACTIVE ] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '$BASH_VERSION$COLOR_NONE' on '$COLOR_GREEN_BOLD$BASH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$BASH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$BASH_OS_TYPE$COLOR_NONE')'
     [ $BASH_INTERACTIVE ] && echo

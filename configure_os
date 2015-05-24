@@ -53,8 +53,13 @@ elif [[ $OSTYPE == linux-gnueabi* ]]; then
     # Linux Embedded
     BASH_OS_TYPE=Linux
     if [[ -f /etc/debian_version ]]; then
-        # Debian
-        BASH_OS_DISTRO=Debian
+        if [[ -f /etc/rpi-issue ]]; then
+            # Raspbian
+            BASH_OS_DISTRO=Raspbian
+        else
+            # Debian
+            BASH_OS_DISTRO=Debian
+        fi
         BASH_OS_RELEASE=`cat /etc/debian_version >/dev/null 2>&1 && cat /etc/debian_version`
     else
         # How to get the distro

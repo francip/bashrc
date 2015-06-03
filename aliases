@@ -303,11 +303,11 @@ EOF
             alias dir='ls -al --group-directories-first '
         fi
 
-        if [[ $BASH_OS_DISTRO == Debian ]]; then
+        if [[ $BASH_OS_DISTRO == Debian ]] || [[ $BASH_OS_DISTRO == Raspbian ]]; then
             # Debian aliases and functions
             latest () {
                 sudo apt-get update
-                sudo apt-get upgrade
+                sudo apt-get upgrade -y
                 sudo npm install -g npm@latest
             }
         fi

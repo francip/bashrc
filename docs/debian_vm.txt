@@ -93,3 +93,14 @@ https://github.com/nodesource/distributions#debinstall
 
 Jessie - Node.js v4.x
 Wheezy - Node.js v0.12.x
+
+15. Install libcurl and uuid
+
+sudo apt-get install libcurl4-openssl-dev uuid-dev -y
+
+16. Give node.js permission to use bluetooth
+
+sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
+
+17. Install Parse Embedded SDK
+

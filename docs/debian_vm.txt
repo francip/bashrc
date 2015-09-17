@@ -83,7 +83,11 @@ sudo apt-get install python python-pip -y
 
 sudo apt-get install bluetooth bluez-utils libbluetooth-dev libudev-dev -y
 
-13. Install node.js
+13. Make ~/bin
+
+mkdir ~/bin
+
+14. Install node.js
 
 https://github.com/nodesource/distributions#debinstall
 

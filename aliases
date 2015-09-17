@@ -271,8 +271,7 @@ EOF
             fi
         }
 
-        #if [[ -n $GNOME_DESKTOP_SESSION_ID ]]; then
-        if [[ $COLORTERM == gnome-terminal ]]; then
+        if [[ $COLORTERM == gnome-terminal ]] || [[ $XDG_CURRENT_DESKTOP == GNOME ]]; then
             ex () {
                 if [[ $# -eq 0 ]]; then
                     nautilus . &
@@ -298,7 +297,7 @@ EOF
             # CentOS aliases and functions
             alias __dummy='echo dummy'
             # CentOS doesn't have --group-directories-first :-(
-            # Hence why dir is specific for Ubutu and Debian
+            # Hence why dir is specific for Ubuntu and Debian
         else
             alias dir='ls -al --group-directories-first '
         fi

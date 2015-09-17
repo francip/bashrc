@@ -59,7 +59,7 @@ EOF
 
     local FILES CURRENT_FILE TARGET_FILE SOURCE_FILE
 
-    FILES=( bash_profile bashrc inputrc bash_logout configure_colors configure_os )
+    FILES=( bash_profile bashrc inputrc bash_logout configure_colors configure_os vimrc )
     for CURRENT_FILE in ${FILES[@]}; do
         if [[ -e ~/.$CURRENT_FILE ]]; then
             if [[ ! -L ~/.$CURRENT_FILE ]]; then

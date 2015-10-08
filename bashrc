@@ -92,7 +92,11 @@ EOF
         fi
     fi
 
-    local GIT_COMPLETION ADB_COMPLETION BUCK_COMPLETION
+    if [[ -z $BASH_COMPLETION ]]; then
+        [ $BASH_INTERACTIVE ] && echo -e 'Bash completion '$COLOR_GREEN_BOLD'not configured'$COLOR_NONE
+    fi
+
+    local GIT_COMPLETION ADB_COMPLETION
 
     # Git completion
     if [[ -z `type -t __git_ps1` ]]; then

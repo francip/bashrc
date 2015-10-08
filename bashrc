@@ -75,7 +75,7 @@ EOF
     done
 
     # Bash completion for Mac OS X (from Brew)
-    if [[ $BASH_OS_TYPE == MacOSX ]]; then
+    if [[ $BASH_OS_TYPE == OSX ]]; then
         if [[ -f /usr/local/etc/bash_completion ]]; then
             [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD'/usr/local/etc/bash_completion'$COLOR_NONE
             . /usr/local/etc/bash_completion
@@ -126,7 +126,7 @@ EOF
     local PATH_DIRS PATH_DIR PATH_DIRS_PREFIX
 
     PATH_DIRS=( $HOME/android-sdk/build-tools/$([ -d $HOME/android-sdk/build-tools/ ] && ls -1 $HOME/android-sdk/build-tools/ | tr -d '/' | sort | tail -n 1) $HOME/android-sdk/platform-tools $HOME/android-sdk/tools $HOME/android-ndk $HOME/gcc-arm-none-eabi/bin $HOME/bin)
-    if [[ $BASH_OS_TYPE == MacOSX ]]; then
+    if [[ $BASH_OS_TYPE == OSX ]]; then
         # Mac OS X paths, including Homebrew
         PATH_DIRS=( ${PATH_DIRS[@]} /usr/local/bin /usr/local/sbin )
     fi
@@ -217,7 +217,7 @@ EOF
     export PS1='\['$COLOR_BOLD'\]\['$COLOR_ROOT_INVERT'\]\u\['$COLOR_NONE'\] \['$COLOR_BOLD'\]\['$COLOR_YELLOW_INVERT'\]\h\['$COLOR_NONE'\] \['$COLOR_CYAN_BOLD'\]\w\['$COLOR_NONE'\] \['$COLOR_MAGENTA_BOLD'\]'$VERSION_CONTROL_PROMPT'\['$COLOR_NONE'\]\$ '
 
     # Color directories
-    if [[ $BASH_OS_TYPE == MacOSX ]]; then
+    if [[ $BASH_OS_TYPE == OSX ]]; then
         # Mac OS X settings
         #export CLICOLOR=1
         export LSCOLORS=GxFxCxDxBxegedabagaced
@@ -229,7 +229,7 @@ EOF
     fi
 
     # Misc declarations
-    if [[ $BASH_OS_TYPE == MacOSX ]]; then
+    if [[ $BASH_OS_TYPE == OSX ]]; then
         export GOPATH=$HOME/Projects/Go
     fi
 

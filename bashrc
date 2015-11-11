@@ -271,6 +271,10 @@ EOF
         export NDKROOT=$ANDROID_NDK
         export NDK_MODULE_PATH=$ANDROID_NDK
     fi
+
+    if [[ -n `type -t bashrc_local_run` ]]; then
+        bashrc_local_run "$@"
+    fi
 }
 
 __bashrc_main "$@"

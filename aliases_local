@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# This file is not intended for direct execution
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
+
+# Work aliases and functions
+
+__aliases_local_main() {
+    local BASH_SOURCE_FILE BASH_SOURCE_DIR
+
+    BASH_SOURCE_FILE=${BASH_SOURCE[0]}
+    while [[ -L "$BASH_SOURCE_FILE" ]]; do
+        BASH_SOURCE_FILE=$(readlink "$BASH_SOURCE_FILE")
+    done
+
+    BASH_SOURCE_DIR=$(dirname "$BASH_SOURCE_FILE")
+    BASH_SOURCE_DIR=`cd $BASH_SOURCE_DIR >/dev/null; pwd`
+    BASH_SOURCE_FILE=$(basename "$BASH_SOURCE_FILE")
+
+    # BASH_SOURCE_DIR is a full path to the location of this script
+
+    eval "$(cat <<EOF
+        __get_aliases_local_dir() {
+          echo $BASH_SOURCE_DIR
+        }
+        __get_aliases_local_file() {
+          echo $BASH_SOURCE_FILE
+        }
+EOF
+)"
+
+    eval "$(_bash_color_definitions)"
+    eval "$(_bash_os_definitions)"
+
+}
+
+__aliases_local_main "$@"
+unset __aliases_local_main

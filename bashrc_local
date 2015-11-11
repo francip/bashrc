@@ -42,7 +42,7 @@ EOF
     esac
 
     bashrc_local_run() {
-        [ $BASH_INTERACTIVE ] && echo -e 'Local run '$COLOR_GREEN_BOLD'works'$COLOR_NONE
+        [ $BASH_INTERACTIVE ] && echo -e 'Executing local startup script from '$COLOR_GREEN_BOLD$(__get_bashrc_local_dir)/$(__get_bashrc_local_file)$COLOR_NONE
     }
 }
 

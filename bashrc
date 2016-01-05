@@ -67,6 +67,22 @@ EOF
     [ $BASH_INTERACTIVE ] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '$BASH_VERSION$COLOR_NONE' on '$COLOR_GREEN_BOLD$BASH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$BASH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$BASH_OS_TYPE$COLOR_NONE')'
     [ $BASH_INTERACTIVE ] && echo
 
+    if [[ $BASH_OS_TYPE == Windows ]]; then
+        export SSH_AUTH_SOCK=/tmp/.ssh-socket
+        ssh-add -l 2>&1 >/dev/null
+        if [ $? = 2 ]; then
+            rm -f /tmp/.ssh-script /tmp/.ssh-agent-pid /tmp/.ssh-socket
+            echo -e 'Creating new ssh-agent'
+            ssh-agent -a $SSH_AUTH_SOCK > /tmp/.ssh-script
+            . /tmp/.ssh-script
+            echo $SSH_AGENT_PID > /tmp/.ssh-agent-pid
+            ssh-add
+            if [[ -f $HOME/.ssh/id_rsa_personal ]]; then
+                ssh-add $HOME/.ssh/id_rsa_personal
+            fi
+        fi
+    fi
+
     local BASH_FILES BASH_FILE
 
     # Source global, local, and personal definitions

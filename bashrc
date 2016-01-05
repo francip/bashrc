@@ -30,15 +30,11 @@ EOF
     local BASH_COLOR_DEFS
     if [[ -e $BASH_SOURCE_DIR/configure_colors ]]; then
         BASH_COLOR_DEFS=`cat $BASH_SOURCE_DIR/configure_colors`
-    elif [[ -e $BASH_SOURCE_DIR/.configure_colors ]]; then
-        BASH_COLOR_DEFS=`cat $BASH_SOURCE_DIR/.configure_colors`
     fi
 
     local BASH_OS_DEFS
     if [[ -e $BASH_SOURCE_DIR/configure_os ]]; then
         BASH_OS_DEFS=`cat $BASH_SOURCE_DIR/configure_os`
-    elif [[ -e $BASH_SOURCE_DIR/.configure_os ]]; then
-        BASH_OS_DEFS=`cat $BASH_SOURCE_DIR/.configure_os`
     fi
 
     eval "$(cat <<EOF
@@ -224,7 +220,7 @@ EOF
     # Show version controlled repository status.
     # vcprompt is used if installed, otherwise __git_ps1 will be tried as well.
     __version_control_ps1 () {
-        if [[ $(which vcprompt) ]]; then
+        if [[ $(which vcprompt 2>/dev/null) ]]; then
             vcprompt -f "[%n %b] "
         elif [[ -n `type -t __git_ps1` ]]; then
             # Sadly on big repositories this makes the prompt really slow

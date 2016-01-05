@@ -331,6 +331,26 @@ EOF
             }
         fi
     fi
+
+    if [[ $BASH_OS_TYPE == Windows ]]; then
+        # Windows aliases
+
+        e () {
+            notepad "$@"
+        }
+
+        ex () {
+            if [[ $# -eq 0 ]]; then
+                start .
+            else
+                if [[ -d "$1" ]]; then
+                    start "$@"
+                else
+                    notepad "$@"
+                fi
+            fi
+        }
+    fi
 }
 
 __aliases_main "$@"

@@ -51,6 +51,18 @@ EOF
     eval "$(_bash_color_definitions)"
     eval "$(_bash_os_definitions)"
 
+    if [[ $BASH_OS_DISTRO == Msys ]]; then
+        if [[ "$MSYS" == "winsymlinks:nativestrict" ]]; then
+            echo
+        else
+            echo
+            echo -e $COLOR_YELLOW_BOLD'WARNING:'$COLOR_NONE' Set '$COLOR_CYAN_BOLD'MSYS=winsymlinks:nativestrict'$COLOR_NONE' in your Windows environment,'
+            echo -e 'then rerun the installer in a new Bash window as administrator.'
+            echo
+            exit
+        fi
+    fi
+
     local OS_TYPE_SUFFIX OS_DISTRO_SUFFIX OS_RELEASE_SUFFIX
 
     OS_TYPE_SUFFIX=`echo $BASH_OS_TYPE | tr '[A-Z]' '[a-z]'`

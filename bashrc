@@ -30,11 +30,15 @@ EOF
     local BASH_COLOR_DEFS
     if [[ -e $BASH_SOURCE_DIR/configure_colors ]]; then
         BASH_COLOR_DEFS=`cat $BASH_SOURCE_DIR/configure_colors`
+    elif [[ -e $BASH_SOURCE_DIR/.configure_colors ]]; then
+        BASH_COLOR_DEFS=`cat $BASH_SOURCE_DIR/.configure_colors`
     fi
 
     local BASH_OS_DEFS
     if [[ -e $BASH_SOURCE_DIR/configure_os ]]; then
         BASH_OS_DEFS=`cat $BASH_SOURCE_DIR/configure_os`
+    elif [[ -e $BASH_SOURCE_DIR/.configure_os ]]; then
+        BASH_OS_DEFS=`cat $BASH_SOURCE_DIR/.configure_os`
     fi
 
     eval "$(cat <<EOF

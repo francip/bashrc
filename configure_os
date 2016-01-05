@@ -68,12 +68,19 @@ elif [[ $OSTYPE == linux-gnueabi* ]]; then
         # How to get the release
         BASH_OS_RELEASE=0
     fi
-elif [[ $OSTYPE == msys* ]]; then
-    # Msys on Windows
+elif [[ $OS == Windows* ]]; then
+    # Windows
     BASH_OS_TYPE='Windows'
-    BASH_OS_DISTRO='Msys'
-    # How to get the OS version
-    BASH_OS_RELEASE=0
+    if [[ $MSYSTEM == MINGW* ]]; then
+        # MinGW
+        BASH_OS_DISTRO='Msys'
+        BASH_OS_RELEASE=`uname -s | tr "-" "\n" | tail -n 1`
+    else
+        # How to get the distro
+        BASH_OS_DISTRO='Unknown'
+        # How to get the release
+        BASH_OS_RELEASE=0
+    fi
 else
     # What the heck are we running on???
     BASH_OS_TYPE='Unknown'

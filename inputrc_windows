@@ -1,0 +1,26 @@
+# Include the default behavior first
+$include /etc/inputrc
+
+# Ignore case when doing completion
+set completion-ignore-case on
+
+# Completed dir names have a slash appended
+set mark-directories on
+
+# Use colored completions
+set colored-stats on
+
+# List ls -F for completion
+set visible-stats on
+
+# Tab/Shift+Tab cycle through ambiguous completions instead of list
+TAB: menu-complete
+"\e[Z": '\e-1\C-i'
+# menu-complete-backward doesn't work on OSX
+
+# PgUp/PgDown cycle through matching history
+#"\e[5~": history-search-backward
+#"\e[6~": history-search-forward
+
+# List possible completions instead of ringing bell
+# set show-all-if-ambiguous on

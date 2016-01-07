@@ -73,8 +73,8 @@ EOF
             . /tmp/.ssh-script
             echo $SSH_AGENT_PID > /tmp/.ssh-agent-pid
             ssh-add
-            if [[ -f $HOME/.ssh/id_rsa_personal ]]; then
-                ssh-add $HOME/.ssh/id_rsa_personal
+            if [[ -f "$HOME/.ssh/id_rsa_personal" ]]; then
+                ssh-add "$HOME/.ssh/id_rsa_personal"
             fi
         fi
     fi

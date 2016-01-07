@@ -9,7 +9,7 @@ __install_main() {
     done
 
     BASH_SOURCE_DIR=$(dirname "$BASH_SOURCE_FILE")
-    BASH_SOURCE_DIR=`cd $BASH_SOURCE_DIR >/dev/null; pwd`
+    BASH_SOURCE_DIR=`cd "$BASH_SOURCE_DIR" >/dev/null; pwd`
     BASH_SOURCE_FILE=$(basename "$BASH_SOURCE_FILE")
 
     # BASH_SOURCE_DIR is a full path to the location of this script
@@ -25,17 +25,13 @@ EOF
 )"
 
     local BASH_COLOR_DEFS
-    if [[ -e ~/.configure_colors ]]; then
-        BASH_COLOR_DEFS=`cat ~/.configure_colors`
-    elif [[ -e $BASH_SOURCE_DIR/configure_colors ]]; then
-        BASH_COLOR_DEFS=`cat $BASH_SOURCE_DIR/configure_colors`
+    if [[ -e $BASH_SOURCE_DIR/configure_colors ]]; then
+        BASH_COLOR_DEFS=`cat "$BASH_SOURCE_DIR/configure_colors"`
     fi
 
     local BASH_OS_DEFS
-    if [[ -e ~/.configure_os ]]; then
-        BASH_OS_DEFS=`cat ~/.configure_os`
-    elif [[ -e $BASH_SOURCE_DIR/configure_os ]]; then
-        BASH_OS_DEFS=`cat $BASH_SOURCE_DIR/configure_os`
+    if [[ -e $BASH_SOURCE_DIR/configure_os ]]; then
+        BASH_OS_DEFS=`cat "$BASH_SOURCE_DIR/configure_os"`
     fi
 
     eval "$(cat <<EOF
@@ -76,22 +72,39 @@ EOF
     OS_DISTRO_SUFFIX=`echo $BASH_OS_DISTRO | tr '[A-Z]' '[a-z]'`
     OS_RELEASE_SUFFIX=`echo $BASH_OS_DISTRO | tr '[A-Z]' '[a-z]'`
 
-    local FILES CURRENT_FILE TARGET_FILE SOURCE_FILE
+    local FILES CURRENT_FILE SOURCE_FILE LINK_FILE
 
     FILES=( bash_profile bashrc inputrc bash_logout configure_colors configure_os vimrc )
     for CURRENT_FILE in ${FILES[@]}; do
-        if [[ -e ~/.$CURRENT_FILE ]]; then
-            if [[ ! -L ~/.$CURRENT_FILE ]]; then
-                echo -e $COLOR_YELLOW_BOLD'~/.'$CURRENT_FILE$COLOR_NONE' exists. Skipping symbolic link to '$COLOR_CYAN_BOLD$BASH_SOURCE_DIR'/'$CURRENT_FILE$COLOR_NONE
+        SOURCE_FILE=$BASH_SOURCE_DIR/$CURRENT_FILE
+        if [[ -e $SOURCE_FILE'_'$OS_TYPE_SUFFIX'_'$OS_DISTRO_SUFFIX'_'$OS_RELEASE_SUFFIX ]]; then
+            SOURCE_FILE=$SOURCE_FILE'_'$OS_TYPE_SUFFIX'_'$OS_DISTRO_SUFFIX'_'$OS_RELEASE_SUFFIX
+        elif [[ -e $SOURCE_FILE'_'$OS_TYPE_SUFFIX'_'$OS_DISTRO_SUFFIX ]]; then
+            SOURCE_FILE=$SOURCE_FILE'_'$OS_TYPE_SUFFIX'_'$OS_DISTRO_SUFFIX
+        elif [[ -e $SOURCE_FILE'_'$OS_TYPE_SUFFIX ]]; then
+            SOURCE_FILE=$SOURCE_FILE'_'$OS_TYPE_SUFFIX
+        fi
+
+        LINK_FILE=$HOME/.$CURRENT_FILE
+
+        if [[ -e "$LINK_FILE" ]]; then
+            if [[ ! -L "$LINK_FILE" ]]; then
+                echo -e $COLOR_YELLOW_BOLD$LINK_FILE$COLOR_NONE': Exists and cannot be linked to '$COLOR_CYAN_BOLD$SOURCE_FILE$COLOR_NONE
             else
-                TARGET_FILE=~/.$CURRENT_FILE
-                while [[ -L "$TARGET_FILE" ]]; do
-                    TARGET_FILE=$(readlink "$TARGET_FILE")
+                local LINK_TARGET_FILE
+
+                LINK_TARGET_FILE=$LINK_FILE
+                while [[ -L "$LINK_TARGET_FILE" ]]; do
+                    LINK_TARGET_FILE=$(readlink "$LINK_TARGET_FILE")
                 done
-                echo -e $COLOR_YELLOW_BOLD'~/.'$CURRENT_FILE$COLOR_NONE' exists and points to '$COLOR_CYAN_BOLD$TARGET_FILE$COLOR_NONE'. Skipping symbolic link to '$COLOR_CYAN_BOLD$BASH_SOURCE_DIR'/'$CURRENT_FILE$COLOR_NONE
+
+                if [[ "$LINK_TARGET_FILE" == "$SOURCE_FILE" ]]; then
+                    echo -e $COLOR_GREEN_BOLD$LINK_FILE$COLOR_NONE': Already linked and points to '$COLOR_CYAN_BOLD$SOURCE_FILE$COLOR_NONE
+                else
+                    echo -e $COLOR_YELLOW_BOLD$LINK_FILE$COLOR_NONE': Already linked but points to '$COLOR_YELLOW_BOLD$LINK_TARGET_FILE$COLOR_NONE' instead of '$COLOR_CYAN_BOLD$SOURCE_FILE$COLOR_NONE
+                fi
             fi
         else
-            SOURCE_FILE=$BASH_SOURCE_DIR/$CURRENT_FILE
             if [[ -e $SOURCE_FILE'_'$OS_TYPE_SUFFIX'_'$OS_DISTRO_SUFFIX'_'$OS_RELEASE_SUFFIX ]]; then
                 SOURCE_FILE=$SOURCE_FILE'_'$OS_TYPE_SUFFIX'_'$OS_DISTRO_SUFFIX'_'$OS_RELEASE_SUFFIX
             elif [[ -e $SOURCE_FILE'_'$OS_TYPE_SUFFIX'_'$OS_DISTRO_SUFFIX ]]; then
@@ -99,11 +112,11 @@ EOF
             elif [[ -e $SOURCE_FILE'_'$OS_TYPE_SUFFIX ]]; then
                 SOURCE_FILE=$SOURCE_FILE'_'$OS_TYPE_SUFFIX
             fi
-            if [[ -f $SOURCE_FILE ]]; then
-                echo -e 'Installing symbolic link from '$COLOR_GREEN_BOLD'~/.'$CURRENT_FILE$COLOR_NONE' to '$COLOR_CYAN_BOLD$SOURCE_FILE$COLOR_NONE
-                ln -s $SOURCE_FILE ~/.$CURRENT_FILE
+            if [[ -f "$SOURCE_FILE" ]]; then
+                echo -e $COLOR_GREEN_BOLD$LINK_FILE$COLOR_NONE': Created as a symbolic link and points to '$COLOR_CYAN_BOLD$SOURCE_FILE$COLOR_NONE
+                ln -s "$SOURCE_FILE" "$LINK_FILE"
             else
-                echo -e 'File '$COLOR_RED_BOLD$SOURCE_FILE$COLOR_NONE' does not exist. Cannot install symbolic link from '$COLOR_GREEN_BOLD'~/.'$CURRENT_FILE$COLOR_NONE
+                echo -e $COLOR_RED_BOLD$LINK_FILE$COLOR_NONE': Cannot be linked to non-existing '$COLOR_RED_BOLD$SOURCE_FILE$COLOR_NONE
             fi
         fi
     done

@@ -68,10 +68,10 @@ elif [[ $OSTYPE == linux-gnueabi* ]]; then
         # How to get the release
         BASH_OS_RELEASE=0
     fi
-elif [[ $OS == Windows* ]]; then
+elif [[ '$OS' == 'Windows*' ]]; then
     # Windows
     BASH_OS_TYPE='Windows'
-    if [[ $MSYSTEM == MINGW* ]]; then
+    if [[ '$MSYSTEM' == 'MINGW*' ]]; then
         # MinGW
         BASH_OS_DISTRO='Msys'
         BASH_OS_RELEASE=`uname -s | tr "-" "\n" | tail -n 1`

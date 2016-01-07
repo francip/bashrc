@@ -1,11 +1,6 @@
 #!/bin/bash
 
-# This file is not intended for direct execution
-if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
-
-# Work aliases and functions
-
-__aliases_local_main() {
+__os_test_main() {
     local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
@@ -30,10 +25,33 @@ __aliases_local_main() {
 EOF
 )"
 
+    local BASH_COLOR_DEFS
+    if [[ -e "$BASH_SOURCE_DIR/configure_colors" ]]; then
+        BASH_COLOR_DEFS=`cat "$BASH_SOURCE_DIR/configure_colors"`
+    fi
+
+    local BASH_OS_DEFS
+    if [[ -e "$BASH_SOURCE_DIR/configure_os" ]]; then
+        BASH_OS_DEFS=`cat "$BASH_SOURCE_DIR/configure_os"`
+    fi
+
+    eval "$(cat <<EOF
+        _bash_color_definitions () {
+            echo "$BASH_COLOR_DEFS"
+        }
+        _bash_os_definitions () {
+            echo "$BASH_OS_DEFS"
+        }
+EOF
+)"
+
     eval "$(_bash_color_definitions)"
     eval "$(_bash_os_definitions)"
 
+    echo -e 'Type    : '$COLOR_GREEN$BASH_OS_TYPE$COLOR_NONE
+    echo -e 'Distro  : '$COLOR_GREEN$BASH_OS_DISTRO$COLOR_NONE
+    echo -e 'Release : '$COLOR_GREEN$BASH_OS_RELEASE$COLOR_NONE
 }
 
-__aliases_local_main "$@"
-unset __aliases_local_main
+__os_test_main "$@"
+unset __os_test_main

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 __uninstall_main() {
-    local BASH_SOURCE_FILE BASH_SOURCE_DIR
+    local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
     while [[ -L "$BASH_SOURCE_FILE" ]]; do
@@ -11,26 +11,27 @@ __uninstall_main() {
     BASH_SOURCE_DIR=$(dirname "$BASH_SOURCE_FILE")
     BASH_SOURCE_DIR=`cd "$BASH_SOURCE_DIR" >/dev/null; pwd`
     BASH_SOURCE_FILE=$(basename "$BASH_SOURCE_FILE")
+    BASH_SOURCE_FILE_ESCAPED=${BASH_SOURCE_FILE// /_}
 
     # BASH_SOURCE_DIR is a full path to the location of this script
 
     eval "$(cat <<EOF
-        __get_uninstall_dir() {
+        __get_${BASH_SOURCE_FILE_ESCAPED}_dir() {
           echo $BASH_SOURCE_DIR
         }
-        __get_uninstall_file() {
+        __get_${BASH_SOURCE_FILE_ESCAPED}_file() {
           echo $BASH_SOURCE_FILE
         }
 EOF
 )"
 
     local BASH_COLOR_DEFS
-    if [[ -e $BASH_SOURCE_DIR/configure_colors ]]; then
+    if [[ -e "$BASH_SOURCE_DIR/configure_colors" ]]; then
         BASH_COLOR_DEFS=`cat "$BASH_SOURCE_DIR/configure_colors"`
     fi
 
     local BASH_OS_DEFS
-    if [[ -e $BASH_SOURCE_DIR/configure_os ]]; then
+    if [[ -e "$BASH_SOURCE_DIR/configure_os" ]]; then
         BASH_OS_DEFS=`cat "$BASH_SOURCE_DIR/configure_os"`
     fi
 
@@ -95,4 +96,3 @@ EOF
 
 __uninstall_main "$@"
 unset __uninstall_main
-

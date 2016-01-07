@@ -1,7 +1,7 @@
 #!/bin/bash
 
 __color_test_main() {
-    local BASH_SOURCE_FILE BASH_SOURCE_DIR
+    local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
     while [[ -L "$BASH_SOURCE_FILE" ]]; do
@@ -9,33 +9,30 @@ __color_test_main() {
     done
 
     BASH_SOURCE_DIR=$(dirname "$BASH_SOURCE_FILE")
-    BASH_SOURCE_DIR=`cd $BASH_SOURCE_DIR >/dev/null; pwd`
+    BASH_SOURCE_DIR=`cd "$BASH_SOURCE_DIR" >/dev/null; pwd`
     BASH_SOURCE_FILE=$(basename "$BASH_SOURCE_FILE")
+    BASH_SOURCE_FILE_ESCAPED=${BASH_SOURCE_FILE// /_}
 
     # BASH_SOURCE_DIR is a full path to the location of this script
 
     eval "$(cat <<EOF
-        __get_install_dir() {
+        __get_${BASH_SOURCE_FILE_ESCAPED}_dir() {
           echo $BASH_SOURCE_DIR
         }
-        __get_install_file() {
+        __get_${BASH_SOURCE_FILE_ESCAPED}_file() {
           echo $BASH_SOURCE_FILE
         }
 EOF
 )"
 
     local BASH_COLOR_DEFS
-    if [[ -e ~/.configure_colors ]]; then
-        BASH_COLOR_DEFS=`cat ~/.configure_colors`
-    elif [[ -e $BASH_SOURCE_DIR/configure_colors ]]; then
-        BASH_COLOR_DEFS=`cat $BASH_SOURCE_DIR/configure_colors`
+    if [[ -e "$BASH_SOURCE_DIR/configure_colors" ]]; then
+        BASH_COLOR_DEFS=`cat "$BASH_SOURCE_DIR/configure_colors"`
     fi
 
     local BASH_OS_DEFS
-    if [[ -e ~/.configure_os ]]; then
-        BASH_OS_DEFS=`cat ~/.configure_os`
-    elif [[ -e $BASH_SOURCE_DIR/configure_os ]]; then
-        BASH_OS_DEFS=`cat $BASH_SOURCE_DIR/configure_os`
+    if [[ -e "$BASH_SOURCE_DIR/configure_os" ]]; then
+        BASH_OS_DEFS=`cat "$BASH_SOURCE_DIR/configure_os"`
     fi
 
     eval "$(cat <<EOF
@@ -90,4 +87,3 @@ EOF
 
 __color_test_main "$@"
 unset __color_test_main
-

@@ -6,7 +6,7 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
 # Source local definitions
 
 __bashrc_local_main() {
-    local BASH_SOURCE_FILE BASH_SOURCE_DIR
+    local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
     while [[ -L "$BASH_SOURCE_FILE" ]]; do
@@ -14,16 +14,17 @@ __bashrc_local_main() {
     done
 
     BASH_SOURCE_DIR=$(dirname "$BASH_SOURCE_FILE")
-    BASH_SOURCE_DIR=`cd $BASH_SOURCE_DIR >/dev/null; pwd`
+    BASH_SOURCE_DIR=`cd "$BASH_SOURCE_DIR" >/dev/null; pwd`
     BASH_SOURCE_FILE=$(basename "$BASH_SOURCE_FILE")
+    BASH_SOURCE_FILE_ESCAPED=${BASH_SOURCE_FILE// /_}
 
     # BASH_SOURCE_DIR is a full path to the location of this script
 
     eval "$(cat <<EOF
-        __get_bashrc_local_dir() {
+        __get_${BASH_SOURCE_FILE_ESCAPED}_dir() {
           echo $BASH_SOURCE_DIR
         }
-        __get_bashrc_local_file() {
+        __get_${BASH_SOURCE_FILE_ESCAPED}_file() {
           echo $BASH_SOURCE_FILE
         }
 EOF
@@ -41,8 +42,18 @@ EOF
         ;;
     esac
 
+#    local BASH_FILES BASH_FILE
+
+#    BASH_FILES=( some_local_file )
+#    for BASH_FILE in ${BASH_FILES[@]}; do
+#        if [ -f "$BASH_FILE" ]; then
+#            [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BASH_FILE$COLOR_NONE
+#            . "$BASH_FILE"
+#        fi
+#    done
+    
     bashrc_local_run() {
-        [ $BASH_INTERACTIVE ] && echo -e 'Executing local startup script from '$COLOR_GREEN_BOLD$(__get_bashrc_local_dir)/$(__get_bashrc_local_file)$COLOR_NONE
+        [ $BASH_INTERACTIVE ] && echo -e 'Executing local startup script from '$COLOR_GREEN_BOLD$(__get_${BASH_SOURCE_FILE_ESCAPED}_dir)'/'$(__get_${BASH_SOURCE_FILE_ESCAPED}_file)$COLOR_NONE
     }
 }
 

@@ -4,7 +4,7 @@
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
 
 __bashrc_main() {
-    local BASH_SOURCE_FILE BASH_SOURCE_DIR
+    local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
     while [[ -L "$BASH_SOURCE_FILE" ]]; do
@@ -12,29 +12,30 @@ __bashrc_main() {
     done
 
     BASH_SOURCE_DIR=$(dirname "$BASH_SOURCE_FILE")
-    BASH_SOURCE_DIR=`cd $BASH_SOURCE_DIR >/dev/null; pwd`
+    BASH_SOURCE_DIR=`cd "$BASH_SOURCE_DIR" >/dev/null; pwd`
     BASH_SOURCE_FILE=$(basename "$BASH_SOURCE_FILE")
+    BASH_SOURCE_FILE_ESCAPED=${BASH_SOURCE_FILE// /_}
 
     # BASH_SOURCE_DIR is a full path to the location of this script
 
     eval "$(cat <<EOF
-        __get_bashrc_dir() {
+        __get_${BASH_SOURCE_FILE_ESCAPED}_dir() {
           echo $BASH_SOURCE_DIR
         }
-        __get_bashrc_file() {
+        __get_${BASH_SOURCE_FILE_ESCAPED}_file() {
           echo $BASH_SOURCE_FILE
         }
 EOF
 )"
 
     local BASH_COLOR_DEFS
-    if [[ -e $BASH_SOURCE_DIR/configure_colors ]]; then
-        BASH_COLOR_DEFS=`cat $BASH_SOURCE_DIR/configure_colors`
+    if [[ -e "$BASH_SOURCE_DIR/configure_colors" ]]; then
+        BASH_COLOR_DEFS=`cat "$BASH_SOURCE_DIR/configure_colors"`
     fi
 
     local BASH_OS_DEFS
-    if [[ -e $BASH_SOURCE_DIR/configure_os ]]; then
-        BASH_OS_DEFS=`cat $BASH_SOURCE_DIR/configure_os`
+    if [[ -e "$BASH_SOURCE_DIR/configure_os" ]]; then
+        BASH_OS_DEFS=`cat "$BASH_SOURCE_DIR/configure_os"`
     fi
 
     eval "$(cat <<EOF
@@ -84,9 +85,9 @@ EOF
     # Source global, local, and personal definitions
     BASH_FILES=( /etc/bashrc $HOME/.bashrc_local $BASH_SOURCE_DIR/aliases $HOME/.aliases_local )
     for BASH_FILE in ${BASH_FILES[@]}; do
-        if [[ -f $BASH_FILE ]]; then
+        if [[ -f "$BASH_FILE" ]]; then
             [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BASH_FILE$COLOR_NONE
-            . $BASH_FILE
+            . "$BASH_FILE"
         fi
     done
 
@@ -122,9 +123,9 @@ EOF
             GIT_COMPLETION=$HOME/bin/git-completion.bash
         fi
 
-        if [[ -f $GIT_COMPLETION ]]; then
+        if [[ -f "$GIT_COMPLETION" ]]; then
             [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$GIT_COMPLETION$COLOR_NONE
-            . $GIT_COMPLETION
+            . "$GIT_COMPLETION"
         fi
     fi
 
@@ -134,9 +135,9 @@ EOF
         ADB_COMPLETION=$HOME/bin/adb.bash
     fi
 
-    if [[ -f $ADB_COMPLETION ]]; then
+    if [[ -f "$ADB_COMPLETION" ]]; then
         [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$ADB_COMPLETION$COLOR_NONE
-        . $ADB_COMPLETION
+        . "$ADB_COMPLETION"
     fi
 
     [ $BASH_INTERACTIVE ] && echo
@@ -144,6 +145,8 @@ EOF
     [ $BASH_INTERACTIVE ] && echo -e 'Adding to the '$COLOR_CYAN_BOLD'path'$COLOR_NONE':'
 
     local PATH_DIRS PATH_DIR PATH_DIRS_PREFIX
+
+    # TODO: Fix below for spaces !!!
 
     PATH_DIRS=( $HOME/android-sdk/build-tools/$([ -d $HOME/android-sdk/build-tools/ ] && ls -1 $HOME/android-sdk/build-tools/ | tr -d '/' | sort | tail -n 1) $HOME/android-sdk/platform-tools $HOME/android-sdk/tools $HOME/android-ndk $HOME/gcc-arm-none-eabi/bin $HOME/bin)
     if [[ $BASH_OS_TYPE == OSX ]]; then

@@ -52,8 +52,6 @@ EOF
 #        fi
 #    done
 
-
-    
     eval "
         __bashrc_local_run() {
             echo $(__get_${BASH_SOURCE_FILE_ESCAPED}_dir)'/'$(__get_${BASH_SOURCE_FILE_ESCAPED}_file)
@@ -64,8 +62,7 @@ EOF
         __bashrc_local_file() {
             echo $(__get_${BASH_SOURCE_FILE_ESCAPED}_file)
         }
-EOF
-)"
+    "
 
     bashrc_local_run() {
         [ $BASH_INTERACTIVE ] && echo -e 'Executing local startup script from '$COLOR_GREEN_BOLD$(__bashrc_local_run)$COLOR_NONE

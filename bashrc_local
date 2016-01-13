@@ -44,8 +44,8 @@ EOF
 
 #    local BASH_FILES BASH_FILE
 
-#    BASH_FILES=( some_local_file )
-#    for BASH_FILE in ${BASH_FILES[@]}; do
+#    BASH_FILES=( "${HOME}/some_local_file" )
+#    for BASH_FILE in "${BASH_FILES[@]}"; do
 #        if [ -f "$BASH_FILE" ]; then
 #            [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BASH_FILE$COLOR_NONE
 #            . "$BASH_FILE"

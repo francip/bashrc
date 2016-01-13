@@ -83,8 +83,8 @@ EOF
     local BASH_FILES BASH_FILE
 
     # Source global, local, and personal definitions
-    BASH_FILES=( /etc/bashrc $HOME/.bashrc_local $BASH_SOURCE_DIR/aliases $HOME/.aliases_local )
-    for BASH_FILE in ${BASH_FILES[@]}; do
+    BASH_FILES=( "/etc/bashrc" "${HOME}/.bashrc_local" "${BASH_SOURCE_DIR}/aliases" "${HOME}/.aliases_local" )
+    for BASH_FILE in "${BASH_FILES[@]}"; do
         if [[ -f "$BASH_FILE" ]]; then
             [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BASH_FILE$COLOR_NONE
             . "$BASH_FILE"
@@ -146,15 +146,12 @@ EOF
 
     local PATH_DIRS PATH_DIR PATH_DIRS_PREFIX
 
-    # TODO: Fix below for spaces !!!
-
-    PATH_DIRS=( $HOME/android-sdk/build-tools/$([ -d $HOME/android-sdk/build-tools/ ] && ls -1 $HOME/android-sdk/build-tools/ | tr -d '/' | sort | tail -n 1) $HOME/android-sdk/platform-tools $HOME/android-sdk/tools $HOME/android-ndk $HOME/gcc-arm-none-eabi/bin $HOME/bin)
+    PATH_DIRS=( "${HOME}/android-sdk/build-tools/$([[ -d "${HOME}/android-sdk/build-tools/" ]] && ls -1 "${HOME}/android-sdk/build-tools/" | tr -d '/' | sort | tail -n 1)" "${HOME}/android-sdk/platform-tools" "${HOME}/android-sdk/tools" "${HOME}/android-ndk" "${HOME}/gcc-arm-none-eabi/bin" "${HOME}/bin" )
     if [[ $BASH_OS_TYPE == OSX ]]; then
         # Mac OS X paths, including Homebrew
-        PATH_DIRS=( ${PATH_DIRS[@]} /usr/local/bin /usr/local/sbin )
+        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" )
     fi
-
-    for PATH_DIR in ${PATH_DIRS[@]}; do
+    for PATH_DIR in "${PATH_DIRS[@]}"; do
         if [[ -d $PATH_DIR ]]; then
             if [[ ":$PATH:" != *":$PATH_DIR:"* ]]; then
                 [ $BASH_INTERACTIVE ] && echo -e '  '$COLOR_YELLOW_BOLD$PATH_DIR$COLOR_NONE
@@ -182,8 +179,8 @@ EOF
 
     local CDPATH_DIRS CDPATH_DIR CDPATH_DIRS_PREFIX
 
-    CDPATH_DIRS=( . $HOME $HOME/Projects $HOME/local )
-    for CDPATH_DIR in ${CDPATH_DIRS[@]}; do
+    CDPATH_DIRS=( "." "${HOME}" "${HOME}/Projects" "${HOME}/local" )
+    for CDPATH_DIR in "${CDPATH_DIRS[@]}"; do
         if [[ -d $CDPATH_DIR ]]; then
             if [[ ":$CDPATH:" != *":$CDPATH_DIR:"* ]]; then
                 [ $BASH_INTERACTIVE ] && echo -e '  '$COLOR_YELLOW_BOLD$CDPATH_DIR$COLOR_NONE

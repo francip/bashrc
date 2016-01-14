@@ -90,30 +90,33 @@ EOF
             . "$BASH_FILE"
         fi
     done
+    
+    local BASH_COMPLETION GIT_COMPLETION ADB_COMPLETION
+    
+    # Bash completion
+    BASH_COMPLETION=`type -t _init_completion`
 
-    # Bash completion for Mac OS X (from Brew)
-    if [[ $BASH_OS_TYPE == OSX ]]; then
-        if [[ -f /usr/local/etc/bash_completion ]]; then
-            [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD'/usr/local/etc/bash_completion'$COLOR_NONE
-            . /usr/local/etc/bash_completion
-        fi
-    fi
-
-    # Bash completion for Linux
-    if [[ $BASH_OS_TYPE == Linux ]]; then
-        if [[ -z $BASH_COMPLETION ]]; then
+    if [[ -z $BASH_COMPLETION ]]; then
+        if [[ $BASH_OS_TYPE == OSX ]]; then
+            # Bash completion for Mac OS X (from Brew)
+            if [[ -f /usr/local/etc/bash_completion ]]; then
+                [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD'/usr/local/etc/bash_completion'$COLOR_NONE
+                . /usr/local/etc/bash_completion
+            fi
+        elif [[ $BASH_OS_TYPE == Linux ]]; then
+            # Bash completion for Linux
             if [[ -f /etc/bash_completion ]]; then
                 [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD'/etc/bash_completion'$COLOR_NONE
                 . /etc/bash_completion
             fi
         fi
+
+        BASH_COMPLETION=`type -t _init_completion`
     fi
 
     if [[ -z $BASH_COMPLETION ]]; then
         [ $BASH_INTERACTIVE ] && echo -e 'Bash completion '$COLOR_GREEN_BOLD'not configured'$COLOR_NONE
     fi
-
-    local GIT_COMPLETION ADB_COMPLETION
 
     # Git completion
     if [[ -z `type -t __git_ps1` ]]; then

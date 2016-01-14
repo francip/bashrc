@@ -91,12 +91,11 @@ EOF
         fi
     done
     
-    local BASH_COMPLETION GIT_COMPLETION ADB_COMPLETION
-    
-    # Bash completion
-    BASH_COMPLETION=`type -t _init_completion`
+    local BASH_COMPLETION_INSTALLED
+    BASH_COMPLETION_INSTALLED=`type -t _init_completion`
 
-    if [[ -z $BASH_COMPLETION ]]; then
+    # Bash completion
+    if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
         if [[ $BASH_OS_TYPE == OSX ]]; then
             # Bash completion for Mac OS X (from Brew)
             if [[ -f /usr/local/etc/bash_completion ]]; then
@@ -111,12 +110,14 @@ EOF
             fi
         fi
 
-        BASH_COMPLETION=`type -t _init_completion`
+        BASH_COMPLETION_INSTALLED=`type -t _init_completion`
+
+        if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
+            [ $BASH_INTERACTIVE ] && echo -e 'Bash completion '$COLOR_GREEN_BOLD'not configured'$COLOR_NONE
+        fi
     fi
 
-    if [[ -z $BASH_COMPLETION ]]; then
-        [ $BASH_INTERACTIVE ] && echo -e 'Bash completion '$COLOR_GREEN_BOLD'not configured'$COLOR_NONE
-    fi
+    local GIT_COMPLETION ADB_COMPLETION
 
     # Git completion
     if [[ -z `type -t __git_ps1` ]]; then

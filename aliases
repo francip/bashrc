@@ -229,9 +229,17 @@ EOF
             brew upgrade --all
             brew cleanup
             brew prune
-            npm install -g npm@latest
-            pip install --upgrade pip setuptools
-            brew linkapps python
+            if [[ $(which npm 2>/dev/null) ]]; then
+                npm install -g npm@latest
+            fi
+            if [[ $(which pip 2>/dev/null) ]]; then
+                pip install --upgrade pip setuptools
+                brew linkapps python
+            fi
+            if [[ $(which pip3 2>/dev/null) ]]; then
+                pip3 install --upgrade pip setuptools
+                brew linkapps python3
+            fi
         }
     fi
 
@@ -308,8 +316,15 @@ EOF
             latest () {
                 sudo apt-get update
                 sudo apt-get upgrade -y
-                sudo npm install -g npm@latest
-                sudo pip install --upgrade pip setuptools
+                if [[ $(which npm 2>/dev/null) ]]; then
+                    sudo npm install -g npm@latest
+                fi
+                if [[ $(which pip 2>/dev/null) ]]; then
+                    sudo pip install --upgrade pip setuptools
+                fi
+                if [[ $(which pip3 2>/dev/null) ]]; then
+                    pip3 install --upgrade pip setuptools
+                fi
             }
         fi
 

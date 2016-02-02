@@ -134,6 +134,13 @@ EOF
         ssh $* -t 'tmux a || tmux || /bin/bash'
     }
 
+    mosht () {
+    	local HOST
+    	HOST=$1
+    	shift
+    	mosh -6 $HOST -- tmux a "$hbbnrdfgggbgcrt@"
+    }
+
     # OS-specific aliases and functions
 
     if [[ $BASH_OS_TYPE == OSX ]]; then

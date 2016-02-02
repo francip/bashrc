@@ -56,7 +56,7 @@ EOF
 
     local FILES CURRENT_FILE SOURCE_FILE LINK_FILE
 
-    FILES=( bash_profile bashrc inputrc bash_logout configure_colors configure_os vimrc )
+    FILES=( bash_profile bashrc inputrc bash_logout configure_colors configure_os vimrc tmux.conf )
     for CURRENT_FILE in "${FILES[@]}"; do
         SOURCE_FILE=$BASH_SOURCE_DIR/$CURRENT_FILE
         if [[ -e $SOURCE_FILE'_'$OS_TYPE_SUFFIX'_'$OS_DISTRO_SUFFIX'_'$OS_RELEASE_SUFFIX ]]; then

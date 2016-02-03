@@ -138,7 +138,7 @@ EOF
     	local HOST
     	HOST=$1
     	shift
-    	mosh -6 $HOST -- tmux a "$hbbnrdfgggbgcrt@"
+    	mosh -6 $HOST -- tmux a "$@"
     }
 
     # OS-specific aliases and functions

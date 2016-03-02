@@ -319,7 +319,7 @@ EOF
         fi
 
         if [[ $BASH_OS_DISTRO == Debian ]] ||
-           [[ $BASH_OS_DISTRO == Debian ]] ||
+           [[ $BASH_OS_DISTRO == Ubuntu ]] ||
            [[ $BASH_OS_DISTRO == Raspbian ]]; then
             # Debian aliases and functions
 

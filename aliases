@@ -287,7 +287,9 @@ EOF
             fi
         }
 
-        if [[ $COLORTERM == gnome-terminal ]] || [[ $XDG_CURRENT_DESKTOP == GNOME ]]; then
+        if [[ $COLORTERM == gnome-terminal ]] ||
+           [[ $SESSIONTYPE == gnome-session ]] ||
+           [[ $XDG_CURRENT_DESKTOP == GNOME ]]; then
             ex () {
                 if [[ $# -eq 0 ]]; then
                     nautilus . &
@@ -314,12 +316,15 @@ EOF
             alias __dummy='echo dummy'
             # CentOS doesn't have --group-directories-first :-(
             # Hence why dir is specific for Ubuntu and Debian
-        else
-            alias dir='ls -al --group-directories-first '
         fi
 
-        if [[ $BASH_OS_DISTRO == Debian ]] || [[ $BASH_OS_DISTRO == Raspbian ]]; then
+        if [[ $BASH_OS_DISTRO == Debian ]] ||
+           [[ $BASH_OS_DISTRO == Debian ]] ||
+           [[ $BASH_OS_DISTRO == Raspbian ]]; then
             # Debian aliases and functions
+
+            alias dir='ls -al --group-directories-first '
+
             latest () {
                 sudo apt-get update
                 sudo apt-get upgrade -y

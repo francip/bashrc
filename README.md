@@ -22,6 +22,9 @@ then run msys2 shell and then do 'export $HOME=/home/<username>' befor running t
 Also, the msys2 vim package comes without 'vi' alias, run cmd.ex as administrator and do in
 usr\bin 'mklink vi vim.exe'
 
+# For msys2, add the following line to /etc/fstab and relogin
+# C:\Users /home
+
 CentOS
 
 yum install bash-completion -y

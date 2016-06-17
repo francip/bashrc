@@ -332,7 +332,7 @@ EOF
                     sudo npm install -g npm@latest
                 fi
                 if [[ $(which pip 2>/dev/null) ]]; then
-                    sudo pip install --upgrade pip setuptools
+                    pip install --upgrade pip setuptools
                 fi
                 if [[ $(which pip3 2>/dev/null) ]]; then
                     pip3 install --upgrade pip setuptools

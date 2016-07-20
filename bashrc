@@ -293,7 +293,7 @@ EOF
     fi
 
     if [[ -d $HOME/.nvm ]]; then
-        export NVM_DIR="$USER/.nvm"
+        export NVM_DIR="$HOME/.nvm"
         [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
     fi
 

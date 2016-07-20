@@ -292,6 +292,11 @@ EOF
         export NDK_MODULE_PATH=$ANDROID_NDK
     fi
 
+    if [[ -d $HOME/.nvm ]]; then
+        export NVM_DIR="$USER/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    fi
+
     if [[ -n `type -t bashrc_local_run` ]]; then
         bashrc_local_run "$@"
     fi

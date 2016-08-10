@@ -150,7 +150,7 @@ EOF
 
     local PATH_DIRS PATH_DIR PATH_DIRS_PREFIX
 
-    PATH_DIRS=( "${HOME}/android-sdk/build-tools/$([[ -d "${HOME}/android-sdk/build-tools/" ]] && ls -1 "${HOME}/android-sdk/build-tools/" | tr -d '/' | sort | tail -n 1)" "${HOME}/android-sdk/platform-tools" "${HOME}/android-sdk/tools" "${HOME}/android-ndk" "${HOME}/gcc-arm-none-eabi/bin" "${HOME}/bin" )
+    PATH_DIRS=( "${HOME}/android-sdk/build-tools/$([[ -d "${HOME}/android-sdk/build-tools/" ]] && ls -1 "${HOME}/android-sdk/build-tools/" | tr -d '/' | sort | tail -n 1)" "${HOME}/android-sdk/platform-tools" "${HOME}/android-sdk/tools" "${HOME}/android-ndk" "${HOME}/android-ndk/android-ndk-r10e" "${HOME}/gcc-arm-none-eabi/bin" "${HOME}/bin" )
     if [[ $BASH_OS_TYPE == OSX ]]; then
         # Mac OS X paths, including Homebrew
         PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" )
@@ -286,10 +286,18 @@ EOF
     fi
 
     if [[ -d $HOME/android-ndk ]]; then
-        export ANDROID_NDK=$HOME/android-ndk
-        export ANDROID_NDK_ROOT=$ANDROID_NDK
-        export NDKROOT=$ANDROID_NDK
-        export NDK_MODULE_PATH=$ANDROID_NDK
+	    if [[ -d $HOME/android-ndk/android-ndk-r10e ]]; then
+            export ANDROID_NDK=$HOME/android-ndk/android-ndk-r10e
+            export ANDROID_NDK_ROOT=$ANDROID_NDK
+            export ANDROID_NDK_REPOSITORY=$HOME/android-ndk
+            export NDKROOT=$ANDROID_NDK
+            export NDK_MODULE_PATH=$ANDROID_NDK
+        else
+            export ANDROID_NDK=$HOME/android-ndk
+            export ANDROID_NDK_ROOT=$ANDROID_NDK
+            export NDKROOT=$ANDROID_NDK
+            export NDK_MODULE_PATH=$ANDROID_NDK
+        fi
     fi
 
     if [[ -d $HOME/.nvm ]]; then

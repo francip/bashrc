@@ -135,10 +135,10 @@ EOF
     }
 
     mosht () {
-    	local HOST
-    	HOST=$1
-    	shift
-    	mosh -6 $HOST -- tmux a "$@"
+        local HOST
+        HOST=$1
+        shift
+        mosh -6 $HOST -- tmux a "$@"
     }
 
     # OS-specific aliases and functions
@@ -149,6 +149,11 @@ EOF
 
         alias www-on='sudo apachectl start'
         alias www-off='sudo apachectl stop'
+
+        list () {
+            instruments -s devices | grep -i -v "simulator" | tail -n +2
+            adb devices | tail -n +2
+        }
 
         # Check if Sublime Edit is installed
         # If not, check if TextMate is installed

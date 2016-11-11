@@ -253,10 +253,6 @@ EOF
     fi
 
     # Misc declarations
-    if [[ $BASH_OS_TYPE == OSX ]]; then
-        export GOPATH=$HOME/Projects/Go
-    fi
-
     if [[ $BASH_OS_TYPE == Linux ]]; then
         if [[ $BASH_OS_DISTRO == Ubuntu ]]; then
             if [[ -z $SHELL ]]; then
@@ -277,10 +273,16 @@ EOF
         fi
     fi
 
+    if [[ -d $HOME/.nvm ]]; then
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    fi
+
     export EDITOR=vim
 
     export GNUTERM=x11
 
+    # Dev declarations
     if [[ -d $HOME/android-sdk ]]; then
         export ANDROID_HOME=$HOME/android-sdk
     fi
@@ -300,11 +302,23 @@ EOF
         fi
     fi
 
-    if [[ -d $HOME/.nvm ]]; then
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    if [[ $BASH_OS_TYPE == OSX ]]; then
+        if [[ -d $HOME/Projects/Go ]]; then
+            export GOPATH=$HOME/Projects/Go
+        fi
     fi
 
+    if [[ -d /usr/local/share/lua ]]; then
+        export LUA_PATH='$HOME/.luarocks/share/lua/5.2/?.lua;$HOME/.luarocks/share/lua/5.2/?/init.lua;/usr/local/share/lua/5.2/?.lua;/usr/local/share/lua/5.2/?/init.lua;/usr/local/Cellar/lua/5.2.4_4/libexec/share/lua/5.2/?.lua;/usr/local/lib/lua/5.2/?.lua;/usr/local/lib/lua/5.2/?/init.lua;./?.lua'
+        export LUA_CPATH='$HOME/.luarocks/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/loadall.so;./?.so'
+        export PATH=$HOME/.luarocks/bin:$PATH
+    fi
+
+    if [[ -n `type -t $HOME/torch/install/bin/torch-activate` ]]; then
+        [ -s "$HOME/torch/install/bin/torch-activate" ] && . $HOME/torch/install/bin/torch-activate
+    fi
+
+    # Local declarations
     if [[ -n `type -t bashrc_local_run` ]]; then
         bashrc_local_run "$@"
     fi

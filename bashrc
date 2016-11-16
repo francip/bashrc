@@ -308,11 +308,6 @@ EOF
         fi
     fi
 
-    if [[ -d /usr/local/share/lua ]]; then
-        export LUA_PATH='$HOME/.luarocks/share/lua/5.2/?.lua;$HOME/.luarocks/share/lua/5.2/?/init.lua;/usr/local/share/lua/5.2/?.lua;/usr/local/share/lua/5.2/?/init.lua;/usr/local/Cellar/lua/5.2.4_4/libexec/share/lua/5.2/?.lua;/usr/local/lib/lua/5.2/?.lua;/usr/local/lib/lua/5.2/?/init.lua;./?.lua'
-        export LUA_CPATH='$HOME/.luarocks/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/?.so;/usr/local/lib/lua/5.2/loadall.so;./?.so'
-        export PATH=$HOME/.luarocks/bin:$PATH
-    fi
 
     if [[ -n `type -t $HOME/torch/install/bin/torch-activate` ]]; then
         [ -s "$HOME/torch/install/bin/torch-activate" ] && . $HOME/torch/install/bin/torch-activate

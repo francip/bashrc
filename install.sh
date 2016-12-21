@@ -62,11 +62,13 @@ EOF
 
             local TEMFILE
             TEMPFILE=$TMPDIR/$RANDOM
-            if [[ $(ln -s $BASH_SOURCE_DIR/$BASH_SOURCE_FILE $TEMPFILE) -eq 0 ]]; then
+            if ln -s $BASH_SOURCE_DIR/$BASH_SOURCE_FILE $TEMPFILE >/dev/null 2>&1; then
                 rm $TEMPFILE
             else
                 echo -e $COLOR_YELLOW'WARNING:'$COLOR_NONE' Open new Bash windows as administrator, set '$COLOR_CYAN'export $HOME='$HOME$COLOR_NONE
                 echo -e 'and rerun the installer.'
+		echo
+		exit
             fi
         else
             echo

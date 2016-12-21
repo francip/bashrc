@@ -59,6 +59,15 @@ EOF
                 echo
                 exit
             fi
+
+            local TEMFILE
+            TEMPFILE=$TMPDIR/$RANDOM
+            if [[ $(ln -s $BASH_SOURCE_DIR/$BASH_SOURCE_FILE $TEMPFILE) -eq 0 ]]; then
+                rm $TEMPFILE
+            else
+                echo -e $COLOR_YELLOW'WARNING:'$COLOR_NONE' Open new Bash windows as administrator, set '$COLOR_CYAN'export $HOME='$HOME$COLOR_NONE
+                echo -e 'and rerun the installer.'
+            fi
         else
             echo
             echo -e $COLOR_RED_BOLD'WARNING:'$COLOR_NONE' Unsupported Windows environment.'

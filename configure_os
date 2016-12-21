@@ -71,7 +71,15 @@ elif [[ $OSTYPE == linux-gnueabi* ]]; then
 elif [[ '$OS' == Windows* ]]; then
     # Windows
     BASH_OS_TYPE='Windows'
-    if [[ '$MSYSTEM' == MINGW* ]]; then
+    if [[ '$OSTYPE' == msys* ]]; then
+        # Msys
+        BASH_OS_DISTRO='Msys'
+        BASH_OS_RELEASE=`uname -s | tr "-" "\n" | tail -n 1`
+    if [[ '$MSYSTEM' == MSYS* ]]; then
+        # Msys
+        BASH_OS_DISTRO='Msys'
+        BASH_OS_RELEASE=`uname -s | tr "-" "\n" | tail -n 1`
+    elif [[ '$MSYSTEM' == MINGW* ]]; then
         # MinGW
         BASH_OS_DISTRO='Msys'
         BASH_OS_RELEASE=`uname -s | tr "-" "\n" | tail -n 1`

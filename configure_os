@@ -75,7 +75,7 @@ elif [[ '$OS' == Windows* ]]; then
         # Msys
         BASH_OS_DISTRO='Msys'
         BASH_OS_RELEASE=`uname -s | tr "-" "\n" | tail -n 1`
-    if [[ '$MSYSTEM' == MSYS* ]]; then
+    elif [[ '$MSYSTEM' == MSYS* ]]; then
         # Msys
         BASH_OS_DISTRO='Msys'
         BASH_OS_RELEASE=`uname -s | tr "-" "\n" | tail -n 1`

@@ -385,6 +385,10 @@ EOF
                 fi
             fi
         }
+
+        latest() {
+            pacman -Syuu
+        }
     fi
 }
 

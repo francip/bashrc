@@ -14,6 +14,8 @@ brew instal bash_completion
 
 Windows:
 
+pacman -S git
+
 Set MSYS=winsymlinks:nativestrict or CYGWIN=winsymlinks:nativestrict. This will change the behavior of
 ln to use mklink and create native Windows symlinks.
 
@@ -24,7 +26,7 @@ If the Windows user you are running msys under is not an administrator, run cmd.
 then run msys2 shell and then do 'export $HOME=/home/<username>' befor running the install.sh script
 
 Also, the msys2 vim package comes without 'vi' alias, run cmd.ex as administrator and do in
-usr\bin 'mklink vi vim.exe'
+/usr/bin 'ln -s vi vim.exe'
 
 To share Windows and MSys2 home directories, add the following line to /etc/fstab and relogin to Windows
 C:/Users /home ntfs binary,noacl,auto 1 1

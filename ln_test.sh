@@ -50,7 +50,7 @@ EOF
 
     local TEMFILE
     TEMPFILE=$TMPDIR/$RANDOM
-    if [[ $(ln -s $BASH_SOURCE_DIR/$BASH_SOURCE_FILE $TEMPFILE) -eq 0 ]]; then
+    if `ln -s $BASH_SOURCE_DIR/$BASH_SOURCE_FILE $TEMPFILE 2>&1 >/dev/null`; then
         rm $TEMPFILE
         echo -e $COLOR_GREEN'Success'$COLOR_NONE
     else

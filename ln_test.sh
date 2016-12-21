@@ -50,13 +50,12 @@ EOF
 
     local TEMFILE
     TEMPFILE=$TMPDIR/$RANDOM
-    if `ln -s $BASH_SOURCE_DIR/$BASH_SOURCE_FILE $TEMPFILE 2>&1 >/dev/null`; then
+    if $(ln -s $BASH_SOURCE_DIR/$BASH_SOURCE_FILE $TEMPFILE 2>&1 >/dev/null); then
         rm $TEMPFILE
         echo -e $COLOR_GREEN'Success'$COLOR_NONE
     else
         echo -e $COLOR_RED'Fail'$COLOR_NONE
         echo -e $COLOR_YELLOW'Note:'$COLOR_NONE' Run Msys as administrator to create file links under Msys.'$COLOR_NONE
-        echo -e $COLOR_YELLOW'Note:'$COLOR_NONE' Run Msys as administrator and do '$COLOR_CYAN'export $HOME='$HOME$COLOR_NONE' before running this script.'$COLOR_NONE
     fi
 }
 

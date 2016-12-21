@@ -3,6 +3,10 @@ bashrc
 
 The one bashrc to rule them all
 
+To clone:
+
+GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa_personal' git clone ...
+
 Mac OS X:
 
 Install Homebrew
@@ -22,8 +26,8 @@ then run msys2 shell and then do 'export $HOME=/home/<username>' befor running t
 Also, the msys2 vim package comes without 'vi' alias, run cmd.ex as administrator and do in
 usr\bin 'mklink vi vim.exe'
 
-# For msys2, add the following line to /etc/fstab and relogin
-# C:\Users /home
+To share Windows and MSys2 home directories, add the following line to /etc/fstab and relogin to Windows
+C:/Users /home ntfs binary,noacl,auto 1 1
 
 CentOS
 

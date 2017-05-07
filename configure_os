@@ -46,6 +46,10 @@ elif [[ $OSTYPE == linux-gnu ]]; then
         # RedHat
         BASH_OS_DISTRO='RedHat'
         BASH_OS_RELEASE=`cat /etc/redhat-release >/dev/null 2>&1 && cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
+    elif [[ -f /etc/issue ]]; then
+        # Yocto
+        BASH_OS_DISTRO='Yocto'
+        BASH_OS_RELEASE=`cat /etc/issue >/dev/null 2>&1 && cat /etc/issue | sed s/\ \(Yocto.*//`
     else
         # How to get the distro
         BASH_OS_DISTRO='Unknown'

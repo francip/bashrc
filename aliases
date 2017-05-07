@@ -363,6 +363,37 @@ EOF
                 export DBUS_SESSION_BUS_ADDRESS=$_SUDO_SAVE
             }
         fi
+
+        if [[ $BASH_OS_DISTRO == Yocto ]]; then
+            # Yocto grep doesn't support --color=auto
+            unalias grep
+
+            ff () {
+                find . -name "*" -type f -exec grep -HinF "$@" {} \;
+            }
+
+            ff2 () {
+                # Double-grep to filter out grep warnings
+                grep -RHinF "$@" * 2>&1 | grep -i "$@"
+            }
+
+            fff () {
+                find . -name "$1" -type f -exec grep -HinF "${@:2}" {} \;
+            }
+
+            fff2 () {
+                # Double-grep to filter out grep warnings
+                grep -RHinF "${@:2}" "$1" 2>&1 | grep -i "${@:2}"
+            }
+
+            ffs () {
+                set | grep -i "$@"
+            }
+
+            fp () {
+                ps | grep -i "$@"
+            }
+        fi
     fi
 
     if [[ $BASH_OS_TYPE == Windows ]]; then

@@ -178,7 +178,8 @@ EOF
         }
 
         as () {
-            open -b com.google.android.studio "$@"
+#            open -b com.google.android.studio "$@"
+			open -a /Applications/Android\ Studio.app "$@"
         }
 
         g () {

@@ -13,12 +13,12 @@ cd ~/vmware-tools-distrib
 sudo ./vmware-install.pl
 vmware-config-tools.pl
 
-4. Link shared Projects folder (needs new terminal session after)
+4. Link shared src folder (needs new terminal session after)
 
 rm ~/.bashrc ~/.bash_logout
-ln -s /mnt/hgfs/Projects/ ~/Projects
-ln -s /mnt/hgfs/Projects/ ~/devtools
-cd ~/Projects
+ln -s /mnt/hgfs/src/ ~/src
+ln -s /mnt/hgfs/src/ ~/devtools
+cd ~/src
 ./install.sh
 
 5. Right click on workspace switcher and set to 1 workspace only

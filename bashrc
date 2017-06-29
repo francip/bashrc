@@ -183,7 +183,7 @@ EOF
 
     local CDPATH_DIRS CDPATH_DIR CDPATH_DIRS_PREFIX
 
-    CDPATH_DIRS=( "." "${HOME}" "${HOME}/src" "${HOME}/Projects" "${HOME}/local" "${HOME}/devtools")
+    CDPATH_DIRS=( "." "${HOME}" "${HOME}/src" "${HOME}/local" "${HOME}/devtools")
     for CDPATH_DIR in "${CDPATH_DIRS[@]}"; do
         if [[ -d $CDPATH_DIR ]]; then
             if [[ ":$CDPATH:" != *":$CDPATH_DIR:"* ]]; then
@@ -303,8 +303,8 @@ EOF
     fi
 
     if [[ $BASH_OS_TYPE == OSX ]]; then
-        if [[ -d $HOME/Projects/Go ]]; then
-            export GOPATH=$HOME/Projects/Go
+        if [[ -d $HOME/src/Go ]]; then
+            export GOPATH=$HOME/src/Go
         fi
     fi
 

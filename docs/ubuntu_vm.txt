@@ -16,7 +16,6 @@ vmware-config-tools.pl
 
 rm ~/.bashrc ~/.bash_logout
 ln -s /mnt/hgfs/src/ ~/src
-ln -s /mnt/hgfs/src/ ~/devtools
 cd ~/src/bashrc
 ./install.sh
 

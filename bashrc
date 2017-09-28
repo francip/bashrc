@@ -183,7 +183,7 @@ EOF
 
     local CDPATH_DIRS CDPATH_DIR CDPATH_DIRS_PREFIX
 
-    CDPATH_DIRS=( "." "${HOME}" "${HOME}/src" "${HOME}/local" "${HOME}/devtools")
+    CDPATH_DIRS=( "." "${HOME}" "${HOME}/src" "${HOME}/local")
     for CDPATH_DIR in "${CDPATH_DIRS[@]}"; do
         if [[ -d $CDPATH_DIR ]]; then
             if [[ ":$CDPATH:" != *":$CDPATH_DIR:"* ]]; then

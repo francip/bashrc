@@ -245,6 +245,9 @@ EOF
             if [[ $(which npm 2>/dev/null) ]]; then
                 npm install -g npm@latest
             fi
+            if [[ $(which yarn 2>/dev/null) ]]; then
+                yarn global upgrade --latest
+            fi
             if [[ $(which pip 2>/dev/null) ]]; then
                 pip2 install --upgrade pip setuptools
                 brew linkapps python
@@ -336,6 +339,9 @@ EOF
                 sudo apt-get upgrade -y
                 if [[ $(which npm 2>/dev/null) ]]; then
                     sudo npm install -g npm@latest
+                fi
+                if [[ $(which yarn 2>/dev/null) ]]; then
+                    sudo yarn global upgrade --latest
                 fi
                 if [[ $(which pip 2>/dev/null) ]]; then
                     sudo pip2 install --upgrade pip setuptools

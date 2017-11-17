@@ -64,6 +64,12 @@ EOF
     [ $BASH_INTERACTIVE ] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '$BASH_VERSION$COLOR_NONE' on '$COLOR_GREEN_BOLD$BASH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$BASH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$BASH_OS_TYPE$COLOR_NONE')'
     [ $BASH_INTERACTIVE ] && echo
 
+    if [[ $BASH_OS_TYPE == OSX ]]; then
+        if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
+            ssh-add -K ~/.ssh/id_rsa_personal
+        fi
+    fi
+
     if [[ $BASH_OS_TYPE == Windows ]]; then
         export SSH_AUTH_SOCK=/tmp/.ssh-socket
         ssh-add -l 2>&1 >/dev/null
@@ -266,8 +272,8 @@ EOF
                 # We should also check for the CentOS/Gnome version here
                 # but for now just do it evey time
                 # Check if ssh-add -l contains .ssh/id_rsa
-                if [[ `ssh-add -l | grep -i .ssh/id_rsa | wc -l` < 1 ]]; then
-                    ssh-add
+                if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
+                    ssh-add ~/.ssh/id_rsa_personal
                 fi
             fi
         fi

@@ -96,7 +96,7 @@ EOF
             . "$BASH_FILE"
         fi
     done
-    
+
     local BASH_COMPLETION_INSTALLED
     BASH_COMPLETION_INSTALLED=`type -t _init_completion`
 
@@ -279,16 +279,13 @@ EOF
         fi
     fi
 
-    if [[ -d $HOME/.nvm ]]; then
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-    fi
-
     export EDITOR=vim
 
     export GNUTERM=x11
 
     # Dev declarations
+
+    # Android SDK
     if [[ -d $HOME/android-sdk ]]; then
         export ANDROID_HOME=$HOME/android-sdk
     fi
@@ -308,13 +305,28 @@ EOF
         fi
     fi
 
+    # Node
+    if [[ -d $HOME/.nvm ]]; then
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    fi
+
+    # Python
+    if [[ $BASH_OS_TYPE == Linux ]]; then
+        if [[ $BASH_OS_DISTRO == Raspbian ]]; then
+            export WORKON_HOME=$HOME/.virtualenvs
+            source /usr/local/bin/virtualenvwrapper.sh
+        fi
+    fi
+
+    # Go
     if [[ $BASH_OS_TYPE == OSX ]]; then
         if [[ -d $HOME/src/Go ]]; then
             export GOPATH=$HOME/src/Go
         fi
     fi
 
-
+    # Torch
     if [[ -n `type -t $HOME/torch/install/bin/torch-activate` ]]; then
         [ -s "$HOME/torch/install/bin/torch-activate" ] && . $HOME/torch/install/bin/torch-activate
     fi

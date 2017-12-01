@@ -150,6 +150,9 @@ EOF
         alias www-on='sudo apachectl start'
         alias www-off='sudo apachectl stop'
 
+		alias atompi='ATOM_HOME=$HOME/.atompi atom'
+		alias apmpi='ATOM_HOME=$HOME/.atompi apm'
+
         list () {
             instruments -s devices | grep -i -v "simulator" | tail -n +2
             adb devices | tail -n +2
@@ -178,7 +181,7 @@ EOF
         }
 
         as () {
-#            open -b com.google.android.studio "$@"
+        	# open -b com.google.android.studio "$@"
 			open -a /Applications/Android\ Studio.app "$@"
         }
 

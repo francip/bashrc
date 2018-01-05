@@ -253,11 +253,9 @@ EOF
             fi
             if [[ $(which pip 2>/dev/null) ]]; then
                 pip2 install --upgrade pip setuptools
-                brew linkapps python
             fi
             if [[ $(which pip3 2>/dev/null) ]]; then
                 pip3 install --upgrade pip setuptools
-                brew linkapps python3
             fi
         }
     fi

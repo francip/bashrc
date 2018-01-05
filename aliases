@@ -150,8 +150,8 @@ EOF
         alias www-on='sudo apachectl start'
         alias www-off='sudo apachectl stop'
 
-		alias atompi='ATOM_HOME=$HOME/.atompi atom'
-		alias apmpi='ATOM_HOME=$HOME/.atompi apm'
+        alias atompi='ATOM_HOME=$HOME/.atompi atom'
+        alias apmpi='ATOM_HOME=$HOME/.atompi apm'
 
         list () {
             instruments -s devices | grep -i -v "simulator" | tail -n +2

@@ -64,12 +64,6 @@ EOF
     [ $BASH_INTERACTIVE ] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '$BASH_VERSION$COLOR_NONE' on '$COLOR_GREEN_BOLD$BASH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$BASH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$BASH_OS_TYPE$COLOR_NONE')'
     [ $BASH_INTERACTIVE ] && echo
 
-    if [[ $BASH_OS_TYPE == OSX ]]; then
-        if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
-            ssh-add -K ~/.ssh/id_rsa_personal
-        fi
-    fi
-
     if [[ $BASH_OS_TYPE == Windows ]]; then
         export SSH_AUTH_SOCK=/tmp/.ssh-socket
         ssh-add -l 2>&1 >/dev/null
@@ -79,10 +73,28 @@ EOF
             ssh-agent -a $SSH_AUTH_SOCK > /tmp/.ssh-script
             . /tmp/.ssh-script
             echo $SSH_AGENT_PID > /tmp/.ssh-agent-pid
-            ssh-add
-            if [[ -f "$HOME/.ssh/id_rsa_personal" ]]; then
-                ssh-add "$HOME/.ssh/id_rsa_personal"
+        fi
+    fi
+
+    if [[ $BASH_OS_TYPE == Linux ]]; then
+        if [[ $BASH_OS_DISTRO == Ubuntu ]]; then
+            if [ -z "$(pgrep ssh-agent)" ]; then
+                rm -rf /tmp/ssh-*
+                eval $(ssh-agent -s) > /dev/null
+            else
+                export SSH_AGENT_PID=$(pgrep ssh-agent)
+                export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.*)
             fi
+        fi
+    fi
+
+    ssh-add
+
+    if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
+        if [[ $BASH_OS_TYPE == OSX ]]; then  
+            ssh-add -K ~/.ssh/id_rsa_personal
+        else
+            ssh-add ~/.ssh/id_rsa_personal
         fi
     fi
 

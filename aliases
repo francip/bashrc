@@ -360,7 +360,7 @@ EOF
             sudo () {
                 local _SUDO_SAVE=$DBUS_SESSION_BUS_ADDRESS
                 unset DBUS_SESSION_BUS_ADDRESS
-                command sudo -E env PATH=$PATH "$@"
+                command sudo -E env PATH="$PATH" "$@"
                 export DBUS_SESSION_BUS_ADDRESS=$_SUDO_SAVE
             }
 

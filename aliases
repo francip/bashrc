@@ -339,10 +339,10 @@ EOF
                 sudo apt-get update
                 sudo apt-get upgrade -y
                 if [[ $(which npm 2>/dev/null) ]]; then
-                    sudo npm install -g npm@latest
+                    npm install -g npm@latest
                 fi
                 if [[ $(which yarn 2>/dev/null) ]]; then
-                    sudo yarn global upgrade --latest
+                    yarn global upgrade --latest
                 fi
                 if [[ $(which pip 2>/dev/null) ]]; then
                     sudo pip2 install --upgrade pip setuptools

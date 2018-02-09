@@ -77,21 +77,19 @@ EOF
     fi
 
     if [[ $BASH_OS_TYPE == Linux ]]; then
-        if [[ $BASH_OS_DISTRO == Ubuntu ]]; then
-            if [ -z "$(pgrep ssh-agent)" ]; then
-                rm -rf /tmp/ssh-*
-                eval $(ssh-agent -s) > /dev/null
-            else
-                export SSH_AGENT_PID=$(pgrep ssh-agent)
-                export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.*)
-            fi
+        if [ -z "$(pgrep ssh-agent)" ]; then
+            rm -rf /tmp/ssh-*
+            eval $(ssh-agent -s) > /dev/null
+        else
+            export SSH_AGENT_PID=$(pgrep ssh-agent)
+            export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.*)
         fi
     fi
 
     ssh-add
 
     if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
-        if [[ $BASH_OS_TYPE == OSX ]]; then  
+        if [[ $BASH_OS_TYPE == OSX ]]; then
             ssh-add -K ~/.ssh/id_rsa_personal
         else
             ssh-add ~/.ssh/id_rsa_personal

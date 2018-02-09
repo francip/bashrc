@@ -248,6 +248,7 @@ EOF
             brew prune
             if [[ $(which npm 2>/dev/null) ]]; then
                 npm install -g npm@latest
+                npm update -g
             fi
             if [[ $(which yarn 2>/dev/null) ]]; then
                 yarn global upgrade --latest
@@ -341,6 +342,7 @@ EOF
                 sudo apt-get upgrade -y
                 if [[ $(which npm 2>/dev/null) ]]; then
                     npm install -g npm@latest
+                    npm update -g
                 fi
                 if [[ $(which yarn 2>/dev/null) ]]; then
                     yarn global upgrade --latest

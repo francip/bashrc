@@ -88,11 +88,13 @@ EOF
 
     ssh-add
 
-    if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
-        if [[ $BASH_OS_TYPE == OSX ]]; then
-            ssh-add -K ~/.ssh/id_rsa_personal
-        else
-            ssh-add ~/.ssh/id_rsa_personal
+    if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
+        if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
+            if [[ $BASH_OS_TYPE == OSX ]]; then
+                ssh-add -K ~/.ssh/id_rsa_personal
+            else
+                ssh-add ~/.ssh/id_rsa_personal
+            fi
         fi
     fi
 

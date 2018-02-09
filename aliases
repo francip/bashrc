@@ -241,8 +241,9 @@ EOF
         }
 
         latest () {
+			brew analytics off
             brew update
-            brew upgrade --all
+            brew upgrade
             brew cleanup
             brew prune
             if [[ $(which npm 2>/dev/null) ]]; then

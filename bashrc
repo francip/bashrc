@@ -66,7 +66,7 @@ EOF
 
     if [[ $BASH_OS_TYPE == Windows ]]; then
         export SSH_AUTH_SOCK=/tmp/.ssh-socket
-        ssh-add -l 2>&1 >/dev/null
+        ssh-add -l >/dev/null 2>&1
         if [ $? = 2 ]; then
             rm -f /tmp/.ssh-script /tmp/.ssh-agent-pid /tmp/.ssh-socket
             echo -e 'Creating new ssh-agent'
@@ -91,9 +91,9 @@ EOF
     if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
         if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
             if [[ $BASH_OS_TYPE == OSX ]]; then
-                ssh-add -K ~/.ssh/id_rsa_personal 2>&1 >/dev/null
+                ssh-add -K ~/.ssh/id_rsa_personal >/dev/null 2>&1
             else
-                ssh-add ~/.ssh/id_rsa_personal 2>&1 >/dev/null
+                ssh-add ~/.ssh/id_rsa_personal >/dev/null 2>&1
             fi
         fi
     fi

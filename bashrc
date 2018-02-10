@@ -86,7 +86,7 @@ EOF
         fi
     fi
 
-    ssh-add 2>&1 >/dev/null
+    ssh-add >/dev/null 2>&1
 
     if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
         if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
@@ -276,17 +276,6 @@ EOF
             if [[ -z $SHELL ]]; then
                 # Ubuntu does not always define it for some reason
                 export SHELL=/bin/bash
-            fi
-        fi
-
-        if [[ $BASH_OS_DISTRO == CentOS ]]; then
-            if [[ $COLORTERM == gnome-terminal ]]; then
-                # We should also check for the CentOS/Gnome version here
-                # but for now just do it evey time
-                # Check if ssh-add -l contains .ssh/id_rsa
-                if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
-                    ssh-add ~/.ssh/id_rsa_personal
-                fi
             fi
         fi
     fi

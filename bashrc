@@ -86,14 +86,14 @@ EOF
         fi
     fi
 
-    ssh-add
+    ssh-add 2>&1 >/dev/null
 
     if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
         if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
             if [[ $BASH_OS_TYPE == OSX ]]; then
-                ssh-add -K ~/.ssh/id_rsa_personal
+                ssh-add -K ~/.ssh/id_rsa_personal 2>&1 >/dev/null
             else
-                ssh-add ~/.ssh/id_rsa_personal
+                ssh-add ~/.ssh/id_rsa_personal 2>&1 >/dev/null
             fi
         fi
     fi

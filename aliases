@@ -260,6 +260,10 @@ EOF
                 pip3 install --upgrade pip setuptools
             fi
         }
+
+        mdns_list () {
+        	dns-sd -B _services._dns-sd._udp .
+        }
     fi
 
     if [[ $BASH_OS_TYPE == Linux ]]; then

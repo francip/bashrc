@@ -181,8 +181,8 @@ EOF
         }
 
         as () {
-        	# open -b com.google.android.studio "$@"
-			open -a /Applications/Android\ Studio.app "$@"
+            # open -b com.google.android.studio "$@"
+            open -a /Applications/Android\ Studio.app "$@"
         }
 
         g () {
@@ -236,16 +236,19 @@ EOF
             fi
         }
 
-        bbash () {
-            [ -e /usr/local/bin/bash ] && /usr/local/bin/bash "$@"
-        }
-
         latest () {
-			brew analytics off
-            brew update
-            brew upgrade
-            brew cleanup
-            brew prune
+            if [[ $(which brew 2>/dev/null) ]]; then
+                brew analytics off
+                brew update
+                brew upgrade
+                brew cleanup
+                brew prune
+            fi
+            if [[ $(which port 2>/dev/null) ]]; then
+                sudo port selfupdate
+                sudo port upgrade outdated
+                sudo port reclaim
+            fi
             if [[ $(which npm 2>/dev/null) ]]; then
                 npm install -g npm@latest
                 npm update -g
@@ -262,7 +265,7 @@ EOF
         }
 
         mdns_list () {
-        	dns-sd -B _services._dns-sd._udp .
+            dns-sd -B _services._dns-sd._udp .
         }
     fi
 

@@ -62,27 +62,27 @@ EOF
 
     [ $BASH_INTERACTIVE ] && echo
     [ $BASH_INTERACTIVE ] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '$BASH_VERSION$COLOR_NONE' on '$COLOR_GREEN_BOLD$BASH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$BASH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$BASH_OS_TYPE$COLOR_NONE')'
-    [ $BASH_INTERACTIVE ] && echo
 
     if [[ $BASH_OS_TYPE == Windows ]]; then
         export SSH_AUTH_SOCK=/tmp/.ssh-socket
         ssh-add -l >/dev/null 2>&1
         if [ $? = 2 ]; then
+            [ $BASH_INTERACTIVE ] && echo
+            [ $BASH_INTERACTIVE ] && echo -e 'Creating new ssh-agent'
             rm -f /tmp/.ssh-script /tmp/.ssh-agent-pid /tmp/.ssh-socket
-            echo -e 'Creating new ssh-agent'
             ssh-agent -a $SSH_AUTH_SOCK > /tmp/.ssh-script
             . /tmp/.ssh-script
-            echo $SSH_AGENT_PID > /tmp/.ssh-agent-pid
+            [ $BASH_INTERACTIVE ] && echo $SSH_AGENT_PID > /tmp/.ssh-agent-pid
         fi
     fi
 
     if [[ $BASH_OS_TYPE == Linux ]]; then
         if [ -z "$(pgrep ssh-agent)" ]; then
             rm -rf /tmp/ssh-*
-            eval $(ssh-agent -s) > /dev/null
+            eval $(ssh-agent -s) >/dev/null
         else
             export SSH_AGENT_PID=$(pgrep ssh-agent)
-            export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.*)
+            export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.* 2>/dev/null)
         fi
     fi
 
@@ -98,6 +98,7 @@ EOF
         fi
     fi
 
+    [ $BASH_INTERACTIVE ] && echo
     local BASH_FILES BASH_FILE
 
     # Source global, local, and personal definitions
@@ -115,10 +116,13 @@ EOF
     # Bash completion
     if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
         if [[ $BASH_OS_TYPE == OSX ]]; then
-            # Bash completion for Mac OS X (from Brew)
+            # Bash completion for Mac OS X (from Homebrew or MacPorts)
             if [[ -f /usr/local/etc/bash_completion ]]; then
                 [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD'/usr/local/etc/bash_completion'$COLOR_NONE
                 . /usr/local/etc/bash_completion
+            elif [[ -f /opt/local/etc/profile.d/bash_completion.sh ]]; then
+                [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/local/etc/profile.d/bash_completion.sh'$COLOR_NONE
+                . /opt/local/etc/profile.d/bash_completion.sh
             fi
         elif [[ $BASH_OS_TYPE == Linux ]]; then
             # Bash completion for Linux
@@ -131,7 +135,7 @@ EOF
         BASH_COMPLETION_INSTALLED=`type -t _init_completion`
 
         if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
-            [ $BASH_INTERACTIVE ] && echo -e 'Bash completion '$COLOR_GREEN_BOLD'not configured'$COLOR_NONE
+            [ $BASH_INTERACTIVE ] && echo -e 'Bash completion '$COLOR_RED_BOLD'not configured'$COLOR_NONE
         fi
     fi
 
@@ -163,15 +167,14 @@ EOF
     fi
 
     [ $BASH_INTERACTIVE ] && echo
-
     [ $BASH_INTERACTIVE ] && echo -e 'Adding to the '$COLOR_CYAN_BOLD'path'$COLOR_NONE':'
 
     local PATH_DIRS PATH_DIR PATH_DIRS_PREFIX
 
     PATH_DIRS=( "${HOME}/android-sdk/build-tools/$([[ -d "${HOME}/android-sdk/build-tools/" ]] && ls -1 "${HOME}/android-sdk/build-tools/" | tr -d '/' | sort | tail -n 1)" "${HOME}/android-sdk/platform-tools" "${HOME}/android-sdk/tools" "${HOME}/android-ndk" "${HOME}/android-ndk/android-ndk-r10e" "${HOME}/gcc-arm-none-eabi/bin" "${HOME}/bin" )
     if [[ $BASH_OS_TYPE == OSX ]]; then
-        # Mac OS X paths, including Homebrew
-        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" )
+        # Mac OS X paths, including Homebrew and MacPorts
+        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" )
     fi
     for PATH_DIR in "${PATH_DIRS[@]}"; do
         if [[ -d $PATH_DIR ]]; then
@@ -194,32 +197,33 @@ EOF
         fi
     fi
 
-    [ $BASH_INTERACTIVE ] && echo
+    if [[ -n $BASH_COMPLETION_INSTALLED ]]; then
+        # Affects cd behavior
+        [ $BASH_INTERACTIVE ] && echo
+        [ $BASH_INTERACTIVE ] && echo -e 'Configuring '$COLOR_CYAN_BOLD'cd'$COLOR_NONE' to cycle through:'
 
-    # Affects cd behavior
-    [ $BASH_INTERACTIVE ] && echo -e 'Configuring '$COLOR_CYAN_BOLD'cd'$COLOR_NONE' to cycle through:'
+        local CDPATH_DIRS CDPATH_DIR CDPATH_DIRS_PREFIX
 
-    local CDPATH_DIRS CDPATH_DIR CDPATH_DIRS_PREFIX
-
-    CDPATH_DIRS=( "." "${HOME}" "${HOME}/src" "${HOME}/local")
-    for CDPATH_DIR in "${CDPATH_DIRS[@]}"; do
-        if [[ -d $CDPATH_DIR ]]; then
-            if [[ ":$CDPATH:" != *":$CDPATH_DIR:"* ]]; then
-                [ $BASH_INTERACTIVE ] && echo -e '  '$COLOR_YELLOW_BOLD$CDPATH_DIR$COLOR_NONE
-                if [[ -n $CDPATH_DIRS_PREFIX ]]; then
-                    CDPATH_DIRS_PREFIX=$CDPATH_DIRS_PREFIX:$CDPATH_DIR
-                else
-                    CDPATH_DIRS_PREFIX=$CDPATH_DIR
+        CDPATH_DIRS=( "." "${HOME}" "${HOME}/src" "${HOME}/local")
+        for CDPATH_DIR in "${CDPATH_DIRS[@]}"; do
+            if [[ -d $CDPATH_DIR ]]; then
+                if [[ ":$CDPATH:" != *":$CDPATH_DIR:"* ]]; then
+                    [ $BASH_INTERACTIVE ] && echo -e '  '$COLOR_YELLOW_BOLD$CDPATH_DIR$COLOR_NONE
+                    if [[ -n $CDPATH_DIRS_PREFIX ]]; then
+                        CDPATH_DIRS_PREFIX=$CDPATH_DIRS_PREFIX:$CDPATH_DIR
+                    else
+                        CDPATH_DIRS_PREFIX=$CDPATH_DIR
+                    fi
                 fi
             fi
-        fi
-    done
+        done
 
-    if [[ -n $CDPATH_DIRS_PREFIX ]]; then
-        if [[ -n $CDPATH ]]; then
-            export CDPATH=$CDPATH_DIRS_PREFIX:$CDPATH
-        else
-            export CDPATH=$CDPATH_DIRS_PREFIX
+        if [[ -n $CDPATH_DIRS_PREFIX ]]; then
+            if [[ -n $CDPATH ]]; then
+                export CDPATH=$CDPATH_DIRS_PREFIX:$CDPATH
+            else
+                export CDPATH=$CDPATH_DIRS_PREFIX
+            fi
         fi
     fi
 
@@ -316,8 +320,10 @@ EOF
     # Python
     if [[ $BASH_OS_TYPE == Linux ]]; then
         if [[ $BASH_OS_DISTRO == Raspbian ]]; then
-            export WORKON_HOME=$HOME/.virtualenvs
-            source /usr/local/bin/virtualenvwrapper.sh
+            if [[ -f /usr/local/bin/virtualenvwrapper.sh ]]; then
+                export WORKON_HOME=$HOME/.virtualenvs
+                source /usr/local/bin/virtualenvwrapper.sh
+            fi
         fi
     fi
 

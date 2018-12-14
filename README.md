@@ -9,8 +9,10 @@ GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa_personal' git clone ...
 
 Mac OS X:
 
-Install Homebrew
+Install Homebrew or MacPorts
+
 brew instal bash_completion
+sudo port install bash-completion
 
 Windows:
 

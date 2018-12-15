@@ -5,7 +5,7 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
 
 # Source helper function definitions
 
-__bashrc_helpers_main () {
+__bashrc_helpers_main() {
     local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
@@ -42,12 +42,12 @@ EOF
         ;;
     esac
 
-    __add_to_path () {
+    __add_to_path() {
         local SHOW_HEADER=1
         __add_to_path_no_header $*
     }
 
-    __add_to_path_no_header () {
+    __add_to_path_no_header() {
         local PATH_DIRS PATH_DIR PATH_DIRS_LIST
 
         PATH_DIRS=( $* )
@@ -78,12 +78,12 @@ EOF
         fi
     }
 
-    __add_to_cd_path () {
+    __add_to_cd_path() {
         local SHOW_HEADER=1
         __add_to_cd_path_no_header $*
     }
 
-    __add_to_cd_path_no_header () {
+    __add_to_cd_path_no_header() {
         local CDPATH_DIRS CDPATH_DIR CDPATH_DIRS_LIST
 
         CDPATH_DIRS=( $* )
@@ -114,7 +114,7 @@ EOF
         fi
     }
 
-    __include_files () {
+    __include_files() {
         local BASH_FILES BASH_FILE
 
         BASH_FILES=( $* )

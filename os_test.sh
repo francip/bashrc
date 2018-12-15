@@ -1,6 +1,6 @@
 #!/bin/bash
 
-__os_test_main () {
+__os_test_main() {
     local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
@@ -36,10 +36,10 @@ EOF
     fi
 
     eval "$(cat <<EOF
-        _bash_color_definitions () {
+        _bash_color_definitions() {
             echo "$BASH_COLOR_DEFS"
         }
-        _bash_os_definitions () {
+        _bash_os_definitions() {
             echo "$BASH_OS_DEFS"
         }
 EOF

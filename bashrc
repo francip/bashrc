@@ -5,7 +5,7 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
 
 # Source common definitions
 
-__bashrc_main () {
+__bashrc_main() {
     local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
@@ -41,10 +41,10 @@ EOF
     fi
 
     eval "$(cat <<EOF
-        _bash_color_definitions () {
+        _bash_color_definitions() {
             echo "$BASH_COLOR_DEFS"
         }
-        _bash_os_definitions () {
+        _bash_os_definitions() {
             echo "$BASH_OS_DEFS"
         }
 EOF
@@ -192,7 +192,7 @@ EOF
 
     # Show version controlled repository status.
     # vcprompt is used if installed, otherwise __git_ps1 will be tried as well.
-    __version_control_ps1 () {
+    __version_control_ps1() {
         if [[ $(which vcprompt 2>/dev/null) ]]; then
             vcprompt -f "[%n %b] "
         elif [[ -n `type -t __git_ps1` ]]; then

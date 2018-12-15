@@ -5,7 +5,7 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
 
 # Common aliases and functions
 
-__aliases_main () {
+__aliases_main() {
     local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
@@ -49,7 +49,7 @@ EOF
     if [[ -n CDPATH ]]; then
         # Replace the cd builtin to turn off the annoying
         # echo-new-folder behavior when CDPATH is set
-        cd () {
+        cd() {
             local DEST=$*
             if [ -z $DEST ]; then
                 DEST=~
@@ -58,37 +58,37 @@ EOF
         }
     fi
 
-    ff () {
+    ff() {
         find . -name "*" -type f -exec grep --color=auto -HinF "$@" {} \;
     }
 
-    ff2 () {
+    ff2() {
         # Double-grep to filter out grep warnings
         grep --color=auto -RHinF "$@" * 2>&1 | grep --color=auto -i "$@"
     }
 
-    fff () {
+    fff() {
         find . -name "$1" -type f -exec grep --color=auto -HinF "${@:2}" {} \;
     }
 
-    fff2 () {
+    fff2() {
         # Double-grep to filter out grep warnings
         grep --color=auto -RHinF "${@:2}" "$1" 2>&1 | grep --color=auto -i "${@:2}"
     }
 
-    ffs () {
+    ffs() {
         set | grep --color=auto -i "$@"
     }
 
-    fn () {
+    fn() {
         find -L . -iname "$@"
     }
 
-    fp () {
+    fp() {
         ps | grep --color=auto -i "$@"
     }
 
-    rmr () {
+    rmr() {
         eval "$(_bash_color_definitions)"
 
         if [[ $# -eq 0 ]]; then
@@ -104,7 +104,7 @@ EOF
         fi
     }
 
-    rmr2 () {
+    rmr2() {
         eval "$(_bash_color_definitions)"
 
         if [[ $# -eq 0 ]]; then
@@ -119,7 +119,7 @@ EOF
         fi
     }
 
-    check-whitespace () {
+    check-whitespace() {
         # Look for trailing spaces
         grep -r -n '[[:space:]]$' *
 
@@ -127,26 +127,26 @@ EOF
         grep -r -n '^\t' *
     }
 
-    get_ssh_client_ip () {
+    get_ssh_client_ip() {
         local SSH_ARGS=($SSH_CLIENT)
         echo ${SSH_ARGS[0]}
     }
 
-    groot () {
+    groot() {
         local GIT_ROOT=$(git rev-parse --show-toplevel)
         cd $GIT_ROOT/"$@"
     }
 
-    hroot () {
+    hroot() {
         local HG_ROOT=$(hg root)
         cd $HG_ROOT/"$@"
     }
 
-    ssht () {
+    ssht() {
         ssh $* -t 'tmux a || tmux || /bin/bash'
     }
 
-    mosht () {
+    mosht() {
         local HOST
         HOST=$1
         shift
@@ -165,7 +165,7 @@ EOF
         alias atompi='ATOM_HOME=$HOME/.atompi atom'
         alias apmpi='ATOM_HOME=$HOME/.atompi apm'
 
-        list () {
+        list() {
             instruments -s devices | grep -i -v "simulator" | tail -n +2
             adb devices | tail -n +2
         }
@@ -173,7 +173,7 @@ EOF
         # Check if Sublime Edit is installed
         # If not, check if TextMate is installed
         # If not, use TextEdit
-        e () {
+        e() {
             local SUBL_COMMAND MATE_COMMAND
             SUBL_COMMAND=`type -P subl`
             MATE_COMMAND=`type -P mate`
@@ -188,22 +188,22 @@ EOF
             fi
         }
 
-        ij () {
+        ij() {
             open -b com.jetbrains.intellij.ce "$@"
         }
 
-        as () {
+        as() {
             # open -b com.google.android.studio "$@"
             open -a /Applications/Android\ Studio.app "$@"
         }
 
-        g () {
+        g() {
             # Consider hroot if it's a Mercurial repository
             groot
             ./gradlew "$@"
         }
 
-        set-title () {
+        set-title() {
             eval "$(_bash_color_definitions)"
 
             local TITLE="$@"
@@ -211,7 +211,7 @@ EOF
             echo -n -e "\033]0;$TITLE\007"
         }
 
-        ex () {
+        ex() {
             if [[ $# -eq 0 ]]; then
                 open .
             else
@@ -223,7 +223,7 @@ EOF
             fi
         }
 
-        rep () {
+        rep() {
             eval "$(_bash_color_definitions)"
 
             if [[ $# -eq 0 ]]; then
@@ -248,7 +248,7 @@ EOF
             fi
         }
 
-        latest () {
+        latest() {
             if [[ $(which brew 2>/dev/null) ]]; then
                 brew analytics off
                 brew update
@@ -276,7 +276,7 @@ EOF
             fi
         }
 
-        mdns_list () {
+        mdns_list() {
             dns-sd -B _services._dns-sd._udp .
         }
     fi
@@ -285,7 +285,7 @@ EOF
         # Linux aliases and functions
         alias ls='ls --color=auto '
 
-        set-title () {
+        set-title() {
             eval "$(_bash_color_definitions)"
 
             local TITLE="$@"
@@ -293,7 +293,7 @@ EOF
             export PROMPT_COMMAND="echo -n -e \"\033]0;$TITLE\007\"";
         }
 
-        rep () {
+        rep() {
             eval "$(_bash_color_definitions)"
 
             if [[ $# -eq 0 ]]; then
@@ -321,7 +321,7 @@ EOF
         if [[ $COLORTERM == gnome-terminal ]] ||
            [[ $SESSIONTYPE == gnome-session ]] ||
            [[ $XDG_CURRENT_DESKTOP == GNOME ]]; then
-            ex () {
+            ex() {
                 if [[ $# -eq 0 ]]; then
                     nautilus . &
                 else
@@ -329,15 +329,15 @@ EOF
                 fi
             }
 
-            e () {
+            e() {
                 gedit "$@" &
             }
 
-            regedit () {
+            regedit() {
                 gconf-editor "$@" &
             }
         else
-            e () {
+            e() {
                 vim "$@"
             }
         fi
@@ -356,7 +356,7 @@ EOF
 
             alias dir='ls -al --group-directories-first '
 
-            latest () {
+            latest() {
                 sudo apt-get update
                 sudo apt-get upgrade -y
                 if [[ $(which npm 2>/dev/null) ]]; then
@@ -379,14 +379,14 @@ EOF
             # Ubuntu aliases and functions
 
             # Ubuntu has a weird bug with graphical sudo and DBUS
-            sudo () {
+            sudo() {
                 local _SUDO_SAVE=$DBUS_SESSION_BUS_ADDRESS
                 unset DBUS_SESSION_BUS_ADDRESS
                 command sudo -E env PATH="$PATH" "$@"
                 export DBUS_SESSION_BUS_ADDRESS=$_SUDO_SAVE
             }
 
-            gksudo () {
+            gksudo() {
                 local _SUDO_SAVE=$DBUS_SESSION_BUS_ADDRESS
                 unset DBUS_SESSION_BUS_ADDRESS
                 command gksudo -k "$@" &
@@ -398,29 +398,29 @@ EOF
             # Yocto grep doesn't support --color=auto
             unalias grep
 
-            ff () {
+            ff() {
                 find . -name "*" -type f -exec grep -HinF "$@" {} \;
             }
 
-            ff2 () {
+            ff2() {
                 # Double-grep to filter out grep warnings
                 grep -RHinF "$@" * 2>&1 | grep -i "$@"
             }
 
-            fff () {
+            fff() {
                 find . -name "$1" -type f -exec grep -HinF "${@:2}" {} \;
             }
 
-            fff2 () {
+            fff2() {
                 # Double-grep to filter out grep warnings
                 grep -RHinF "${@:2}" "$1" 2>&1 | grep -i "${@:2}"
             }
 
-            ffs () {
+            ffs() {
                 set | grep -i "$@"
             }
 
-            fp () {
+            fp() {
                 ps | grep -i "$@"
             }
         fi
@@ -431,11 +431,11 @@ EOF
 
         alias ls='ls --color=auto'
 
-        e () {
+        e() {
             vim "$@"
         }
 
-        ex () {
+        ex() {
             if [[ $# -eq 0 ]]; then
                 start .
             else
@@ -447,7 +447,7 @@ EOF
             fi
         }
 
-        latest () {
+        latest() {
             pacman -Syuu
         }
     fi

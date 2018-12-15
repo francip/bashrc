@@ -3,7 +3,9 @@
 # This file is not intended for direct execution
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
 
-__bashrc_main() {
+# Source common definitions
+
+__bashrc_main () {
     local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
@@ -60,6 +62,8 @@ EOF
         ;;
     esac
 
+    . "${BASH_SOURCE_DIR}/bashrc_helpers"
+
     [ $BASH_INTERACTIVE ] && echo
     [ $BASH_INTERACTIVE ] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '$BASH_VERSION$COLOR_NONE' on '$COLOR_GREEN_BOLD$BASH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$BASH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$BASH_OS_TYPE$COLOR_NONE')'
 
@@ -98,17 +102,8 @@ EOF
         fi
     fi
 
-    [ $BASH_INTERACTIVE ] && echo
-    local BASH_FILES BASH_FILE
-
-    # Source global, local, and personal definitions
-    BASH_FILES=( "/etc/bashrc" "${HOME}/.bashrc_local" "${BASH_SOURCE_DIR}/aliases" "${HOME}/.aliases_local" )
-    for BASH_FILE in "${BASH_FILES[@]}"; do
-        if [[ -f "$BASH_FILE" ]]; then
-            [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BASH_FILE$COLOR_NONE
-            . "$BASH_FILE"
-        fi
-    done
+    # Source additional global, local, and personal definitions
+    __include_files "/etc/bashrc" "${HOME}/.bashrc_local" "${BASH_SOURCE_DIR}/aliases" "${HOME}/.aliases_local"
 
     local BASH_COMPLETION_INSTALLED
     BASH_COMPLETION_INSTALLED=`type -t _init_completion`
@@ -166,65 +161,16 @@ EOF
         . "$ADB_COMPLETION"
     fi
 
-    [ $BASH_INTERACTIVE ] && echo
-    [ $BASH_INTERACTIVE ] && echo -e 'Adding to the '$COLOR_CYAN_BOLD'path'$COLOR_NONE':'
-
-    local PATH_DIRS PATH_DIR PATH_DIRS_PREFIX
-
-    PATH_DIRS=( "${HOME}/android-sdk/build-tools/$([[ -d "${HOME}/android-sdk/build-tools/" ]] && ls -1 "${HOME}/android-sdk/build-tools/" | tr -d '/' | sort | tail -n 1)" "${HOME}/android-sdk/platform-tools" "${HOME}/android-sdk/tools" "${HOME}/android-ndk" "${HOME}/android-ndk/android-ndk-r10e" "${HOME}/gcc-arm-none-eabi/bin" "${HOME}/bin" )
+    local PATH_DIRS=( "${HOME}/bin" )
     if [[ $BASH_OS_TYPE == OSX ]]; then
         # Mac OS X paths, including Homebrew and MacPorts
         PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" )
     fi
-    for PATH_DIR in "${PATH_DIRS[@]}"; do
-        if [[ -d $PATH_DIR ]]; then
-            if [[ ":$PATH:" != *":$PATH_DIR:"* ]]; then
-                [ $BASH_INTERACTIVE ] && echo -e '  '$COLOR_YELLOW_BOLD$PATH_DIR$COLOR_NONE
-                if [[ -n $PATH_DIRS_PREFIX ]]; then
-                    PATH_DIRS_PREFIX=$PATH_DIRS_PREFIX:$PATH_DIR
-                else
-                    PATH_DIRS_PREFIX=$PATH_DIR
-                fi
-            fi
-        fi
-    done
-
-    if [[ -n $PATH_DIRS_PREFIX ]]; then
-        if [[ -n $PATH ]]; then
-            export PATH=$PATH_DIRS_PREFIX:$PATH
-        else
-            export PATH=$PATH_DIRS_PREFIX
-        fi
-    fi
+    __add_to_path "${PATH_DIRS[@]}"
 
     if [[ -n $BASH_COMPLETION_INSTALLED ]]; then
         # Affects cd behavior
-        [ $BASH_INTERACTIVE ] && echo
-        [ $BASH_INTERACTIVE ] && echo -e 'Configuring '$COLOR_CYAN_BOLD'cd'$COLOR_NONE' to cycle through:'
-
-        local CDPATH_DIRS CDPATH_DIR CDPATH_DIRS_PREFIX
-
-        CDPATH_DIRS=( "." "${HOME}" "${HOME}/src" "${HOME}/local")
-        for CDPATH_DIR in "${CDPATH_DIRS[@]}"; do
-            if [[ -d $CDPATH_DIR ]]; then
-                if [[ ":$CDPATH:" != *":$CDPATH_DIR:"* ]]; then
-                    [ $BASH_INTERACTIVE ] && echo -e '  '$COLOR_YELLOW_BOLD$CDPATH_DIR$COLOR_NONE
-                    if [[ -n $CDPATH_DIRS_PREFIX ]]; then
-                        CDPATH_DIRS_PREFIX=$CDPATH_DIRS_PREFIX:$CDPATH_DIR
-                    else
-                        CDPATH_DIRS_PREFIX=$CDPATH_DIR
-                    fi
-                fi
-            fi
-        done
-
-        if [[ -n $CDPATH_DIRS_PREFIX ]]; then
-            if [[ -n $CDPATH ]]; then
-                export CDPATH=$CDPATH_DIRS_PREFIX:$CDPATH
-            else
-                export CDPATH=$CDPATH_DIRS_PREFIX
-            fi
-        fi
+        __add_to_cd_path "." "${HOME}" "${HOME}/src"
     fi
 
     # SSH client
@@ -293,6 +239,7 @@ EOF
     # Android SDK
     if [[ -d $HOME/android-sdk ]]; then
         export ANDROID_HOME=$HOME/android-sdk
+        __add_to_path "${HOME}/android-sdk/build-tools/$([[ -d "${HOME}/android-sdk/build-tools/" ]] && ls -1 "${HOME}/android-sdk/build-tools/" | tr -d '/' | sort | tail -n 1)" "${HOME}/android-sdk/platform-tools" "${HOME}/android-sdk/tools" "${HOME}/android-ndk" "${HOME}/android-ndk/android-ndk-r10e"
     fi
 
     if [[ -d $HOME/android-ndk ]]; then
@@ -340,8 +287,8 @@ EOF
     fi
 
     # Local declarations
-    if [[ -n `type -t bashrc_local_run` ]]; then
-        bashrc_local_run "$@"
+    if [[ -n `type -t __bashrc_local_run` ]]; then
+        __bashrc_local_run "$@"
     fi
 }
 

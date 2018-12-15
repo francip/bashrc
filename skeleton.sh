@@ -1,6 +1,6 @@
 #!/bin/bash
 
-__main() {
+__skeleton_main () {
     local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
@@ -57,5 +57,5 @@ EOF
 
 }
 
-__main "$@"
-unset __main
+__skeleton_main "$@"
+unset __skeleton_main

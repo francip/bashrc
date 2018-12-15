@@ -1,0 +1,126 @@
+#!/bin/bash
+
+# This file is not intended for direct execution
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
+
+# Source helper function definitions
+
+__bashrc_helpers_main () {
+    local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
+
+    BASH_SOURCE_FILE=${BASH_SOURCE[0]}
+    while [[ -L "$BASH_SOURCE_FILE" ]]; do
+        BASH_SOURCE_FILE=$(readlink "$BASH_SOURCE_FILE")
+    done
+
+    BASH_SOURCE_DIR=$(dirname "$BASH_SOURCE_FILE")
+    BASH_SOURCE_DIR=`cd "$BASH_SOURCE_DIR" >/dev/null; pwd`
+    BASH_SOURCE_FILE=$(basename "$BASH_SOURCE_FILE")
+    BASH_SOURCE_FILE_ESCAPED=${BASH_SOURCE_FILE// /_}
+
+    # BASH_SOURCE_DIR is a full path to the location of this script
+
+    eval "$(cat <<EOF
+        __get_${BASH_SOURCE_FILE_ESCAPED}_dir() {
+          echo $BASH_SOURCE_DIR
+        }
+        __get_${BASH_SOURCE_FILE_ESCAPED}_file() {
+          echo $BASH_SOURCE_FILE
+        }
+EOF
+)"
+
+    eval "$(_bash_color_definitions)"
+    eval "$(_bash_os_definitions)"
+
+    local BASH_INTERACTIVE
+
+    case $- in
+    *i*)
+        # interactive shell
+        BASH_INTERACTIVE=1
+        ;;
+    esac
+
+    __add_to_path () {
+        [ $BASH_INTERACTIVE ] && echo
+        [ $BASH_INTERACTIVE ] && echo -e 'Adding to the '$COLOR_CYAN_BOLD'path'$COLOR_NONE':'
+
+        __add_to_path_quiet $*
+    }
+
+    __add_to_path_quiet () {
+        local PATH_DIRS PATH_DIR PATH_DIRS_LIST
+
+        PATH_DIRS=( $* )
+        for PATH_DIR in "${PATH_DIRS[@]}"; do
+            if [[ -d $PATH_DIR ]]; then
+                if [[ ":$PATH:" != *":$PATH_DIR:"* ]]; then
+                    [ $BASH_INTERACTIVE ] && echo -e '  '$COLOR_YELLOW_BOLD$PATH_DIR$COLOR_NONE
+                    if [[ -n $PATH_DIRS_LIST ]]; then
+                        PATH_DIRS_LIST=$PATH_DIRS_LIST:$PATH_DIR
+                    else
+                        PATH_DIRS_LIST=$PATH_DIR
+                    fi
+                fi
+            fi
+        done
+
+        if [[ -n $PATH_DIRS_LIST ]]; then
+            if [[ -n $PATH ]]; then
+                export PATH=$PATH_DIRS_LIST:$PATH
+            else
+                export PATH=$PATH_DIRS_LIST
+            fi
+        fi
+    }
+
+    __add_to_cd_path () {
+        [ $BASH_INTERACTIVE ] && echo
+        [ $BASH_INTERACTIVE ] && echo -e 'Adding to the '$COLOR_CYAN_BOLD'cd path'$COLOR_NONE':'
+
+        __add_to_cd_path_quiet $*
+    }
+
+    __add_to_cd_path_quiet () {
+        local CDPATH_DIRS CDPATH_DIR CDPATH_DIRS_LIST
+
+        CDPATH_DIRS=( $* )
+        for CDPATH_DIR in "${CDPATH_DIRS[@]}"; do
+            if [[ -d $CDPATH_DIR ]]; then
+                if [[ ":$CDPATH:" != *":$CDPATH_DIR:"* ]]; then
+                    [ $BASH_INTERACTIVE ] && echo -e '  '$COLOR_YELLOW_BOLD$CDPATH_DIR$COLOR_NONE
+                    if [[ -n $CDPATH_DIRS_LIST ]]; then
+                        CDPATH_DIRS_LIST=$CDPATH_DIRS_LIST:$CDPATH_DIR
+                    else
+                        CDPATH_DIRS_LIST=$CDPATH_DIR
+                    fi
+                fi
+            fi
+        done
+
+        if [[ -n $CDPATH_DIRS_LIST ]]; then
+            if [[ -n $CDPATH ]]; then
+                export CDPATH=$CDPATH:$CDPATH_DIRS_LIST
+            else
+                export CDPATH=$CDPATH_DIRS_LIST
+            fi
+        fi
+    }
+
+    __include_files () {
+        [ $BASH_INTERACTIVE ] && echo
+        local BASH_FILES BASH_FILE
+
+        BASH_FILES=( $* )
+        for BASH_FILE in "${BASH_FILES[@]}"; do
+            if [[ -f "$BASH_FILE" ]]; then
+                [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BASH_FILE$COLOR_NONE
+                . "$BASH_FILE"
+            fi
+        done
+    }
+}
+
+__bashrc_helpers_main "$@"
+unset __bashrc_helpers_main

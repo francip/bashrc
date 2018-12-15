@@ -1,6 +1,6 @@
 #!/bin/bash
 
-__install_main() {
+__install_main () {
     local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
@@ -67,8 +67,8 @@ EOF
             else
                 echo -e $COLOR_YELLOW'WARNING:'$COLOR_NONE' Open new Bash windows as administrator, set '$COLOR_CYAN'export HOME='$HOME$COLOR_NONE
                 echo -e 'and rerun the installer.'
-		echo
-		exit
+                echo
+                exit
             fi
         else
             echo

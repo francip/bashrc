@@ -5,7 +5,7 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
 
 # Source local definitions
 
-__bashrc_local_main() {
+__bashrc_local_main () {
     local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
@@ -42,30 +42,16 @@ EOF
         ;;
     esac
 
-#    local BASH_FILES BASH_FILE
-
-#    BASH_FILES=( "${HOME}/some_local_file" )
-#    for BASH_FILE in "${BASH_FILES[@]}"; do
-#        if [ -f "$BASH_FILE" ]; then
-#            [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$BASH_FILE$COLOR_NONE
-#            . "$BASH_FILE"
-#        fi
-#    done
-
     eval "
-        __bashrc_local_run() {
+        __bashrc_local() {
             echo $(__get_${BASH_SOURCE_FILE_ESCAPED}_dir)'/'$(__get_${BASH_SOURCE_FILE_ESCAPED}_file)
-        }
-        __bashrc_local_dir() {
-            echo $(__get_${BASH_SOURCE_FILE_ESCAPED}_dir)
-        }
-        __bashrc_local_file() {
-            echo $(__get_${BASH_SOURCE_FILE_ESCAPED}_file)
         }
     "
 
-    bashrc_local_run() {
-        [ $BASH_INTERACTIVE ] && echo -e 'Executing local startup script from '$COLOR_GREEN_BOLD$(__bashrc_local_run)$COLOR_NONE
+    __bashrc_local_run() {
+        [ $BASH_INTERACTIVE ] && echo -e 'Executing local startup script from '$COLOR_GREEN_BOLD$(__bashrc_local)$COLOR_NONE
+
+        [ $BASH_INTERACTIVE ] && echo
     }
 }
 

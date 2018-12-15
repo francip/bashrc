@@ -5,7 +5,7 @@ if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
 
 # Common aliases and functions
 
-__aliases_main() {
+__aliases_main () {
     local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}
@@ -45,6 +45,18 @@ EOF
     alias psu='ps -u ${USER} '
 
     alias avd='android avd & '
+
+    if [[ -n CDPATH ]]; then
+        # Replace the cd builtin to turn off the annoying
+        # echo-new-folder behavior when CDPATH is set
+        cd () {
+            local DEST=$*
+            if [ -z $DEST ]; then
+                DEST=~
+            fi
+            builtin cd "${DEST}" >/dev/null
+        }
+    fi
 
     ff () {
         find . -name "*" -type f -exec grep --color=auto -HinF "$@" {} \;
@@ -435,7 +447,7 @@ EOF
             fi
         }
 
-        latest() {
+        latest () {
             pacman -Syuu
         }
     fi

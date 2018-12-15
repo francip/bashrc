@@ -1,6 +1,6 @@
 #!/bin/bash
 
-__uninstall_main() {
+__uninstall_main () {
     local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
 
     BASH_SOURCE_FILE=${BASH_SOURCE[0]}

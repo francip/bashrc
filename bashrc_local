@@ -49,9 +49,6 @@ EOF
     "
 
     __bashrc_local_run() {
-        [ $BASH_INTERACTIVE ] && echo -e 'Executing local startup script from '$COLOR_GREEN_BOLD$(__bashrc_local)$COLOR_NONE
-
-        [ $BASH_INTERACTIVE ] && echo
     }
 }
 

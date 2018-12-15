@@ -65,7 +65,7 @@ EOF
     . "${BASH_SOURCE_DIR}/bashrc_helpers"
 
     [ $BASH_INTERACTIVE ] && echo
-    [ $BASH_INTERACTIVE ] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '$BASH_VERSION$COLOR_NONE' on '$COLOR_GREEN_BOLD$BASH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$BASH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$BASH_OS_TYPE$COLOR_NONE')'
+    [ $BASH_INTERACTIVE ] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '${BASH_VERSINFO[0]}'.'${BASH_VERSINFO[1]}'.'${BASH_VERSINFO[2]}$COLOR_NONE' on '$COLOR_GREEN_BOLD$BASH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$BASH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$BASH_OS_TYPE$COLOR_NONE')'
 
     if [[ $BASH_OS_TYPE == Windows ]]; then
         export SSH_AUTH_SOCK=/tmp/.ssh-socket
@@ -289,8 +289,12 @@ EOF
 
     # Local declarations
     if [[ -n `type -t __bashrc_local_run` ]]; then
+        [ $BASH_INTERACTIVE ] && echo -e 'Executing '$COLOR_GREEN_BOLD$(__bashrc_local)$COLOR_NONE
+
         __bashrc_local_run "$@"
     fi
+
+    [ $BASH_INTERACTIVE ] && echo
 }
 
 __bashrc_main "$@"

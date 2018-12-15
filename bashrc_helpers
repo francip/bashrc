@@ -43,9 +43,7 @@ EOF
     esac
 
     __add_to_path () {
-        [ $BASH_INTERACTIVE ] && echo
-        [ $BASH_INTERACTIVE ] && echo -e 'Adding to the '$COLOR_CYAN_BOLD'path'$COLOR_NONE':'
-
+        local SHOW_HEADER=1
         __add_to_path_no_header $*
     }
 
@@ -56,6 +54,11 @@ EOF
         for PATH_DIR in "${PATH_DIRS[@]}"; do
             if [[ -d $PATH_DIR ]]; then
                 if [[ ":$PATH:" != *":$PATH_DIR:"* ]]; then
+                    if [[ -n $SHOW_HEADER ]]; then
+                        [ $BASH_INTERACTIVE ] && echo
+                        [ $BASH_INTERACTIVE ] && echo -e 'Adding to the '$COLOR_CYAN_BOLD'path'$COLOR_NONE':'
+                        unset SHOW_HEADER
+                    fi
                     [ $BASH_INTERACTIVE ] && echo -e '  '$COLOR_YELLOW_BOLD$PATH_DIR$COLOR_NONE
                     if [[ -n $PATH_DIRS_LIST ]]; then
                         PATH_DIRS_LIST=$PATH_DIRS_LIST:$PATH_DIR
@@ -76,9 +79,7 @@ EOF
     }
 
     __add_to_cd_path () {
-        [ $BASH_INTERACTIVE ] && echo
-        [ $BASH_INTERACTIVE ] && echo -e 'Adding to the '$COLOR_CYAN_BOLD'cd path'$COLOR_NONE':'
-
+        local SHOW_HEADER=1
         __add_to_cd_path_no_header $*
     }
 
@@ -89,6 +90,11 @@ EOF
         for CDPATH_DIR in "${CDPATH_DIRS[@]}"; do
             if [[ -d $CDPATH_DIR ]]; then
                 if [[ ":$CDPATH:" != *":$CDPATH_DIR:"* ]]; then
+                    if [[ -n $SHOW_HEADER ]]; then
+                        [ $BASH_INTERACTIVE ] && echo
+                        [ $BASH_INTERACTIVE ] && echo -e 'Adding to the '$COLOR_CYAN_BOLD'cd path'$COLOR_NONE':'
+                        unset SHOW_HEADER
+                    fi
                     [ $BASH_INTERACTIVE ] && echo -e '  '$COLOR_YELLOW_BOLD$CDPATH_DIR$COLOR_NONE
                     if [[ -n $CDPATH_DIRS_LIST ]]; then
                         CDPATH_DIRS_LIST=$CDPATH_DIRS_LIST:$CDPATH_DIR

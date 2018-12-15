@@ -49,6 +49,7 @@ EOF
     "
 
     __bashrc_local_run() {
+    	local BASH_LOCAL
     }
 }
 

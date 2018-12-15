@@ -287,6 +287,7 @@ EOF
 
     # Local declarations
     if [[ -n `type -t __bashrc_local_run` ]]; then
+        [ $BASH_INTERACTIVE ] && echo
         [ $BASH_INTERACTIVE ] && echo -e 'Executing '$COLOR_GREEN_BOLD$(__bashrc_local)$COLOR_NONE
 
         __bashrc_local_run "$@"

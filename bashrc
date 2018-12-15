@@ -180,8 +180,6 @@ EOF
         [ $BASH_INTERACTIVE ] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
     fi
 
-    [ $BASH_INTERACTIVE ] && echo
-
     # Prompt
     local COLOR_ROOT_INVERT VERSION_CONTROL_PROMPT
 

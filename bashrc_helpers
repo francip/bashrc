@@ -46,10 +46,10 @@ EOF
         [ $BASH_INTERACTIVE ] && echo
         [ $BASH_INTERACTIVE ] && echo -e 'Adding to the '$COLOR_CYAN_BOLD'path'$COLOR_NONE':'
 
-        __add_to_path_quiet $*
+        __add_to_path_no_header $*
     }
 
-    __add_to_path_quiet () {
+    __add_to_path_no_header () {
         local PATH_DIRS PATH_DIR PATH_DIRS_LIST
 
         PATH_DIRS=( $* )
@@ -79,10 +79,10 @@ EOF
         [ $BASH_INTERACTIVE ] && echo
         [ $BASH_INTERACTIVE ] && echo -e 'Adding to the '$COLOR_CYAN_BOLD'cd path'$COLOR_NONE':'
 
-        __add_to_cd_path_quiet $*
+        __add_to_cd_path_no_header $*
     }
 
-    __add_to_cd_path_quiet () {
+    __add_to_cd_path_no_header () {
         local CDPATH_DIRS CDPATH_DIR CDPATH_DIRS_LIST
 
         CDPATH_DIRS=( $* )
@@ -109,7 +109,6 @@ EOF
     }
 
     __include_files () {
-        [ $BASH_INTERACTIVE ] && echo
         local BASH_FILES BASH_FILE
 
         BASH_FILES=( $* )

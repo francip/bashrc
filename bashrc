@@ -103,6 +103,7 @@ EOF
     fi
 
     # Source additional global, local, and personal definitions
+    [ $BASH_INTERACTIVE ] && echo
     __include_files "/etc/bashrc" "${HOME}/.bashrc_local" "${BASH_SOURCE_DIR}/aliases" "${HOME}/.aliases_local"
 
     local BASH_COMPLETION_INSTALLED

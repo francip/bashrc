@@ -64,24 +64,24 @@ EOF
 
     . "${BASH_SOURCE_DIR}/bashrc_helpers"
 
-    [ $BASH_INTERACTIVE ] && echo
-    [ $BASH_INTERACTIVE ] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '${BASH_VERSINFO[0]}'.'${BASH_VERSINFO[1]}'.'${BASH_VERSINFO[2]}$COLOR_NONE' on '$COLOR_GREEN_BOLD$BASH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$BASH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$BASH_OS_TYPE$COLOR_NONE')'
+    [[ $BASH_INTERACTIVE ]] && echo
+    [[ $BASH_INTERACTIVE ]] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '${BASH_VERSINFO[0]}'.'${BASH_VERSINFO[1]}'.'${BASH_VERSINFO[2]}$COLOR_NONE' on '$COLOR_GREEN_BOLD$BASH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$BASH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$BASH_OS_TYPE$COLOR_NONE')'
 
     if [[ $BASH_OS_TYPE == Windows ]]; then
         export SSH_AUTH_SOCK=/tmp/.ssh-socket
         ssh-add -l >/dev/null 2>&1
-        if [ $? = 2 ]; then
-            [ $BASH_INTERACTIVE ] && echo
-            [ $BASH_INTERACTIVE ] && echo -e 'Creating new ssh-agent'
+        if [[ $? = 2 ]]; then
+            [[ $BASH_INTERACTIVE ]] && echo
+            [[ $BASH_INTERACTIVE ]] && echo -e 'Creating new ssh-agent'
             rm -f /tmp/.ssh-script /tmp/.ssh-agent-pid /tmp/.ssh-socket
             ssh-agent -a $SSH_AUTH_SOCK > /tmp/.ssh-script
             . /tmp/.ssh-script
-            [ $BASH_INTERACTIVE ] && echo $SSH_AGENT_PID > /tmp/.ssh-agent-pid
+            [[ $BASH_INTERACTIVE ]] && echo $SSH_AGENT_PID > /tmp/.ssh-agent-pid
         fi
     fi
 
     if [[ $BASH_OS_TYPE == Linux ]]; then
-        if [ -z "$(pgrep ssh-agent)" ]; then
+        if [[ -z "$(pgrep ssh-agent)" ]]; then
             rm -rf /tmp/ssh-*
             eval $(ssh-agent -s) >/dev/null
         else
@@ -103,7 +103,7 @@ EOF
     fi
 
     # Source additional global, local, and personal definitions
-    [ $BASH_INTERACTIVE ] && echo
+    [[ $BASH_INTERACTIVE ]] && echo
     __include_files "/etc/bashrc" "${HOME}/.bashrc_local" "${BASH_SOURCE_DIR}/aliases" "${HOME}/.aliases_local"
 
     local BASH_COMPLETION_INSTALLED
@@ -114,16 +114,16 @@ EOF
         if [[ $BASH_OS_TYPE == OSX ]]; then
             # Bash completion for Mac OS X (from Homebrew or MacPorts)
             if [[ -f /usr/local/etc/bash_completion ]]; then
-                [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD'/usr/local/etc/bash_completion'$COLOR_NONE
+                [[ $BASH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/usr/local/etc/bash_completion'$COLOR_NONE
                 . /usr/local/etc/bash_completion
             elif [[ -f /opt/local/etc/profile.d/bash_completion.sh ]]; then
-                [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/local/etc/profile.d/bash_completion.sh'$COLOR_NONE
+                [[ $BASH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/local/etc/profile.d/bash_completion.sh'$COLOR_NONE
                 . /opt/local/etc/profile.d/bash_completion.sh
             fi
         elif [[ $BASH_OS_TYPE == Linux ]]; then
             # Bash completion for Linux
             if [[ -f /etc/bash_completion ]]; then
-                [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD'/etc/bash_completion'$COLOR_NONE
+                [[ $BASH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/etc/bash_completion'$COLOR_NONE
                 . /etc/bash_completion
             fi
         fi
@@ -131,7 +131,7 @@ EOF
         BASH_COMPLETION_INSTALLED=`type -t _init_completion`
 
         if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
-            [ $BASH_INTERACTIVE ] && echo -e 'Bash completion '$COLOR_RED_BOLD'not configured'$COLOR_NONE
+            [[ $BASH_INTERACTIVE ]] && echo -e 'Bash completion '$COLOR_RED_BOLD'not configured'$COLOR_NONE
         fi
     fi
 
@@ -146,7 +146,7 @@ EOF
         fi
 
         if [[ -f "$GIT_COMPLETION" ]]; then
-            [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$GIT_COMPLETION$COLOR_NONE
+            [[ $BASH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$GIT_COMPLETION$COLOR_NONE
             . "$GIT_COMPLETION"
         fi
     fi
@@ -158,7 +158,7 @@ EOF
     fi
 
     if [[ -f "$ADB_COMPLETION" ]]; then
-        [ $BASH_INTERACTIVE ] && echo -e 'Loading '$COLOR_GREEN_BOLD$ADB_COMPLETION$COLOR_NONE
+        [[ $BASH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$ADB_COMPLETION$COLOR_NONE
         . "$ADB_COMPLETION"
     fi
 
@@ -176,8 +176,8 @@ EOF
 
     # SSH client
     if [[ -n $SSH_CLIENT ]]; then
-        [ $BASH_INTERACTIVE ] && echo
-        [ $BASH_INTERACTIVE ] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
+        [[ $BASH_INTERACTIVE ]] && echo
+        [[ $BASH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
     fi
 
     # Prompt
@@ -259,8 +259,8 @@ EOF
     # Node
     if [[ -d $HOME/.nvm ]]; then
         export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+        [[ -s "$NVM_DIR/nvm.sh" ]] && . "$NVM_DIR/nvm.sh"
+        [[ -s "$NVM_DIR/bash_completion" ]] && \. "$NVM_DIR/bash_completion"
     fi
 
     # Python
@@ -282,18 +282,18 @@ EOF
 
     # Torch
     if [[ -n `type -t $HOME/torch/install/bin/torch-activate` ]]; then
-        [ -s "$HOME/torch/install/bin/torch-activate" ] && . $HOME/torch/install/bin/torch-activate
+        [[ -s "$HOME/torch/install/bin/torch-activate" ]] && . $HOME/torch/install/bin/torch-activate
     fi
 
     # Local declarations
     if [[ -n `type -t __bashrc_local_run` ]]; then
-        [ $BASH_INTERACTIVE ] && echo
-        [ $BASH_INTERACTIVE ] && echo -e 'Executing '$COLOR_GREEN_BOLD$(__bashrc_local)$COLOR_NONE
+        [[ $BASH_INTERACTIVE ]] && echo
+        [[ $BASH_INTERACTIVE ]] && echo -e 'Executing '$COLOR_GREEN_BOLD$(__bashrc_local)$COLOR_NONE
 
         __bashrc_local_run "$@"
     fi
 
-    [ $BASH_INTERACTIVE ] && echo
+    [[ $BASH_INTERACTIVE ]] && echo
 }
 
 __bashrc_main "$@"

@@ -51,7 +51,7 @@ EOF
         # echo-new-folder behavior when CDPATH is set
         cd() {
             local DEST=$*
-            if [ -z $DEST ]; then
+            if [[ -z $DEST ]]; then
                 DEST=~
             fi
             builtin cd "${DEST}" >/dev/null

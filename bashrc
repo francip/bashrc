@@ -293,6 +293,19 @@ EOF
         __bashrc_local_run "$@"
     fi
 
+    # Free space
+    local FREE_SPACE FREE_SPACE_READABLE
+    FREE_SPACE=`df -k / | tail -n 1 | awk '{printf $4}'`
+    FREE_SPACE_READABLE=`df -h / | tail -n 1 | awk '{printf $4}' | tr -d [:space:]i`
+    FREE_SPACE_READABLE=$COLOR_YELLOW_BOLD$FREE_SPACE_READABLE$COLOR_NONE
+
+    if (( $FREE_SPACE <= 5000000 )); then
+        FREE_SPACE_READABLE=$FREE_SPACE_READABLE' '$COLOR_RED_BOLD'WARNING: Low free disk space!!!'$COLOR_NONE
+    fi
+
+    [[ $BASH_INTERACTIVE ]] && echo
+    [[ $BASH_INTERACTIVE ]] && echo -e 'Free space: '$FREE_SPACE_READABLE 
+
     [[ $BASH_INTERACTIVE ]] && echo
 }
 

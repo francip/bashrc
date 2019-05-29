@@ -444,15 +444,20 @@ EOF
         if [[ $BASH_OS_TYPE == OSX ]]; then
             # OS X aliases
 
+            # Sublime Edit
+            if [[ -z `type -t subl` ]]; then
+                subl() {
+                    "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" "$@"
+                }
+            fi
+
             # Check if Visual Code is installed
             # If not, check if Sublime Edit is installed
-            # If not, check if TextMate is installed
             # If not, use TextEdit
             e() {
-                local CODE_COMMAND SUBL_COMMAND MATE_COMMAND
+                local CODE_COMMAND SUBL_COMMAND
                 CODE_COMMAND=`type -t code`
-                SUBL_COMMAND=`type -P subl`
-                MATE_COMMAND=`type -P mate`
+                SUBL_COMMAND=`type -t subl`
                 if [[ -n $CODE_COMMAND ]]; then
                     # Eval because code command can be alias
                     `code "$@"`
@@ -460,11 +465,7 @@ EOF
                     if [[ -n $SUBL_COMMAND ]]; then
                         subl "$@"
                     else
-                        if [[ -n $MATE_COMMAND ]]; then
-                            mate -a -d "$@"
-                        else
-                            open -e "$@"
-                        fi
+                        open -e "$@"
                     fi
                 fi
             }

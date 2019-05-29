@@ -95,9 +95,9 @@ EOF
     if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
         if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
             if [[ $BASH_OS_TYPE == OSX ]]; then
-                ssh-add -K ~/.ssh/id_rsa_personal >/dev/null 2>&1
+                ssh-add -K ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
             else
-                ssh-add ~/.ssh/id_rsa_personal >/dev/null 2>&1
+                ssh-add ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
             fi
         fi
     fi
@@ -259,17 +259,21 @@ EOF
     # Node
     if [[ -d $HOME/.nvm ]]; then
         export NVM_DIR="$HOME/.nvm"
-        [[ -s "$NVM_DIR/nvm.sh" ]] && . "$NVM_DIR/nvm.sh"
-        [[ -s "$NVM_DIR/bash_completion" ]] && \. "$NVM_DIR/bash_completion"
-    fi
+        if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+            . "$NVM_DIR/nvm.sh"
+        fi
+        if [[ -s "$NVM_DIR/bash_completion" ]]; then
+            . "$NVM_DIR/bash_completion"
+        fi
 
-    # Python
-    if [[ $BASH_OS_TYPE == Linux ]]; then
-        if [[ $BASH_OS_DISTRO == Raspbian ]]; then
-            if [[ -f /usr/local/bin/virtualenvwrapper.sh ]]; then
-                export WORKON_HOME=$HOME/.virtualenvs
-                source /usr/local/bin/virtualenvwrapper.sh
-            fi
+        # Electron-forge
+        local NVM_CURRENT ELECTRON_FORGE_COMPLETION
+
+        NVM_CURRENT=`nvm current`
+        ELECTRON_FORGE_COMPLETION=$NVM_DIR/versions/node/$NVM_CURRENT/lib/node_modules/electron-forge/node_modules/tabtab/.completions/electron-forge.bash
+
+        if [[ -s "$ELECTRON_FORGE_COMPLETION" ]]; then
+            . "$ELECTRON_FORGE_COMPLETION"
         fi
     fi
 
@@ -291,6 +295,16 @@ EOF
         [[ $BASH_INTERACTIVE ]] && echo -e 'Executing '$COLOR_GREEN_BOLD$(__bashrc_local)$COLOR_NONE
 
         __bashrc_local_run "$@"
+    fi
+
+    # Global aliases deferred load
+    if [[ -n `type -t __aliases_load` ]]; then
+        __aliases_load "$@"
+    fi
+
+    # Local aliases deferred load
+    if [[ -n `type -t __aliases_local_load` ]]; then
+        __aliases_local_load "$@"
     fi
 
     # Free space

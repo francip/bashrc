@@ -48,8 +48,12 @@ EOF
         }
     "
 
+    # Early load before bashrc main started
+
+    # Late load after bashrc main finished
+
     __bashrc_local_run() {
-    	local BASH_LOCAL
+        local BASHRC_LOCAL_RUN
     }
 }
 

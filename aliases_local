@@ -33,6 +33,13 @@ EOF
     eval "$(_bash_color_definitions)"
     eval "$(_bash_os_definitions)"
 
+    # Early load before bashrc main started
+
+    # Late load after bashrc main finished
+
+    __aliases_local_load() {
+        local ALIASES_LOCAL_LOAD
+    }
 }
 
 __aliases_local_main "$@"

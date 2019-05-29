@@ -33,6 +33,8 @@ EOF
     eval "$(_bash_color_definitions)"
     eval "$(_bash_os_definitions)"
 
+    # Early load before bashrc main started
+
     alias cls='clear'
 
     alias grep='grep --color=auto '
@@ -168,24 +170,6 @@ EOF
         list() {
             instruments -s devices | grep -i -v "simulator" | tail -n +2
             adb devices | tail -n +2
-        }
-
-        # Check if Sublime Edit is installed
-        # If not, check if TextMate is installed
-        # If not, use TextEdit
-        e() {
-            local SUBL_COMMAND MATE_COMMAND
-            SUBL_COMMAND=`type -P subl`
-            MATE_COMMAND=`type -P mate`
-            if [[ -n $SUBL_COMMAND ]]; then
-                subl "$@"
-            else
-                if [[ -n $MATE_COMMAND ]]; then
-                    mate -a -d "$@"
-                else
-                    open -e "$@"
-                fi
-            fi
         }
 
         ij() {
@@ -451,6 +435,41 @@ EOF
             pacman -Syuu
         }
     fi
+
+    # Late load after bashrc main finished
+
+    __aliases_load() {
+        local ALIASES_LOAD
+
+        if [[ $BASH_OS_TYPE == OSX ]]; then
+            # OS X aliases
+
+            # Check if Visual Code is installed
+            # If not, check if Sublime Edit is installed
+            # If not, check if TextMate is installed
+            # If not, use TextEdit
+            e() {
+                local CODE_COMMAND SUBL_COMMAND MATE_COMMAND
+                CODE_COMMAND=`type -t code`
+                SUBL_COMMAND=`type -P subl`
+                MATE_COMMAND=`type -P mate`
+                if [[ -n $CODE_COMMAND ]]; then
+                    # Eval because code command can be alias
+                    `code "$@"`
+                else
+                    if [[ -n $SUBL_COMMAND ]]; then
+                        subl "$@"
+                    else
+                        if [[ -n $MATE_COMMAND ]]; then
+                            mate -a -d "$@"
+                        else
+                            open -e "$@"
+                        fi
+                    fi
+                fi
+            }
+        fi
+    }
 }
 
 __aliases_main "$@"

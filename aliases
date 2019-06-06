@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This file is not intended for direct execution
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
@@ -145,7 +145,7 @@ EOF
     }
 
     ssht() {
-        ssh $* -t 'tmux a || tmux || /bin/bash'
+        ssh $* -t 'tmux a || tmux || /usr/bin/env bash'
     }
 
     mosht() {

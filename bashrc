@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This file is not intended for direct execution
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
@@ -224,7 +224,7 @@ EOF
         if [[ $BASH_OS_DISTRO == Ubuntu ]]; then
             if [[ -z $SHELL ]]; then
                 # Ubuntu does not always define it for some reason
-                export SHELL=/bin/bash
+                export SHELL=/usr/bin/env bash
             fi
         fi
     fi

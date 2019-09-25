@@ -444,6 +444,15 @@ EOF
         if [[ $BASH_OS_TYPE == OSX ]]; then
             # OS X aliases
 
+            # Eternal Terminal
+            if [[ "$LC_TERMINAL" == "iTerm2" ]]; then
+                if [[ -n `type -t et` ]]; then
+                    ett() {
+                        et -c="tmux -CC a" $*
+                    }
+                fi
+            fi
+
             # Sublime Edit
             if [[ -z `type -t subl` ]]; then
                 subl() {

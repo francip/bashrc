@@ -448,7 +448,7 @@ EOF
             if [[ "$LC_TERMINAL" == "iTerm2" ]]; then
                 if [[ -n `type -t et` ]]; then
                     ett() {
-                        et -c "tmux -CC a" $*
+                        et -p 8090 -c "tmux -CC a" $*
                     }
                 fi
             fi

@@ -252,9 +252,6 @@ EOF
             if [[ $(which yarn 2>/dev/null) ]]; then
                 yarn global upgrade --latest
             fi
-            if [[ $(which pip 2>/dev/null) ]]; then
-                pip2 install --upgrade pip setuptools
-            fi
             if [[ $(which pip3 2>/dev/null) ]]; then
                 pip3 install --upgrade pip setuptools
             fi
@@ -349,9 +346,6 @@ EOF
                 fi
                 if [[ $(which yarn 2>/dev/null) ]]; then
                     yarn global upgrade --latest
-                fi
-                if [[ $(which pip 2>/dev/null) ]]; then
-                    sudo pip2 install --upgrade pip setuptools
                 fi
                 if [[ $(which pip3 2>/dev/null) ]]; then
                     sudo pip3 install --upgrade pip setuptools

@@ -80,7 +80,7 @@ EOF
         fi
     fi
 
-    if [[ $BASH_OS_TYPE == Linux ]]; then
+    if [[ $BASH_OS_TYPE == Linux* ]]; then
         if [[ -z "$(pgrep ssh-agent)" ]]; then
             rm -rf /tmp/ssh-*
             eval $(ssh-agent -s) >/dev/null
@@ -120,7 +120,7 @@ EOF
                 [[ $BASH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/local/etc/profile.d/bash_completion.sh'$COLOR_NONE
                 . /opt/local/etc/profile.d/bash_completion.sh
             fi
-        elif [[ $BASH_OS_TYPE == Linux ]]; then
+        elif [[ $BASH_OS_TYPE == Linux* ]]; then
             # Bash completion for Linux
             if [[ -f /etc/bash_completion ]]; then
                 [[ $BASH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/etc/bash_completion'$COLOR_NONE
@@ -214,13 +214,13 @@ EOF
         export LSCOLORS=GxFxCxDxBxegedabagaced
     fi
 
-    if [[ $BASH_OS_TYPE == Linux ]]; then
+    if [[ $BASH_OS_TYPE == Linux* ]]; then
         # Linux settings
         export LS_COLORS='di=01;36'
     fi
 
     # Misc declarations
-    if [[ $BASH_OS_TYPE == Linux ]]; then
+    if [[ $BASH_OS_TYPE == Linux* ]]; then
         if [[ $BASH_OS_DISTRO == Ubuntu ]]; then
             if [[ -z $SHELL ]]; then
                 # Ubuntu does not always define it for some reason

@@ -35,7 +35,10 @@ if [[ $OSTYPE == darwin* ]]; then
 elif [[ $OSTYPE == linux-gnu ]]; then
     # Linux
     BASH_OS_TYPE='Linux'
-    if [[ -f /etc/lsb-release  ]] || type lsb_release >/dev/null 2>&1 ; then
+    if [[ -n $WSL_DISTRO_NAME ]]; then
+        BASH_OS_TYPE='Linux WSL'
+    fi
+    if [[ -f /etc/lsb-release ]] || type lsb_release >/dev/null 2>&1 ; then
         BASH_OS_DISTRO=`type lsb_release >/dev/null 2>&1 && lsb_release -i -s`
         BASH_OS_RELEASE=`type lsb_release >/dev/null 2>&1 && lsb_release -r -s`
     elif [[ -f /etc/debian_version ]]; then

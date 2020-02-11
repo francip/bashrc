@@ -262,7 +262,7 @@ EOF
         }
     fi
 
-    if [[ $BASH_OS_TYPE == Linux ]]; then
+    if [[ $BASH_OS_TYPE == Linux* ]]; then
         # Linux aliases and functions
         alias ls='ls --color=auto '
 

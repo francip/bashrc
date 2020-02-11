@@ -35,7 +35,7 @@ if [[ $OSTYPE == darwin* ]]; then
 elif [[ $OSTYPE == linux-gnu ]]; then
     # Linux
     BASH_OS_TYPE='Linux'
-    if [[ -n $WSL_DISTRO_NAME ]]; then
+    if [[ -n "$WSL_DISTRO_NAME" ]]; then
         BASH_OS_TYPE='Linux WSL'
     fi
     if [[ -f /etc/lsb-release ]] || type lsb_release >/dev/null 2>&1 ; then

@@ -1,37 +1,37 @@
-#!/usr/bin/env bash
-
-# This file is not intended for direct execution
-if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
-
 # Common aliases and functions
 
 __aliases_main() {
-    local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
+    local SH_SOURCE_FILE SH_SOURCE_DIR SH_SOURCE_FILE_ESCAPED
 
-    BASH_SOURCE_FILE=${BASH_SOURCE[0]}
-    while [[ -L "$BASH_SOURCE_FILE" ]]; do
-        BASH_SOURCE_FILE=$(readlink "$BASH_SOURCE_FILE")
+    if [ -n "$ZSH_VERSION" ]; then
+        SH_SOURCE_FILE=${(%):-%x}
+    elif [ -n "$BASH_VERSION" ]; then
+        SH_SOURCE_FILE=${BASH_SOURCE[0]}
+    fi
+
+    while [[ -L "$SH_SOURCE_FILE" ]]; do
+        SH_SOURCE_FILE=$(readlink "$SH_SOURCE_FILE")
     done
 
-    BASH_SOURCE_DIR=$(dirname "$BASH_SOURCE_FILE")
-    BASH_SOURCE_DIR=`cd "$BASH_SOURCE_DIR" >/dev/null; pwd`
-    BASH_SOURCE_FILE=$(basename "$BASH_SOURCE_FILE")
-    BASH_SOURCE_FILE_ESCAPED=${BASH_SOURCE_FILE// /_}
+    SH_SOURCE_DIR=$(dirname "$SH_SOURCE_FILE")
+    SH_SOURCE_DIR=`cd "$SH_SOURCE_DIR" >/dev/null; pwd`
+    SH_SOURCE_FILE=$(basename "$SH_SOURCE_FILE")
+    SH_SOURCE_FILE_ESCAPED=${SH_SOURCE_FILE// /_}
 
-    # BASH_SOURCE_DIR is a full path to the location of this script
+    # SH_SOURCE_DIR is a full path to the location of this script
 
     eval "$(cat <<EOF
-        __get_${BASH_SOURCE_FILE_ESCAPED}_dir() {
-          echo $BASH_SOURCE_DIR
+        __get_${SH_SOURCE_FILE_ESCAPED}_dir() {
+          echo $SH_SOURCE_DIR
         }
-        __get_${BASH_SOURCE_FILE_ESCAPED}_file() {
-          echo $BASH_SOURCE_FILE
+        __get_${SH_SOURCE_FILE_ESCAPED}_file() {
+          echo $SH_SOURCE_FILE
         }
 EOF
 )"
 
-    eval "$(_bash_color_definitions)"
-    eval "$(_bash_os_definitions)"
+    eval "$(__sh_color_definitions)"
+    eval "$(__sh_os_definitions)"
 
     # Early load before bashrc main started
 
@@ -91,7 +91,7 @@ EOF
     }
 
     rmr() {
-        eval "$(_bash_color_definitions)"
+        eval "$(__sh_color_definitions)"
 
         if [[ $# -eq 0 ]]; then
             echo -e "Usage: "$COLOR_YELLOW_BOLD"rmr"$COLOR_NONE" "$COLOR_CYAN_BOLD"{pattern}"$COLOR_NONE" "$COLOR_CYAN_BOLD"{rm options}"$COLOR_NONE
@@ -107,7 +107,7 @@ EOF
     }
 
     rmr2() {
-        eval "$(_bash_color_definitions)"
+        eval "$(__sh_color_definitions)"
 
         if [[ $# -eq 0 ]]; then
             echo -e "Usage: "$COLOR_YELLOW_BOLD"rmr"$COLOR_NONE" "$COLOR_CYAN_BOLD"{pattern}"$COLOR_NONE" "$COLOR_CYAN_BOLD"{rm options}"$COLOR_NONE
@@ -148,16 +148,44 @@ EOF
         ssh $* -t 'tmux a || tmux || /usr/bin/env bash'
     }
 
-    mosht() {
-        local HOST
-        HOST=$1
-        shift
-        mosh -6 $HOST -- tmux a "$@"
+    __get_commands_info() {
+        local COMMAND_LIST COMMAND COMMAND_INSTALLED COMMAND_LOCATION COMMAND_VERSION
+        
+        echo
+        echo -e 'Looking for common tools...'
+
+        COMMAND_LIST=( $* )
+        for COMMAND in "${COMMAND_LIST[@]}"; do
+            COMMAND_INSTALLED=`type -t ${COMMAND} 2>/dev/null || whence ${COMMAND} 2>/dev/null`
+            if [[ -n "$COMMAND_INSTALLED" ]]; then
+                echo
+                echo -e $COLOR_GREEN_BOLD${COMMAND}$COLOR_NONE
+                COMMAND_VERSION=`${COMMAND} --version 2>/dev/null`
+                if [[ -n "$COMMAND_VERSION" ]]; then
+                    echo -e $COLOR_CYAN_BOLD'  Version: '${COMMAND_VERSION}$COLOR_NONE
+                fi
+                COMMAND_LOCATION=`type -p ${COMMAND} 2>/dev/null`
+                if [[ -n "$COMMAND_LOCATION" ]]; then
+                    echo -e $COLOR_CYAN_BOLD'  Location: '${COMMAND_LOCATION}$COLOR_NONE
+                fi
+            fi
+        done
+    }
+
+    check_env() {
+        eval "$(__sh_color_definitions)"
+
+        __get_commands_info nvm node npm python3 pip3
+
+        if [[ $SH_OS_TYPE == OSX ]]; then
+            # OS X tools
+            __get_commands_info brew port
+        fi
     }
 
     # OS-specific aliases and functions
 
-    if [[ $BASH_OS_TYPE == OSX ]]; then
+    if [[ $SH_OS_TYPE == OSX ]]; then
         # OS X aliases
         alias ls='ls -Gp '
 
@@ -188,7 +216,7 @@ EOF
         }
 
         set-title() {
-            eval "$(_bash_color_definitions)"
+            eval "$(__sh_color_definitions)"
 
             local TITLE="$@"
             echo -e "Setting terminal title to "$COLOR_YELLOW_BOLD"$TITLE"$COLOR_NONE
@@ -208,7 +236,7 @@ EOF
         }
 
         rep() {
-            eval "$(_bash_color_definitions)"
+            eval "$(__sh_color_definitions)"
 
             if [[ $# -eq 0 ]]; then
                 echo -e "Usage: rep {sed command}"
@@ -262,12 +290,12 @@ EOF
         }
     fi
 
-    if [[ $BASH_OS_TYPE == Linux* ]]; then
+    if [[ $SH_OS_TYPE == Linux ]]; then
         # Linux aliases and functions
         alias ls='ls --color=auto '
 
         set-title() {
-            eval "$(_bash_color_definitions)"
+            eval "$(__sh_color_definitions)"
 
             local TITLE="$@"
             echo -e "Setting terminal title to "$COLOR_YELLOW_BOLD"$TITLE"$COLOR_NONE
@@ -275,7 +303,7 @@ EOF
         }
 
         rep() {
-            eval "$(_bash_color_definitions)"
+            eval "$(__sh_color_definitions)"
 
             if [[ $# -eq 0 ]]; then
                 echo -e "Usage: rep {sed command}"
@@ -323,16 +351,16 @@ EOF
             }
         fi
 
-        if [[ $BASH_OS_DISTRO == CentOS ]]; then
+        if [[ $SH_OS_DISTRO == CentOS ]]; then
             # CentOS aliases and functions
             alias __dummy='echo dummy'
             # CentOS doesn't have --group-directories-first :-(
             # Hence why dir is specific for Ubuntu and Debian
         fi
 
-        if [[ $BASH_OS_DISTRO == Debian ]] ||
-           [[ $BASH_OS_DISTRO == Ubuntu ]] ||
-           [[ $BASH_OS_DISTRO == Raspbian ]]; then
+        if [[ $SH_OS_DISTRO == Debian ]] ||
+           [[ $SH_OS_DISTRO == Ubuntu ]] ||
+           [[ $SH_OS_DISTRO == Raspbian ]]; then
             # Debian aliases and functions
 
             alias dir='ls -al --group-directories-first '
@@ -353,7 +381,7 @@ EOF
             }
         fi
 
-        if [[ $BASH_OS_DISTRO == Ubuntu ]]; then
+        if [[ $SH_OS_DISTRO == Ubuntu ]]; then
             # Ubuntu aliases and functions
 
             # Ubuntu has a weird bug with graphical sudo and DBUS
@@ -372,7 +400,7 @@ EOF
             }
         fi
 
-        if [[ $BASH_OS_DISTRO == Yocto ]]; then
+        if [[ $SH_OS_DISTRO == Yocto ]]; then
             # Yocto grep doesn't support --color=auto
             unalias grep
 
@@ -404,7 +432,7 @@ EOF
         fi
     fi
 
-    if [[ $BASH_OS_TYPE == Windows ]]; then
+    if [[ $SH_OS_TYPE == Windows ]]; then
         # Windows aliases
 
         alias ls='ls --color=auto'
@@ -435,12 +463,12 @@ EOF
     __aliases_load() {
         local ALIASES_LOAD
 
-        if [[ $BASH_OS_TYPE == OSX ]]; then
+        if [[ $SH_OS_TYPE == OSX ]]; then
             # OS X aliases
 
             # Eternal Terminal
             if [[ "$LC_TERMINAL" == "iTerm2" ]]; then
-                if [[ -n `type -t et` ]]; then
+                if [[ -n `type -t et 2>/dev/null` || -n `whence et 2>/dev/null` ]]; then
                     ett() {
                         et -p 8090 -c "tmux -CC a" $*
                     }
@@ -448,7 +476,7 @@ EOF
             fi
 
             # Sublime Edit
-            if [[ -z `type -t subl` ]]; then
+            if [[ -n `type -t subl 2>/dev/null` || -n `whence subl 2>/dev/null` ]]; then
                 subl() {
                     "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" "$@"
                 }
@@ -459,8 +487,10 @@ EOF
             # If not, use TextEdit
             e() {
                 local CODE_COMMAND SUBL_COMMAND
-                CODE_COMMAND=`type -t code`
-                SUBL_COMMAND=`type -t subl`
+
+                CODE_COMMAND=`type -t code 2>/dev/null || whence code 2>/dev/null`
+                SUBL_COMMAND=`type -t subl 2>/dev/null || whence subl 2>/dev/null`
+
                 if [[ -n $CODE_COMMAND ]]; then
                     # Eval because code command can be alias
                     `code "$@"`
@@ -477,4 +507,4 @@ EOF
 }
 
 __aliases_main "$@"
-unset __aliases_main
+unset -f __aliases_main

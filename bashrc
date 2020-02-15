@@ -1,90 +1,100 @@
-#!/usr/bin/env bash
-
-# This file is not intended for direct execution
-if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
-
 # Source common definitions
 
 __bashrc_main() {
-    local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
+    local SH_SOURCE_FILE SH_SOURCE_DIR SH_SOURCE_FILE_ESCAPED
 
-    BASH_SOURCE_FILE=${BASH_SOURCE[0]}
-    while [[ -L "$BASH_SOURCE_FILE" ]]; do
-        BASH_SOURCE_FILE=$(readlink "$BASH_SOURCE_FILE")
+    if [ -n "$ZSH_VERSION" ]; then
+        SH_SOURCE_FILE=${(%):-%x}
+    elif [ -n "$BASH_VERSION" ]; then
+        SH_SOURCE_FILE=${BASH_SOURCE[0]}
+    fi
+
+    while [[ -L "$SH_SOURCE_FILE" ]]; do
+        SH_SOURCE_FILE=$(readlink "$SH_SOURCE_FILE")
     done
 
-    BASH_SOURCE_DIR=$(dirname "$BASH_SOURCE_FILE")
-    BASH_SOURCE_DIR=`cd "$BASH_SOURCE_DIR" >/dev/null; pwd`
-    BASH_SOURCE_FILE=$(basename "$BASH_SOURCE_FILE")
-    BASH_SOURCE_FILE_ESCAPED=${BASH_SOURCE_FILE// /_}
+    SH_SOURCE_DIR=$(dirname "$SH_SOURCE_FILE")
+    SH_SOURCE_DIR=`cd "$SH_SOURCE_DIR" >/dev/null; pwd`
+    SH_SOURCE_FILE=$(basename "$SH_SOURCE_FILE")
+    SH_SOURCE_FILE_ESCAPED=${SH_SOURCE_FILE// /_}
 
-    # BASH_SOURCE_DIR is a full path to the location of this script
+    # SH_SOURCE_DIR is a full path to the location of this script
 
     eval "$(cat <<EOF
-        __get_${BASH_SOURCE_FILE_ESCAPED}_dir() {
-          echo $BASH_SOURCE_DIR
+        __get_${SH_SOURCE_FILE_ESCAPED}_dir() {
+          echo $SH_SOURCE_DIR
         }
-        __get_${BASH_SOURCE_FILE_ESCAPED}_file() {
-          echo $BASH_SOURCE_FILE
+        __get_${SH_SOURCE_FILE_ESCAPED}_file() {
+          echo $SH_SOURCE_FILE
+        }
+        __get_sh_scripts_dir() {
+          echo "$SH_SOURCE_DIR"
+        }
+        __get_sh_scripts_file() {
+          echo "$SH_SOURCE_FILE"
         }
 EOF
 )"
 
-    local BASH_COLOR_DEFS
-    if [[ -e "$BASH_SOURCE_DIR/configure_colors" ]]; then
-        BASH_COLOR_DEFS=`cat "$BASH_SOURCE_DIR/configure_colors"`
+    local SH_COLOR_DEFS
+    if [[ -e "$SH_SOURCE_DIR/configure_colors" ]]; then
+        SH_COLOR_DEFS=`cat "$SH_SOURCE_DIR/configure_colors"`
     fi
 
-    local BASH_OS_DEFS
-    if [[ -e "$BASH_SOURCE_DIR/configure_os" ]]; then
-        BASH_OS_DEFS=`cat "$BASH_SOURCE_DIR/configure_os"`
+    local SH_OS_DEFS
+    if [[ -e "$SH_SOURCE_DIR/configure_os" ]]; then
+        SH_OS_DEFS=`cat "$SH_SOURCE_DIR/configure_os"`
     fi
 
     eval "$(cat <<EOF
-        _bash_color_definitions() {
-            echo "$BASH_COLOR_DEFS"
+        __sh_color_definitions() {
+            echo "$SH_COLOR_DEFS"
         }
-        _bash_os_definitions() {
-            echo "$BASH_OS_DEFS"
+        __sh_os_definitions() {
+            echo "$SH_OS_DEFS"
         }
 EOF
 )"
 
-    eval "$(_bash_color_definitions)"
-    eval "$(_bash_os_definitions)"
+    eval "$(__sh_color_definitions)"
+    eval "$(__sh_os_definitions)"
 
-    local BASH_INTERACTIVE
+    local SH_INTERACTIVE
 
     case $- in
     *i*)
         # interactive shell
-        BASH_INTERACTIVE=1
+        SH_INTERACTIVE=1
         ;;
     esac
 
-    . "${BASH_SOURCE_DIR}/bashrc_helpers"
+    . "${SH_SOURCE_DIR}/shrc_helpers"
 
-    [[ $BASH_INTERACTIVE ]] && echo
-    [[ $BASH_INTERACTIVE ]] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '${BASH_VERSINFO[0]}'.'${BASH_VERSINFO[1]}'.'${BASH_VERSINFO[2]}$COLOR_NONE' on '$COLOR_GREEN_BOLD$BASH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$BASH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$BASH_OS_TYPE$COLOR_NONE')'
+    [[ $SH_INTERACTIVE ]] && echo
+    [[ $SH_INTERACTIVE ]] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '${BASH_VERSINFO[0]}'.'${BASH_VERSINFO[1]}'.'${BASH_VERSINFO[2]}$COLOR_NONE' on '$COLOR_GREEN_BOLD$SH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$SH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$SH_OS_TYPE$COLOR_NONE')'
 
-    if [[ $BASH_OS_TYPE == Windows ]]; then
+    if [[ $SH_OS_TYPE == Windows ]]; then
         export SSH_AUTH_SOCK=/tmp/.ssh-socket
         ssh-add -l >/dev/null 2>&1
         if [[ $? = 2 ]]; then
-            [[ $BASH_INTERACTIVE ]] && echo
-            [[ $BASH_INTERACTIVE ]] && echo -e 'Creating new ssh-agent'
+            [[ $SH_INTERACTIVE ]] && echo
+            [[ $SH_INTERACTIVE ]] && echo -e 'Creating new ssh-agent'
             rm -f /tmp/.ssh-script /tmp/.ssh-agent-pid /tmp/.ssh-socket
             ssh-agent -a $SSH_AUTH_SOCK > /tmp/.ssh-script
             . /tmp/.ssh-script
-            [[ $BASH_INTERACTIVE ]] && echo $SSH_AGENT_PID > /tmp/.ssh-agent-pid
+            [[ $SH_INTERACTIVE ]] && echo $SSH_AGENT_PID > /tmp/.ssh-agent-pid
         fi
     fi
 
-    if [[ $BASH_OS_TYPE == Linux* ]]; then
+    if [[ $SH_OS_TYPE == Linux ]]; then
         if [[ -z "$(pgrep ssh-agent)" ]]; then
-            rm -rf /tmp/ssh-*
+            [[ $SH_INTERACTIVE ]] && echo
+            [[ $SH_INTERACTIVE ]] && echo -e 'SSH agent '$COLOR_YELLOW_BOLD'not running'$COLOR_NONE'. Starting new one...'
+            rm -rf /tmp/ssh-* 2>/dev/null
             eval $(ssh-agent -s) >/dev/null
         else
+            [[ $SH_INTERACTIVE ]] && echo
+            [[ $SH_INTERACTIVE ]] && echo -e 'SSH agent '$COLOR_GREEN_BOLD'running'$COLOR_NONE'. Connecting...'
             export SSH_AGENT_PID=$(pgrep ssh-agent)
             export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.* 2>/dev/null)
         fi
@@ -94,7 +104,7 @@ EOF
 
     if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
         if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
-            if [[ $BASH_OS_TYPE == OSX ]]; then
+            if [[ $SH_OS_TYPE == OSX ]]; then
                 ssh-add -K ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
             else
                 ssh-add ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
@@ -103,27 +113,27 @@ EOF
     fi
 
     # Source additional global, local, and personal definitions
-    [[ $BASH_INTERACTIVE ]] && echo
-    __include_files "/etc/bashrc" "${HOME}/.bashrc_local" "${BASH_SOURCE_DIR}/aliases" "${HOME}/.aliases_local"
+    [[ $SH_INTERACTIVE ]] && echo
+    __include_files "/etc/bashrc" "${HOME}/.bashrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases_local"
 
     local BASH_COMPLETION_INSTALLED
     BASH_COMPLETION_INSTALLED=`type -t _init_completion`
 
     # Bash completion
     if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
-        if [[ $BASH_OS_TYPE == OSX ]]; then
+        if [[ $SH_OS_TYPE == OSX ]]; then
             # Bash completion for Mac OS X (from Homebrew or MacPorts)
             if [[ -f /usr/local/etc/bash_completion ]]; then
-                [[ $BASH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/usr/local/etc/bash_completion'$COLOR_NONE
+                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/usr/local/etc/bash_completion'$COLOR_NONE
                 . /usr/local/etc/bash_completion
             elif [[ -f /opt/local/etc/profile.d/bash_completion.sh ]]; then
-                [[ $BASH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/local/etc/profile.d/bash_completion.sh'$COLOR_NONE
+                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/local/etc/profile.d/bash_completion.sh'$COLOR_NONE
                 . /opt/local/etc/profile.d/bash_completion.sh
             fi
-        elif [[ $BASH_OS_TYPE == Linux* ]]; then
+        elif [[ $SH_OS_TYPE == Linux ]]; then
             # Bash completion for Linux
             if [[ -f /etc/bash_completion ]]; then
-                [[ $BASH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/etc/bash_completion'$COLOR_NONE
+                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/etc/bash_completion'$COLOR_NONE
                 . /etc/bash_completion
             fi
         fi
@@ -131,7 +141,8 @@ EOF
         BASH_COMPLETION_INSTALLED=`type -t _init_completion`
 
         if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
-            [[ $BASH_INTERACTIVE ]] && echo -e 'Bash completion '$COLOR_RED_BOLD'not configured'$COLOR_NONE
+            [[ $SH_INTERACTIVE ]] && echo
+            [[ $SH_INTERACTIVE ]] && echo -e 'Bash completion '$COLOR_RED_BOLD'not configured'$COLOR_NONE
         fi
     fi
 
@@ -146,7 +157,7 @@ EOF
         fi
 
         if [[ -f "$GIT_COMPLETION" ]]; then
-            [[ $BASH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$GIT_COMPLETION$COLOR_NONE
+            [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$GIT_COMPLETION$COLOR_NONE
             . "$GIT_COMPLETION"
         fi
     fi
@@ -158,12 +169,12 @@ EOF
     fi
 
     if [[ -f "$ADB_COMPLETION" ]]; then
-        [[ $BASH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$ADB_COMPLETION$COLOR_NONE
+        [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$ADB_COMPLETION$COLOR_NONE
         . "$ADB_COMPLETION"
     fi
 
     local PATH_DIRS=( "${HOME}/bin" )
-    if [[ $BASH_OS_TYPE == OSX ]]; then
+    if [[ $SH_OS_TYPE == OSX ]]; then
         # Mac OS X paths, including Homebrew and MacPorts
         PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" )
     fi
@@ -176,8 +187,8 @@ EOF
 
     # SSH client
     if [[ -n $SSH_CLIENT ]]; then
-        [[ $BASH_INTERACTIVE ]] && echo
-        [[ $BASH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
+        [[ $SH_INTERACTIVE ]] && echo
+        [[ $SH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
     fi
 
     # Prompt
@@ -208,20 +219,20 @@ EOF
     export PS1='\['$COLOR_BOLD'\]\['$COLOR_ROOT_INVERT'\]\u\['$COLOR_NONE'\] \['$COLOR_BOLD'\]\['$COLOR_YELLOW_INVERT'\]\h\['$COLOR_NONE'\] \['$COLOR_CYAN_BOLD'\]\w\['$COLOR_NONE'\] \['$COLOR_MAGENTA_BOLD'\]'$VERSION_CONTROL_PROMPT'\['$COLOR_NONE'\]\$ '
 
     # Color directories
-    if [[ $BASH_OS_TYPE == OSX ]]; then
+    if [[ $SH_OS_TYPE == OSX ]]; then
         # Mac OS X settings
         #export CLICOLOR=1
         export LSCOLORS=GxFxCxDxBxegedabagaced
     fi
 
-    if [[ $BASH_OS_TYPE == Linux* ]]; then
+    if [[ $SH_OS_TYPE == Linux ]]; then
         # Linux settings
         export LS_COLORS='di=01;36'
     fi
 
     # Misc declarations
-    if [[ $BASH_OS_TYPE == Linux* ]]; then
-        if [[ $BASH_OS_DISTRO == Ubuntu ]]; then
+    if [[ $SH_OS_TYPE == Linux ]]; then
+        if [[ $SH_OS_DISTRO == Ubuntu ]]; then
             if [[ -z $SHELL ]]; then
                 # Ubuntu does not always define it for some reason
                 export SHELL=/usr/bin/env bash
@@ -278,7 +289,7 @@ EOF
     fi
 
     # Go
-    if [[ $BASH_OS_TYPE == OSX ]]; then
+    if [[ $SH_OS_TYPE == OSX ]]; then
         if [[ -d $HOME/src/Go ]]; then
             export GOPATH=$HOME/src/Go
         fi
@@ -291,8 +302,8 @@ EOF
 
     # Local declarations
     if [[ -n `type -t __bashrc_local_run` ]]; then
-        [[ $BASH_INTERACTIVE ]] && echo
-        [[ $BASH_INTERACTIVE ]] && echo -e 'Executing '$COLOR_GREEN_BOLD$(__bashrc_local)$COLOR_NONE
+        [[ $SH_INTERACTIVE ]] && echo
+        [[ $SH_INTERACTIVE ]] && echo -e 'Executing '$COLOR_GREEN_BOLD$(__bashrc_local)$COLOR_NONE
 
         __bashrc_local_run "$@"
     fi
@@ -317,11 +328,11 @@ EOF
         FREE_SPACE_READABLE=$FREE_SPACE_READABLE' '$COLOR_RED_BOLD'WARNING: Low free disk space!!!'$COLOR_NONE
     fi
 
-    [[ $BASH_INTERACTIVE ]] && echo
-    [[ $BASH_INTERACTIVE ]] && echo -e 'Free space: '$FREE_SPACE_READABLE 
+    [[ $SH_INTERACTIVE ]] && echo
+    [[ $SH_INTERACTIVE ]] && echo -e 'Free space: '$FREE_SPACE_READABLE 
 
-    [[ $BASH_INTERACTIVE ]] && echo
+    [[ $SH_INTERACTIVE ]] && echo
 }
 
 __bashrc_main "$@"
-unset __bashrc_main
+unset -f __bashrc_main

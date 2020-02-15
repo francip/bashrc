@@ -1,61 +1,62 @@
 #!/usr/bin/env bash
 
 __skeleton_main() {
-    local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
+    local SH_SOURCE_FILE SH_SOURCE_DIR SH_SOURCE_FILE_ESCAPED
 
-    BASH_SOURCE_FILE=${BASH_SOURCE[0]}
-    while [[ -L "$BASH_SOURCE_FILE" ]]; do
-        BASH_SOURCE_FILE=$(readlink "$BASH_SOURCE_FILE")
+    if [ -n "$ZSH_VERSION" ]; then
+        SH_SOURCE_FILE=${(%):-%x}
+    elif [ -n "$BASH_VERSION" ]; then
+        SH_SOURCE_FILE=${BASH_SOURCE[0]}
+    fi
+
+    while [[ -L "$SH_SOURCE_FILE" ]]; do
+        SH_SOURCE_FILE=$(readlink "$SH_SOURCE_FILE")
     done
 
-    BASH_SOURCE_DIR=$(dirname "$BASH_SOURCE_FILE")
-    BASH_SOURCE_DIR=`cd "$BASH_SOURCE_DIR" >/dev/null; pwd`
-    BASH_SOURCE_FILE=$(basename "$BASH_SOURCE_FILE")
-    BASH_SOURCE_FILE_ESCAPED=${BASH_SOURCE_FILE// /_}
+    SH_SOURCE_DIR=$(dirname "$SH_SOURCE_FILE")
+    SH_SOURCE_DIR=`cd "$SH_SOURCE_DIR" >/dev/null; pwd`
+    SH_SOURCE_FILE=$(basename "$SH_SOURCE_FILE")
+    SH_SOURCE_FILE_ESCAPED=${SH_SOURCE_FILE// /_}
 
-    # BASH_SOURCE_DIR is a full path to the location of this script
+    # SH_SOURCE_DIR is a full path to the location of this script
 
     eval "$(cat <<EOF
-        __get_${BASH_SOURCE_FILE_ESCAPED}_dir() {
-          echo $BASH_SOURCE_DIR
+        __get_${SH_SOURCE_FILE_ESCAPED}_dir() {
+          echo $SH_SOURCE_DIR
         }
-        __get_${BASH_SOURCE_FILE_ESCAPED}_file() {
-          echo $BASH_SOURCE_FILE
+        __get_${SH_SOURCE_FILE_ESCAPED}_file() {
+          echo $SH_SOURCE_FILE
         }
 EOF
 )"
 
-    local BASH_COLOR_DEFS
-    if [[ -e "$HOME/.configure_colors" ]]; then
-        BASH_COLOR_DEFS=`cat "$HOME/.configure_colors"`
-    elif [[ -e "$BASH_SOURCE_DIR/configure_colors" ]]; then
-        BASH_COLOR_DEFS=`cat "$BASH_SOURCE_DIR/configure_colors"`
+    local SH_COLOR_DEFS
+    if [[ -e "$SH_SOURCE_DIR/configure_colors" ]]; then
+        SH_COLOR_DEFS=`cat "$SH_SOURCE_DIR/configure_colors"`
     fi
 
-    local BASH_OS_DEFS
-    if [[ -e "$HOME/.configure_os" ]]; then
-        BASH_OS_DEFS=`cat "$HOME/.configure_os"`
-    elif [[ -e "$BASH_SOURCE_DIR/configure_os" ]]; then
-        BASH_OS_DEFS=`cat "$BASH_SOURCE_DIR/configure_os"`
+    local SH_OS_DEFS
+    if [[ -e "$SH_SOURCE_DIR/configure_os" ]]; then
+        SH_OS_DEFS=`cat "$SH_SOURCE_DIR/configure_os"`
     fi
 
     eval "$(cat <<EOF
-        _bash_color_definitions() {
-            echo "$BASH_COLOR_DEFS"
+        __sh_color_definitions() {
+            echo "$SH_COLOR_DEFS"
         }
-        _bash_os_definitions() {
-            echo "$BASH_OS_DEFS"
+        __sh_os_definitions() {
+            echo "$SH_OS_DEFS"
         }
 EOF
 )"
 
-    eval "$(_bash_color_definitions)"
-    eval "$(_bash_os_definitions)"
+    eval "$(__sh_color_definitions)"
+    eval "$(__sh_os_definitions)"
 
-    echo -e 'Script path : '$COLOR_GREEN$(__get_${BASH_SOURCE_FILE_ESCAPED}_dir)$COLOR_NONE
-    echo -e 'Script name : '$COLOR_GREEN$(__get_${BASH_SOURCE_FILE_ESCAPED}_file)$COLOR_NONE
+    echo -e 'Script path : '$COLOR_GREEN$(__get_${SH_SOURCE_FILE_ESCAPED}_dir)$COLOR_NONE
+    echo -e 'Script name : '$COLOR_GREEN$(__get_${SH_SOURCE_FILE_ESCAPED}_file)$COLOR_NONE
 
 }
 
 __skeleton_main "$@"
-unset __skeleton_main
+unset -f __skeleton_main

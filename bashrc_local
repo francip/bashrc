@@ -1,50 +1,45 @@
-#!/usr/bin/env bash
-
-# This file is not intended for direct execution
-if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then exit; fi
-
 # Source local definitions
 
 __bashrc_local_main() {
-    local BASH_SOURCE_FILE BASH_SOURCE_DIR BASH_SOURCE_FILE_ESCAPED
+    local SH_SOURCE_FILE SH_SOURCE_DIR SH_SOURCE_FILE_ESCAPED
 
-    BASH_SOURCE_FILE=${BASH_SOURCE[0]}
-    while [[ -L "$BASH_SOURCE_FILE" ]]; do
-        BASH_SOURCE_FILE=$(readlink "$BASH_SOURCE_FILE")
+    SH_SOURCE_FILE=${BASH_SOURCE[0]}
+    while [[ -L "$SH_SOURCE_FILE" ]]; do
+        SH_SOURCE_FILE=$(readlink "$SH_SOURCE_FILE")
     done
 
-    BASH_SOURCE_DIR=$(dirname "$BASH_SOURCE_FILE")
-    BASH_SOURCE_DIR=`cd "$BASH_SOURCE_DIR" >/dev/null; pwd`
-    BASH_SOURCE_FILE=$(basename "$BASH_SOURCE_FILE")
-    BASH_SOURCE_FILE_ESCAPED=${BASH_SOURCE_FILE// /_}
+    SH_SOURCE_DIR=$(dirname "$SH_SOURCE_FILE")
+    SH_SOURCE_DIR=`cd "$SH_SOURCE_DIR" >/dev/null; pwd`
+    SH_SOURCE_FILE=$(basename "$SH_SOURCE_FILE")
+    SH_SOURCE_FILE_ESCAPED=${SH_SOURCE_FILE// /_}
 
-    # BASH_SOURCE_DIR is a full path to the location of this script
+    # SH_SOURCE_DIR is a full path to the location of this script
 
     eval "$(cat <<EOF
-        __get_${BASH_SOURCE_FILE_ESCAPED}_dir() {
-          echo $BASH_SOURCE_DIR
+        __get_${SH_SOURCE_FILE_ESCAPED}_dir() {
+          echo $SH_SOURCE_DIR
         }
-        __get_${BASH_SOURCE_FILE_ESCAPED}_file() {
-          echo $BASH_SOURCE_FILE
+        __get_${SH_SOURCE_FILE_ESCAPED}_file() {
+          echo $SH_SOURCE_FILE
         }
 EOF
 )"
 
-    eval "$(_bash_color_definitions)"
-    eval "$(_bash_os_definitions)"
+    eval "$(__sh_color_definitions)"
+    eval "$(__sh_os_definitions)"
 
-    local BASH_INTERACTIVE
+    local SH_INTERACTIVE
 
     case $- in
     *i*)
         # interactive shell
-        BASH_INTERACTIVE=1
+        SH_INTERACTIVE=1
         ;;
     esac
 
     eval "
         __bashrc_local() {
-            echo $(__get_${BASH_SOURCE_FILE_ESCAPED}_dir)'/'$(__get_${BASH_SOURCE_FILE_ESCAPED}_file)
+            echo $(__get_${SH_SOURCE_FILE_ESCAPED}_dir)'/'$(__get_${SH_SOURCE_FILE_ESCAPED}_file)
         }
     "
 
@@ -58,4 +53,4 @@ EOF
 }
 
 __bashrc_local_main "$@"
-unset __bashrc_local_main
+unset -f __bashrc_local_main

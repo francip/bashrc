@@ -1,0 +1,129 @@
+# This file is not intended for direct execution
+if [ -n "$ZSH_VERSION" ]; then
+    case $ZSH_EVAL_CONTEXT in
+    *file)
+        ;;
+    *file:cmdsubst)
+        ;;
+    *)
+        echo 'This script is not intended for direct Zsh execution'
+        exit
+        ;;
+    esac
+elif [ -n "$BASH_VERSION" ]; then
+    if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+        echo 'This script is not intended for direct bash execution'
+        exit
+    fi
+else
+    # Only Zsh and Bash supported
+    echo 'This script requires Zsh or Bash'
+    exit
+fi
+
+__uninstall_main() {
+    local SH_SOURCE_FILE SH_SOURCE_DIR SH_SOURCE_FILE_ESCAPED
+
+    if [ -n "$ZSH_VERSION" ]; then
+        SH_SOURCE_FILE=${(%):-%x}
+    elif [ -n "$BASH_VERSION" ]; then
+        SH_SOURCE_FILE=${BASH_SOURCE[0]}
+    fi
+
+    while [[ -L "$SH_SOURCE_FILE" ]]; do
+        SH_SOURCE_FILE=$(readlink "$SH_SOURCE_FILE")
+    done
+
+    SH_SOURCE_DIR=$(dirname "$SH_SOURCE_FILE")
+    SH_SOURCE_DIR=`cd "$SH_SOURCE_DIR" >/dev/null; pwd`
+    SH_SOURCE_FILE=$(basename "$SH_SOURCE_FILE")
+    SH_SOURCE_FILE_ESCAPED=${SH_SOURCE_FILE// /_}
+
+    # SH_SOURCE_DIR is a full path to the location of this script
+
+    eval "$(cat <<EOF
+        __get_${SH_SOURCE_FILE_ESCAPED}_dir() {
+          echo $SH_SOURCE_DIR
+        }
+        __get_${SH_SOURCE_FILE_ESCAPED}_file() {
+          echo $SH_SOURCE_FILE
+        }
+        __get_sh_scripts_dir() {
+          echo "$SH_SOURCE_DIR"
+        }
+        __get_sh_scripts_file() {
+          echo "$SH_SOURCE_FILE"
+        }
+EOF
+)"
+
+    local SH_COLOR_DEFS
+    if [[ -e "$SH_SOURCE_DIR/configure_colors" ]]; then
+        SH_COLOR_DEFS=`cat "$SH_SOURCE_DIR/configure_colors"`
+    fi
+
+    local SH_OS_DEFS
+    if [[ -e "$SH_SOURCE_DIR/configure_os" ]]; then
+        SH_OS_DEFS=`cat "$SH_SOURCE_DIR/configure_os"`
+    fi
+
+    eval "$(cat <<EOF
+        __sh_color_definitions() {
+            echo "$SH_COLOR_DEFS"
+        }
+        __sh_os_definitions() {
+            echo "$SH_OS_DEFS"
+        }
+EOF
+)"
+
+    eval "$(__sh_color_definitions)"
+    eval "$(__sh_os_definitions)"
+
+    local OS_TYPE_SUFFIX OS_DISTRO_SUFFIX OS_RELEASE_SUFFIX
+
+    OS_TYPE_SUFFIX=`echo $SH_OS_TYPE | tr '[A-Z]' '[a-z]'`
+    OS_DISTRO_SUFFIX=`echo $SH_OS_DISTRO | tr '[A-Z]' '[a-z]'`
+    OS_RELEASE_SUFFIX=`echo $SH_OS_DISTRO | tr '[A-Z]' '[a-z]'`
+
+    local FILES CURRENT_FILE SOURCE_FILE LINK_FILE LINK_TARGET_FILE
+
+    FILES=( zshrc bash_profile bashrc bash_logout inputrc vimrc tmux.conf configure_colors configure_os )
+    for CURRENT_FILE in "${FILES[@]}"; do
+        SOURCE_FILE=$SH_SOURCE_DIR/$CURRENT_FILE
+        if [[ -e $SOURCE_FILE'_'$OS_TYPE_SUFFIX'_'$OS_DISTRO_SUFFIX'_'$OS_RELEASE_SUFFIX ]]; then
+            SOURCE_FILE=$SOURCE_FILE'_'$OS_TYPE_SUFFIX'_'$OS_DISTRO_SUFFIX'_'$OS_RELEASE_SUFFIX
+        elif [[ -e $SOURCE_FILE'_'$OS_TYPE_SUFFIX'_'$OS_DISTRO_SUFFIX ]]; then
+            SOURCE_FILE=$SOURCE_FILE'_'$OS_TYPE_SUFFIX'_'$OS_DISTRO_SUFFIX
+        elif [[ -e $SOURCE_FILE'_'$OS_TYPE_SUFFIX ]]; then
+            SOURCE_FILE=$SOURCE_FILE'_'$OS_TYPE_SUFFIX
+        fi
+
+        LINK_FILE=$HOME/.$CURRENT_FILE
+
+        if [[ -e "$LINK_FILE" ]]; then
+            if [[ -L "$LINK_FILE" ]]; then
+
+                LINK_TARGET_FILE=$LINK_FILE
+
+                while [[ -L "$LINK_TARGET_FILE" ]]; do
+                    LINK_TARGET_FILE=$(readlink "$LINK_TARGET_FILE")
+                done
+
+                if [[ "$LINK_TARGET_FILE" == "$SOURCE_FILE" ]]; then
+                    echo -e $COLOR_GREEN_BOLD$LINK_FILE$COLOR_NONE': Removed, was linked to '$COLOR_CYAN_BOLD$SOURCE_FILE$COLOR_NONE
+                    rm "$LINK_FILE"
+                else
+                    echo -e $COLOR_YELLOW_BOLD$LINK_FILE$COLOR_NONE': Not removing, points to '$COLOR_YELLOW_BOLD$LINK_TARGET_FILE$COLOR_NONE' instead of '$COLOR_CYAN_BOLD$SOURCE_FILE$COLOR_NONE
+                fi
+            else
+                echo -e $COLOR_YELLOW_BOLD$LINK_FILE$COLOR_NONE': Not removing, not a symbolic link'
+            fi
+        else
+            echo -e $COLOR_RED_BOLD$LINK_FILE$COLOR_NONE': Not removing, does not exist'
+        fi
+    done
+}
+
+__uninstall_main "$@"
+unset -f __uninstall_main

@@ -1,112 +1,110 @@
-#!/usr/bin/env bash
-
 # Determine the current OS
 
-local BASH_OS_TYPE BASH_OS_DISTRO BASH_OS_RELEASE
+local SH_OS_TYPE SH_OS_DISTRO SH_OS_RELEASE
 
 if [[ $OSTYPE == darwin* ]]; then
     # OS X
-    BASH_OS_TYPE='OSX'
-    BASH_OS_RELEASE=`type sw_vers >/dev/null 2>&1 && sw_vers -productVersion`
+    SH_OS_TYPE='OSX'
+    SH_OS_RELEASE=`type sw_vers >/dev/null 2>&1 && sw_vers -productVersion`
     if [[ $OSTYPE == darwin19* ]]; then
-        BASH_OS_DISTRO='Catalina'
+        SH_OS_DISTRO='Catalina'
     elif [[ $OSTYPE == darwin18* ]]; then
-        BASH_OS_DISTRO='Mojave'
+        SH_OS_DISTRO='Mojave'
     elif [[ $OSTYPE == darwin17* ]]; then
-        BASH_OS_DISTRO='High Sierra'
+        SH_OS_DISTRO='High Sierra'
     elif [[ $OSTYPE == darwin16* ]]; then
-        BASH_OS_DISTRO='Sierra'
+        SH_OS_DISTRO='Sierra'
     elif [[ $OSTYPE == darwin15* ]]; then
-        BASH_OS_DISTRO='El Capitan'
+        SH_OS_DISTRO='El Capitan'
     elif [[ $OSTYPE == darwin14* ]]; then
-        BASH_OS_DISTRO='Yosemite'
+        SH_OS_DISTRO='Yosemite'
     elif [[ $OSTYPE == darwin13* ]]; then
-        BASH_OS_DISTRO='Mavericks'
+        SH_OS_DISTRO='Mavericks'
     elif [[ $OSTYPE == darwin12* ]]; then
-        BASH_OS_DISTRO='Mountain Lion'
+        SH_OS_DISTRO='Mountain Lion'
     elif [[ $OSTYPE == darwin11* ]]; then
-        BASH_OS_DISTRO='Lion'
+        SH_OS_DISTRO='Lion'
     elif [[ $OSTYPE == darwin10* ]]; then
-        BASH_OS_DISTRO='Snow Leopard'
+        SH_OS_DISTRO='Snow Leopard'
     else
         # How to get the distro
-        BASH_OS_DISTRO='Unknown'
+        SH_OS_DISTRO='Unknown'
     fi
 elif [[ $OSTYPE == linux-gnu ]]; then
     # Linux
-    BASH_OS_TYPE='Linux'
-    if [[ -n '$WSL_DISTRO_NAME' ]]; then
-        BASH_OS_TYPE='Linux WSL'
-    fi
+    SH_OS_TYPE='Linux'
+    # if [[ -n '$WSL_DISTRO_NAME' ]]; then
+    #     SH_OS_TYPE='Linux WSL'
+    # fi
     if [[ -f /etc/lsb-release ]] || type lsb_release >/dev/null 2>&1 ; then
-        BASH_OS_DISTRO=`type lsb_release >/dev/null 2>&1 && lsb_release -i -s`
-        BASH_OS_RELEASE=`type lsb_release >/dev/null 2>&1 && lsb_release -r -s`
+        SH_OS_DISTRO=`type lsb_release >/dev/null 2>&1 && lsb_release -i -s`
+        SH_OS_RELEASE=`type lsb_release >/dev/null 2>&1 && lsb_release -r -s`
     elif [[ -f /etc/debian_version ]]; then
         # Debian/Ubuntu
         # How to distinguish Debian vs. Ubuntu?
-        BASH_OS_DISTRO='Debian'
+        SH_OS_DISTRO='Debian'
         # How to get the release
-        BASH_OS_RELEASE=0
+        SH_OS_RELEASE=0
     elif [[ -f /etc/centos-release ]]; then
         # CentOS 6+
-        BASH_OS_DISTRO='CentOS'
-        BASH_OS_RELEASE=`cat /etc/centos-release >/dev/null 2>&1 && cat /etc/centos-release | sed s/.*release\ // | sed s/\ .*//`
+        SH_OS_DISTRO='CentOS'
+        SH_OS_RELEASE=`cat /etc/centos-release >/dev/null 2>&1 && cat /etc/centos-release | sed s/.*release\ // | sed s/\ .*//`
     elif [[ -f /etc/redhat-release ]]; then
         # RedHat
-        BASH_OS_DISTRO='RedHat'
-        BASH_OS_RELEASE=`cat /etc/redhat-release >/dev/null 2>&1 && cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
+        SH_OS_DISTRO='RedHat'
+        SH_OS_RELEASE=`cat /etc/redhat-release >/dev/null 2>&1 && cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
     elif [[ -f /etc/issue ]]; then
         # Yocto
-        BASH_OS_DISTRO='Yocto'
-        BASH_OS_RELEASE=`cat /etc/issue >/dev/null 2>&1 && cat /etc/issue | sed s/\ \(Yocto.*//`
+        SH_OS_DISTRO='Yocto'
+        SH_OS_RELEASE=`cat /etc/issue >/dev/null 2>&1 && cat /etc/issue | sed s/\ \(Yocto.\*//`
     else
         # How to get the distro
-        BASH_OS_DISTRO='Unknown'
+        SH_OS_DISTRO='Unknown'
         # How to get the release
-        BASH_OS_RELEASE=0
+        SH_OS_RELEASE=0
     fi
 elif [[ $OSTYPE == linux-gnueabi* ]]; then
     # Linux Embedded
-    BASH_OS_TYPE='Linux'
+    SH_OS_TYPE='Linux'
     if [[ -f /etc/debian_version ]]; then
         if [[ -f /etc/rpi-issue ]]; then
             # Raspbian
-            BASH_OS_DISTRO='Raspbian'
+            SH_OS_DISTRO='Raspbian'
         else
             # Debian
-            BASH_OS_DISTRO='Debian'
+            SH_OS_DISTRO='Debian'
         fi
-        BASH_OS_RELEASE=`cat /etc/debian_version >/dev/null 2>&1 && cat /etc/debian_version`
+        SH_OS_RELEASE=`cat /etc/debian_version >/dev/null 2>&1 && cat /etc/debian_version`
     else
         # How to get the distro
-        BASH_OS_DISTRO='Unknown'
+        SH_OS_DISTRO='Unknown'
         # How to get the release
-        BASH_OS_RELEASE=0
+        SH_OS_RELEASE=0
     fi
 elif [[ '$OS' == Windows* ]]; then
     # Windows
-    BASH_OS_TYPE='Windows'
+    SH_OS_TYPE='Windows'
     if [[ '$OSTYPE' == msys* ]]; then
         # Msys
-        BASH_OS_DISTRO='Msys'
-        BASH_OS_RELEASE=`uname -s | tr "-" "\n" | tail -n 1`
+        SH_OS_DISTRO='Msys'
+        SH_OS_RELEASE=`uname -s | tr "-" "\n" | tail -n 1`
     elif [[ '$MSYSTEM' == MSYS* ]]; then
         # Msys
-        BASH_OS_DISTRO='Msys'
-        BASH_OS_RELEASE=`uname -s | tr "-" "\n" | tail -n 1`
+        SH_OS_DISTRO='Msys'
+        SH_OS_RELEASE=`uname -s | tr "-" "\n" | tail -n 1`
     elif [[ '$MSYSTEM' == MINGW* ]]; then
         # MinGW
-        BASH_OS_DISTRO='Msys'
-        BASH_OS_RELEASE=`uname -s | tr "-" "\n" | tail -n 1`
+        SH_OS_DISTRO='Msys'
+        SH_OS_RELEASE=`uname -s | tr "-" "\n" | tail -n 1`
     else
         # How to get the distro
-        BASH_OS_DISTRO='Unknown'
+        SH_OS_DISTRO='Unknown'
         # How to get the release
-        BASH_OS_RELEASE=0
+        SH_OS_RELEASE=0
     fi
 else
     # What the heck are we running on???
-    BASH_OS_TYPE='Unknown'
-    BASH_OS_DISTRO='Unknown'
-    BASH_OS_RELEASE=0
+    SH_OS_TYPE='Unknown'
+    SH_OS_DISTRO='Unknown'
+    SH_OS_RELEASE=0
 fi

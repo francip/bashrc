@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # Library of ANSI terminal color definitions
 # for use with echo -e
 

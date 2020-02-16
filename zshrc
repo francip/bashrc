@@ -137,7 +137,7 @@ EOF
     zstyle ':completion:*' format 'Completing %d'
     zstyle ':completion:*' group-name ''
     zstyle ':completion:*' menu select=2
-    eval "$(dircolors -b)"
+    # eval "$(dircolors -b)"
     zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
     zstyle ':completion:*' list-colors ''
     zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
@@ -258,7 +258,7 @@ EOF
     # Free space
     local FREE_SPACE FREE_SPACE_READABLE
     FREE_SPACE=`df -k / | tail -n 1 | awk '{printf $4}'`
-    FREE_SPACE_READABLE=`df -h / | tail -n 1 | awk '{printf $4}' | tr -d [:space:]i`
+    FREE_SPACE_READABLE=`df -h / | tail -n 1 | awk '{printf $4}' | tr -d i`
     FREE_SPACE_READABLE=$COLOR_YELLOW_BOLD$FREE_SPACE_READABLE$COLOR_NONE
 
     if (( $FREE_SPACE <= 5000000 )); then

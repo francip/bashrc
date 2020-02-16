@@ -2,8 +2,8 @@ __ln_test_main() {
     eval "$(__sh_color_definitions)"
     eval "$(__sh_os_definitions)"
 
-    # local SH_SOURCE_DIR=$(__get_sh_scripts_dir)
-    # local SH_SOURCE_FILE=$(__get_sh_scripts_file)
+    local SH_SOURCE_DIR=$(__get_sh_scripts_dir)
+    local SH_SOURCE_FILE=$(__get_sh_scripts_file)
 
     # . $SH_SOURCE_DIR/direct_test.sh
 

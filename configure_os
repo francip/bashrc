@@ -48,11 +48,11 @@ elif [[ $OSTYPE == linux-gnu ]]; then
     elif [[ -f /etc/centos-release ]]; then
         # CentOS 6+
         SH_OS_DISTRO='CentOS'
-        SH_OS_RELEASE=`cat /etc/centos-release >/dev/null 2>&1 && cat /etc/centos-release | sed s/.*release\ // | sed s/\ .*//`
+        SH_OS_RELEASE=`cat /etc/centos-release >/dev/null 2>&1 && cat /etc/centos-release | sed s/.\*release\ // | sed s/\ .\*//`
     elif [[ -f /etc/redhat-release ]]; then
         # RedHat
         SH_OS_DISTRO='RedHat'
-        SH_OS_RELEASE=`cat /etc/redhat-release >/dev/null 2>&1 && cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*//`
+        SH_OS_RELEASE=`cat /etc/redhat-release >/dev/null 2>&1 && cat /etc/redhat-release | sed s/.\*release\ // | sed s/\ .\*//`
     elif [[ -f /etc/issue ]]; then
         # Yocto
         SH_OS_DISTRO='Yocto'

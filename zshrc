@@ -132,6 +132,8 @@ EOF
     autoload -Uz compinit
     compinit
 
+    setopt autocd
+
     zstyle ':completion:*' auto-description 'specify: %d'
     zstyle ':completion:*' completer _expand _complete _correct _approximate
     zstyle ':completion:*' format 'Completing %d'
@@ -158,7 +160,7 @@ EOF
         DISABLE_UNTRACKED_FILES_DIRTY="true"
         HIST_STAMPS="yyyy-mm-dd"
 
-        plugins=(git mercurial)
+        plugins=(git mercurial adb nvm node npm python pip osx iterm2 macports)
 
         source $ZSH/oh-my-zsh.sh
     fi
@@ -212,16 +214,6 @@ EOF
         fi
         if [[ -s "$NVM_DIR/bash_completion" ]]; then
             . "$NVM_DIR/bash_completion"
-        fi
-
-        # Electron-forge
-        local NVM_CURRENT ELECTRON_FORGE_COMPLETION
-
-        NVM_CURRENT=`nvm current`
-        ELECTRON_FORGE_COMPLETION=$NVM_DIR/versions/node/$NVM_CURRENT/lib/node_modules/electron-forge/node_modules/tabtab/.completions/electron-forge.bash
-
-        if [[ -s "$ELECTRON_FORGE_COMPLETION" ]]; then
-            . "$ELECTRON_FORGE_COMPLETION"
         fi
     fi
 

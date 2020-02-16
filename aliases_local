@@ -33,9 +33,9 @@ EOF
     eval "$(__sh_color_definitions)"
     eval "$(__sh_os_definitions)"
 
-    # Early load before bashrc main started
+    # Early load before dotrc main started
 
-    # Late load after bashrc main finished
+    # Late load after dotrc main finished
 
     __aliases_local_load() {
         local ALIASES_LOCAL_LOAD

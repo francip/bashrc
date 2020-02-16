@@ -43,9 +43,9 @@ EOF
         }
     "
 
-    # Early load before bashrc main started
+    # Early load before dotrc main started
 
-    # Late load after bashrc main finished
+    # Late load after dotrc main finished
 
     __bashrc_local_run() {
         local BASHRC_LOCAL_RUN

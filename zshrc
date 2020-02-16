@@ -190,7 +190,7 @@ EOF
     fi
 
     if [[ -d $HOME/android-ndk ]]; then
-	    if [[ -d $HOME/android-ndk/android-ndk-r10e ]]; then
+        if [[ -d $HOME/android-ndk/android-ndk-r10e ]]; then
             export ANDROID_NDK=$HOME/android-ndk/android-ndk-r10e
             export ANDROID_NDK_ROOT=$ANDROID_NDK
             export ANDROID_NDK_REPOSITORY=$HOME/android-ndk
@@ -266,27 +266,10 @@ EOF
     fi
 
     [[ $SH_INTERACTIVE ]] && echo
-    [[ $SH_INTERACTIVE ]] && echo -e 'Free space: '$FREE_SPACE_READABLE 
+    [[ $SH_INTERACTIVE ]] && echo -e 'Free space: '$FREE_SPACE_READABLE
 
     [[ $SH_INTERACTIVE ]] && echo
 }
 
 __zshrc_main "$@"
 unset -f __zshrc_main
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

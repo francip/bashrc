@@ -121,12 +121,23 @@ EOF
         fi
     }
 
-    check-whitespace() {
+    check_whitespace() {
+        eval "$(__sh_color_definitions)"
+        eval "$(__sh_os_definitions)"
+
+        echo
+        echo -e 'Looking for '$COLOR_CYAN_BOLD'trailing space'$COLOR_NONE
+
         # Look for trailing spaces
         grep -r -n '[[:space:]]$' *
 
+        echo
+        echo -e 'Looking for '$COLOR_CYAN_BOLD'leading tabs'$COLOR_NONE
+
         # Look for leading tabs
         grep -r -n '^\t' *
+
+        echo
     }
 
     get_ssh_client_ip() {
@@ -148,11 +159,12 @@ EOF
         ssh $* -t 'tmux a || tmux || /usr/bin/env bash'
     }
 
+    sshz() {
+        ssh $* -t 'tmux a || tmux || /usr/bin/env zsh'
+    }
+
     __get_commands_info() {
         local COMMAND_LIST COMMAND COMMAND_INSTALLED COMMAND_LOCATION COMMAND_VERSION
-        
-        echo
-        echo -e 'Looking for common tools...'
 
         COMMAND_LIST=( $* )
         for COMMAND in "${COMMAND_LIST[@]}"; do
@@ -160,13 +172,13 @@ EOF
             if [[ -n "$COMMAND_INSTALLED" ]]; then
                 echo
                 echo -e $COLOR_GREEN_BOLD${COMMAND}$COLOR_NONE
-                COMMAND_VERSION=`${COMMAND} --version 2>/dev/null`
+                COMMAND_VERSION=`${COMMAND} --version 2>/dev/null || ${COMMAND} version 2>/dev/null`
                 if [[ -n "$COMMAND_VERSION" ]]; then
-                    echo -e $COLOR_CYAN_BOLD'  Version: '${COMMAND_VERSION}$COLOR_NONE
+                    echo -e $COLOR_CYAN_BOLD'  Version  : '${COMMAND_VERSION}$COLOR_NONE
                 fi
                 COMMAND_LOCATION=`type -p ${COMMAND} 2>/dev/null`
                 if [[ -n "$COMMAND_LOCATION" ]]; then
-                    echo -e $COLOR_CYAN_BOLD'  Location: '${COMMAND_LOCATION}$COLOR_NONE
+                    echo -e $COLOR_CYAN_BOLD'  Location : '${COMMAND_LOCATION}$COLOR_NONE
                 fi
             fi
         done
@@ -174,13 +186,22 @@ EOF
 
     check_env() {
         eval "$(__sh_color_definitions)"
+        eval "$(__sh_os_definitions)"
+
+        echo
+        echo -e 'Looking for '$COLOR_CYAN_BOLD'common'$COLOR_NONE' tools...'
 
         __get_commands_info nvm node npm python3 pip3
 
         if [[ $SH_OS_TYPE == OSX ]]; then
             # OS X tools
+            echo
+            echo -e 'Looking for '$COLOR_CYAN_BOLD'OS X'$COLOR_NONE' tools...'
+
             __get_commands_info brew port
         fi
+
+        echo
     }
 
     # OS-specific aliases and functions
@@ -470,7 +491,11 @@ EOF
             if [[ "$LC_TERMINAL" == "iTerm2" ]]; then
                 if [[ -n `type -t et 2>/dev/null` || -n `whence et 2>/dev/null` ]]; then
                     ett() {
-                        et -p 8090 -c "tmux -CC a" $*
+                        et -p 8090 -c "tmux -CC a || tmux -CC || /usr/bin/env bash" $*
+                    }
+
+                    etz() {
+                        et -p 8090 -c "tmux -CC a || tmux -CC || /usr/bin/env zsh" $*
                     }
                 fi
             fi

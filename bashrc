@@ -267,27 +267,6 @@ EOF
         fi
     fi
 
-    # Node
-    if [[ -d $HOME/.nvm ]]; then
-        export NVM_DIR="$HOME/.nvm"
-        if [[ -s "$NVM_DIR/nvm.sh" ]]; then
-            . "$NVM_DIR/nvm.sh"
-        fi
-        if [[ -s "$NVM_DIR/bash_completion" ]]; then
-            . "$NVM_DIR/bash_completion"
-        fi
-
-        # Electron-forge
-        local NVM_CURRENT ELECTRON_FORGE_COMPLETION
-
-        NVM_CURRENT=`nvm current`
-        ELECTRON_FORGE_COMPLETION=$NVM_DIR/versions/node/$NVM_CURRENT/lib/node_modules/electron-forge/node_modules/tabtab/.completions/electron-forge.bash
-
-        if [[ -s "$ELECTRON_FORGE_COMPLETION" ]]; then
-            . "$ELECTRON_FORGE_COMPLETION"
-        fi
-    fi
-
     # Go
     if [[ $SH_OS_TYPE == OSX ]]; then
         if [[ -d $HOME/src/Go ]]; then
@@ -316,6 +295,30 @@ EOF
     # Local aliases deferred load
     if [[ -n `type -t __aliases_local_load` ]]; then
         __aliases_local_load "$@"
+    fi
+
+    # Global dotrc deferred load
+
+    # Node
+    # After local dotrc to ensure we don't pick accidentally local dotrc node version
+    if [[ -d $HOME/.nvm ]]; then
+        export NVM_DIR="$HOME/.nvm"
+        if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+            . "$NVM_DIR/nvm.sh"
+        fi
+        if [[ -s "$NVM_DIR/bash_completion" ]]; then
+            . "$NVM_DIR/bash_completion"
+        fi
+
+        # Electron-forge
+        local NVM_CURRENT ELECTRON_FORGE_COMPLETION
+
+        NVM_CURRENT=`nvm current`
+        ELECTRON_FORGE_COMPLETION=$NVM_DIR/versions/node/$NVM_CURRENT/lib/node_modules/electron-forge/node_modules/tabtab/.completions/electron-forge.bash
+
+        if [[ -s "$ELECTRON_FORGE_COMPLETION" ]]; then
+            . "$ELECTRON_FORGE_COMPLETION"
+        fi
     fi
 
     # Free space

@@ -390,7 +390,8 @@ EOF
 
             latest() {
                 sudo apt-get update
-                sudo apt-get upgrade -y
+                # sudo apt-get upgrade -y
+                sudo apt-get --with-new-pkgs upgrade -y
                 if [[ $(which npm 2>/dev/null) ]]; then
                     npm install -g npm@latest
                     npm update -g

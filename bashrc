@@ -173,7 +173,7 @@ EOF
         . "$ADB_COMPLETION"
     fi
 
-    local PATH_DIRS=( "${HOME}/bin" )
+    local PATH_DIRS=( "${HOME}/bin ${HOME}/.local/bin" )
     if [[ $SH_OS_TYPE == OSX ]]; then
         # Mac OS X paths, including Homebrew and MacPorts
         PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" )

@@ -217,8 +217,23 @@ EOF
         alias apmpi='ATOM_HOME=$HOME/.atompi apm'
 
         list() {
+            eval "$(__sh_color_definitions)"
+            eval "$(__sh_os_definitions)"
+
+            echo -e 'Connected devices'
+
+            echo
+            echo -e '--- '$COLOR_CYAN_BOLD'iOS'$COLOR_NONE' ---'
             instruments -s devices | grep -i -v "simulator" | tail -n +2
+
+            echo
+            echo -e '--- '$COLOR_GREEN_BOLD'Android'$COLOR_NONE' ---'
             adb devices | tail -n +2
+
+            echo
+            echo -e '--- '$COLOR_YELLOW_BOLD'Fastboot'$COLOR_NONE' ---'
+            fastboot devices
+            echo
         }
 
         ij() {

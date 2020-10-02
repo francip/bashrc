@@ -225,7 +225,7 @@ EOF
             echo
             echo -e '--- '$COLOR_CYAN_BOLD'iOS'$COLOR_NONE' ---'
             # instruments -s devices | grep -i -v "simulator" | tail -n +2
-            xcrun xctrace list devices | grep -i -v "simulator" | tail -n +2
+            xcrun xctrace list devices
 
             echo
             echo -e '--- '$COLOR_GREEN_BOLD'Android'$COLOR_NONE' ---'

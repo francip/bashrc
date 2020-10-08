@@ -52,7 +52,7 @@ EOF
         # Replace the cd builtin to turn off the annoying
         # echo-new-folder behavior when CDPATH is set
         cd() {
-            if [[ -z $# ]]; then
+            if [[ $# -eq 0 ]]; then
                 builtin cd ~ >/dev/null
             else
                 builtin cd "$@" >/dev/null

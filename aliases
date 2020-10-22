@@ -225,11 +225,11 @@ EOF
             echo
             echo -e '--- '$COLOR_CYAN_BOLD'iOS'$COLOR_NONE' ---'
             # instruments -s devices | grep -i -v "simulator" | tail -n +2
-            xcrun xctrace list devices
+            xcrun xctrace list devices 2>&1 | sed -n '/Simulators/q;p' | sed '1d;$d'
 
             echo
             echo -e '--- '$COLOR_GREEN_BOLD'Android'$COLOR_NONE' ---'
-            adb devices | tail -n +2
+            adb devices | sed '1d;$d'
 
             echo
             echo -e '--- '$COLOR_YELLOW_BOLD'Fastboot'$COLOR_NONE' ---'

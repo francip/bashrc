@@ -14,7 +14,7 @@ if [[ $OSTYPE == darwin* ]]; then
     # elif [[ $OSTYPE == darwin19* ]]; then
     if [[ $OSTYPE == darwin19.4* ]]; then
         SH_OS_DISTRO='Monterey'
-    if [[ $OSTYPE == darwin19.2* ]]; then
+    elif [[ $OSTYPE == darwin19.2* ]]; then
         SH_OS_DISTRO='Big Sur'
     elif [[ $OSTYPE == darwin19* ]]; then
         SH_OS_DISTRO='Catalina'

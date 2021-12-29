@@ -1,0 +1,50 @@
+1. Install GCC, autoconf, make
+
+sudo apt-get install gcc autoconf make -y
+
+2. Install vim, unzip
+
+sudo apt-get install vim unzip -y
+
+3. Configure Git and Mercurial
+
+# sudo apt-get install git mercurial -y
+git config --global user.name "Franci Penov"
+git config --global user.email "francip@gmail.com"
+git config --global color.ui "auto"
+
+cat > ~/.hgrc << EOF
+[ui]
+username = Franci Penov <francip@gmail.com>
+verbose = True
+
+[extensions]
+color =
+rebase =
+hgext.extdiff =
+hgext.gpg =
+mq =
+purge =
+record =
+shelve =
+EOF
+
+4. Configure SSH keys and config
+chmod 700 ~/.ssh
+chmod 644 ~/.ssh/*
+chmod 600 ~/.ssh/id_rsa_personal
+
+5. Make ~/bin
+
+mkdir ~/bin
+
+6. Download and build vcprompt
+
+wget http://hg.gerg.ca/vcprompt/archive/tip.zip -O vcprompt.zip
+unzip vcprompt
+cd vcprompt-default
+
+autoconf
+./configure
+make
+cpvcprompt ~/bin

@@ -31,7 +31,7 @@ sudo apt-get install curl -y
 
 sudo apt-get install git mercurial -y
 git config --global user.name "Franci Penov"
-git config --global user.email "francip@email.com"
+git config --global user.email "francip@gmail.com"
 git config --global color.ui "auto"
 
 cat > ~/.hgrc << EOF

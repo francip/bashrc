@@ -5,18 +5,24 @@ The one bashrc to rule them all
 
 To clone:
 
+```
 GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa_personal' git clone ...
+```
 
 Mac OS X:
 
 Install Homebrew or MacPorts
 
+```
 brew instal bash_completion
 sudo port install bash-completion
+```
 
 Windows:
 
+```
 pacman -S git
+```
 
 Set MSYS=winsymlinks:nativestrict or CYGWIN=winsymlinks:nativestrict. This will change the behavior of
 ln to use mklink and create native Windows symlinks.
@@ -31,8 +37,13 @@ Also, the msys2 vim package comes without 'vi' alias, run cmd.ex as administrato
 /usr/bin 'ln -s vi vim.exe'
 
 To share Windows and MSys2 home directories, add the following line to /etc/fstab and relogin to Windows
+
+```
 C:/Users /home ntfs binary,noacl,auto 1 1
+```
 
 CentOS
 
+```
 yum install bash-completion -y
+```

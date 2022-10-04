@@ -290,6 +290,10 @@ EOF
         [[ -s "$HOME/torch/install/bin/torch-activate" ]] && . $HOME/torch/install/bin/torch-activate
     fi
 
+    if [[ -d $HOME/flutter ]]; then
+        __add_to_path "${HOME}/flutter/bin" "$HOME/.pub-cache/bin"
+    fi
+
     # Local declarations
     if [[ -n `type -t __bashrc_local_run` ]]; then
         [[ $SH_INTERACTIVE ]] && echo

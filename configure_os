@@ -7,12 +7,11 @@ if [[ $OSTYPE == darwin* ]]; then
     SH_OS_TYPE='OSX'
     SH_OS_RELEASE=`type sw_vers >/dev/null 2>&1 && sw_vers -productVersion`
     SH_OS_DISTRO_NUM=`uname -r | tr "." "\n" | head -n 1`
-    # if [[ $SH_OS_DISTRO_NUM == 21 ]]; then
-    #     SH_OS_DISTRO='Monterey'
-    # elif [[ $SH_OS_DISTRO_NUM == 20 ]]; then
-    #     SH_OS_DISTRO='Big Sur'
-    # elif [[ $OSTYPE == darwin19* ]]; then
-    if [[ $OSTYPE == darwin19.4* ]]; then
+    if [[ $OSTYPE == darwin21* ]]; then
+        SH_OS_DISTRO='Monterey'
+    elif [[ $OSTYPE == darwin20* ]]; then
+        SH_OS_DISTRO='Monterey'
+    elif [[ $OSTYPE == darwin19.4* ]]; then
         SH_OS_DISTRO='Monterey'
     elif [[ $OSTYPE == darwin19.2* ]]; then
         SH_OS_DISTRO='Big Sur'

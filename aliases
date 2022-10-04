@@ -298,29 +298,40 @@ EOF
         }
 
         latest() {
-            if [[ $(which brew 2>/dev/null) ]]; then
-                brew analytics off
-                brew update
-                brew upgrade
-                brew cleanup
-                brew prune
+            if [[ -z $LATEST_SKIP_BREW ]]; then
+                if [[ $(which brew 2>/dev/null) ]]; then
+                    brew analytics off
+                    brew update
+                    brew upgrade
+                    brew cleanup
+                    brew prune
+                fi
             fi
-            if [[ $(which port 2>/dev/null) ]]; then
-                sudo port selfupdate
-                sudo port upgrade outdated
-                sudo port reclaim
+            if [[ -z $LATEST_SKIP_PORTS ]]; then
+                if [[ $(which port 2>/dev/null) ]]; then
+                    local PORT_BIN=$(which port)
+                    sudo $PORT_BIN selfupdate
+                    sudo $PORT_BIN upgrade outdated
+                    sudo $PORT_BIN reclaim
+                fi
             fi
-            if [[ $(which npm 2>/dev/null) ]]; then
-                npm install -g npm@latest
-                npm update -g
+            if [[ -z $LATEST_SKIP_NPM ]]; then
+                if [[ $(which npm 2>/dev/null) ]]; then
+                    npm install -g npm@latest
+                    npm update -g
+                fi
             fi
-            if [[ $(which yarn 2>/dev/null) ]]; then
-                yarn global upgrade --latest
+            if [[ -z $LATEST_SKIP_YARN ]]; then
+                if [[ $(which yarn 2>/dev/null) ]]; then
+                    yarn global upgrade --latest
+                fi
             fi
-            if [[ $(which pip3 2>/dev/null) ]]; then
-                # pip3 install --upgrade pip setuptools
-                # pip3 install --user --upgrade pip setuptools
-                python3 -m pip install --upgrade pip
+            if [[ -z $LATEST_SKIP_PYTHON ]]; then
+                if [[ $(which pip3 2>/dev/null) ]]; then
+                    # pip3 install --upgrade pip setuptools
+                    # pip3 install --user --upgrade pip setuptools
+                    python3 -m pip install --upgrade pip
+                fi
             fi
         }
 
@@ -408,15 +419,21 @@ EOF
                 sudo apt-get update
                 # sudo apt-get upgrade -y
                 sudo apt-get --with-new-pkgs upgrade -y
-                if [[ $(which npm 2>/dev/null) ]]; then
-                    npm install -g npm@latest
-                    npm update -g
+                if [[ -z $LATEST_SKIP_NPM ]]; then
+                    if [[ $(which npm 2>/dev/null) ]]; then
+                        npm install -g npm@latest
+                        npm update -g
+                    fi
                 fi
-                if [[ $(which yarn 2>/dev/null) ]]; then
-                    yarn global upgrade --latest
+                if [[ -z $LATEST_SKIP_YARN ]]; then
+                    if [[ $(which yarn 2>/dev/null) ]]; then
+                        yarn global upgrade --latest
+                    fi
                 fi
-                if [[ $(which pip3 2>/dev/null) ]]; then
-                    sudo pip3 install --upgrade pip setuptools
+                if [[ -z $LATEST_SKIP_PYTHON ]]; then
+                    if [[ $(which pip3 2>/dev/null) ]]; then
+                        sudo pip3 install --upgrade pip setuptools
+                    fi
                 fi
             }
         fi

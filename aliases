@@ -415,6 +415,18 @@ EOF
 
             alias dir='ls -al --group-directories-first '
 
+            if [[ $SH_OS_FLAVOR == WSL ]]; then
+                ex() {
+                    if [[ $# -eq 0 ]]; then
+                        explorer.exe .
+                    else
+                        explorer.exe `wslpath -w $1`
+                    fi
+                }
+            fi
+
+
+
             latest() {
                 sudo apt-get update
                 # sudo apt-get upgrade -y

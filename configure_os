@@ -1,10 +1,11 @@
 # Determine the current OS
 
-local SH_OS_TYPE SH_OS_DISTRO SH_OS_DISTRO_NUM SH_OS_RELEASE
+local SH_OS_TYPE SH_OS_FLAVOR SH_OS_DISTRO SH_OS_DISTRO_NUM SH_OS_RELEASE
 
 if [[ $OSTYPE == darwin* ]]; then
     # OS X
     SH_OS_TYPE='OSX'
+    SH_OS_FLAVOR='OSX'
     SH_OS_RELEASE=`type sw_vers >/dev/null 2>&1 && sw_vers -productVersion`
     SH_OS_DISTRO_NUM=`uname -r | tr "." "\n" | head -n 1`
     if [[ $OSTYPE == darwin21.1* ]]; then
@@ -44,9 +45,10 @@ if [[ $OSTYPE == darwin* ]]; then
 elif [[ $OSTYPE == linux-gnu ]]; then
     # Linux
     SH_OS_TYPE='Linux'
-    # if [[ -n '$WSL_DISTRO_NAME' ]]; then
-    #     SH_OS_TYPE='Linux WSL'
-    # fi
+    SH_OS_FLAVOR='Linux'
+    if [[ -n '$WSL_DISTRO_NAME' ]]; then
+        SH_OS_FLAVOR='WSL'
+    fi
     if [[ -f /etc/lsb-release ]] || type lsb_release >/dev/null 2>&1 ; then
         SH_OS_DISTRO=`type lsb_release >/dev/null 2>&1 && lsb_release -i -s`
         SH_OS_RELEASE=`type lsb_release >/dev/null 2>&1 && lsb_release -r -s`
@@ -77,6 +79,7 @@ elif [[ $OSTYPE == linux-gnu ]]; then
 elif [[ $OSTYPE == linux-gnueabi* ]]; then
     # Linux Embedded
     SH_OS_TYPE='Linux'
+    SH_OS_FLAVOR='Embedded'
     if [[ -f /etc/debian_version ]]; then
         if [[ -f /etc/rpi-issue ]]; then
             # Raspbian
@@ -93,8 +96,9 @@ elif [[ $OSTYPE == linux-gnueabi* ]]; then
         SH_OS_RELEASE=0
     fi
 elif [[ '$OS' == Windows* ]]; then
-    # Windows
+    # Windows Msys/MinGW (who uses these anymore?)
     SH_OS_TYPE='Windows'
+    SH_OS_FLAVOR='Emulated'
     if [[ '$OSTYPE' == msys* ]]; then
         # Msys
         SH_OS_DISTRO='Msys'
@@ -116,6 +120,7 @@ elif [[ '$OS' == Windows* ]]; then
 else
     # What the heck are we running on???
     SH_OS_TYPE='Unknown'
+    SH_OS_FLAVOR='Unknown'
     SH_OS_DISTRO='Unknown'
     SH_OS_RELEASE=0
 fi

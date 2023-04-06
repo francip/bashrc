@@ -278,6 +278,12 @@ EOF
         fi
     fi
 
+    # Ruby
+    if [[ -d $HOME/gems ]]; then
+        export GEM_HOME="$HOME/gems"
+        export PATH="$HOME/gems/bin:$PATH"
+    fi
+
     # Go
     if [[ $SH_OS_TYPE == OSX ]]; then
         if [[ -d $HOME/src/Go ]]; then

@@ -180,6 +180,10 @@ EOF
                 if [[ -n "$COMMAND_LOCATION" ]]; then
                     echo -e $COLOR_CYAN_BOLD'  Location : '${COMMAND_LOCATION}$COLOR_NONE
                 fi
+            else
+                echo
+                echo -e $COLOR_RED_BOLD${COMMAND}$COLOR_NONE
+                echo -e $COLOR_RED_BOLD'  Not found'$COLOR_NONE
             fi
         done
     }

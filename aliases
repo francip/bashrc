@@ -452,7 +452,7 @@ EOF
                 fi
                 if [[ -z $LATEST_SKIP_PYTHON ]]; then
                     if [[ $(which pip3 2>/dev/null) ]]; then
-                        sudo pip3 install --upgrade pip setuptools
+                        pip3 install --upgrade pip setuptools
                     fi
                 fi
             }

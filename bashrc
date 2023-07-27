@@ -268,8 +268,12 @@ EOF
     fi
 
     # Node
-    if [[ -d $HOME/.nvm ]]; then
-        export NVM_DIR="$HOME/.nvm"
+    if [[ -z $NVM_DIR ]]; then
+        if [[ -d $HOME/.nvm ]]; then
+            export NVM_DIR="$HOME/.nvm"
+        fi
+    fi
+    if [[ -d $NVM_DIR ]]; then
         if [[ -s "$NVM_DIR/nvm.sh" ]]; then
             . "$NVM_DIR/nvm.sh"
         fi
@@ -322,7 +326,7 @@ EOF
 
     # Node
     # After local dotrc to ensure we don't pick accidentally local dotrc node version
-    if [[ -d $HOME/.nvm ]]; then
+    if [[ -d $NVM_DIR ]]; then
         if [[ $(nvm current) == system ]]; then
             [[ $SH_INTERACTIVE ]] && echo
             [[ $SH_INTERACTIVE ]] && echo -e 'Switching node from '$COLOR_GREEN_YELLOW'system'$COLOR_YELLOW' to '$COLOR_GREEN_BOLD'nvm default'$COLOR_NONE

@@ -268,10 +268,8 @@ EOF
     fi
 
     # Node
-    if [[ -z $NVM_DIR ]]; then
-        if [[ -d $HOME/.nvm ]]; then
-            export NVM_DIR="$HOME/.nvm"
-        fi
+    if [[ -d $HOME/.nvm ]]; then
+        export NVM_DIR="$HOME/.nvm"
     fi
     if [[ -d $NVM_DIR ]]; then
         if [[ -s "$NVM_DIR/nvm.sh" ]]; then

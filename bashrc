@@ -117,7 +117,7 @@ EOF
     __include_files "/etc/bashrc" "${HOME}/.bashrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases_local"
 
     local BASH_COMPLETION_INSTALLED
-    BASH_COMPLETION_INSTALLED=`type -t _init_completion`
+    BASH_COMPLETION_INSTALLED=`type -t _brew_completions`
 
     # Bash completion
     if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
@@ -129,6 +129,9 @@ EOF
             elif [[ -f /opt/local/etc/profile.d/bash_completion.sh ]]; then
                 [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/local/etc/profile.d/bash_completion.sh'$COLOR_NONE
                 . /opt/local/etc/profile.d/bash_completion.sh
+            elif [[ -f /opt/homebrew/etc/profile.d/bash_completion.sh ]]; then
+                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/homebrew/etc/profile.d/bash_completion.sh'$COLOR_NONE
+                . /opt/homebrew/etc/profile.d/bash_completion.sh
             fi
         elif [[ $SH_OS_TYPE == Linux ]]; then
             # Bash completion for Linux
@@ -138,7 +141,7 @@ EOF
             fi
         fi
 
-        BASH_COMPLETION_INSTALLED=`type -t _init_completion`
+        BASH_COMPLETION_INSTALLED=`type -t _brew_completions`
 
         if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
             [[ $SH_INTERACTIVE ]] && echo
@@ -176,7 +179,7 @@ EOF
     local PATH_DIRS=( "${HOME}/bin ${HOME}/.local/bin" )
     if [[ $SH_OS_TYPE == OSX ]]; then
         # Mac OS X paths, including Homebrew and MacPorts
-        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" )
+        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "/opt/homebrew/bin" )
     fi
     __add_to_path "${PATH_DIRS[@]}"
 
@@ -189,6 +192,20 @@ EOF
     if [[ -n $SSH_CLIENT ]]; then
         [[ $SH_INTERACTIVE ]] && echo
         [[ $SH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
+    fi
+
+    # Homebrew
+    if [[ $SH_OS_TYPE == OSX ]]; then
+        if [[ -f /opt/homebrew/bin/brew ]]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        fi
+    fi
+
+    # ITerm2 integration
+    if [[ $SH_OS_TYPE == OSX ]]; then
+        if [[ -f "${HOME}/.iterm2_shell_integration.bash" ]]; then
+            . "${HOME}/.iterm2_shell_integration.bash"
+        fi
     fi
 
     # Prompt

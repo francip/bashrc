@@ -14,8 +14,10 @@ Mac OS X:
 Install Homebrew or MacPorts
 
 ```
-brew instal bash_completion
+brew install bash-completion
+brew install zsh-completions
 sudo port install bash-completion
+sudo port install zsh-completions
 ```
 
 Windows:

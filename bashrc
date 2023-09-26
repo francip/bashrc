@@ -116,8 +116,13 @@ EOF
     [[ $SH_INTERACTIVE ]] && echo
     __include_files "/etc/bashrc" "${HOME}/.bashrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases_local"
 
-    local BASH_COMPLETION_INSTALLED
-    BASH_COMPLETION_INSTALLED=`type -t _brew_completions`
+    local BASH_COMPLETION_INSTALLED BASH_COMPLETION_INSTALLED_COMMAND
+    if [[ $SH_OS_TYPE == OSX ]]; then
+        BASH_COMPLETION_INSTALLED_COMMAND=_brew_completions
+    elif [[ $SH_OS_TYPE == Linux ]]; then
+        BASH_COMPLETION_INSTALLED_COMMAND=_init_completion
+    fi
+    BASH_COMPLETION_INSTALLED=`type -t ${BASH_COMPLETION_INSTALLED_COMMAND}`
 
     # Bash completion
     if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
@@ -141,7 +146,7 @@ EOF
             fi
         fi
 
-        BASH_COMPLETION_INSTALLED=`type -t _brew_completions`
+        BASH_COMPLETION_INSTALLED=`type -t ${BASH_COMPLETION_INSTALLED_COMMAND}`
 
         if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
             [[ $SH_INTERACTIVE ]] && echo

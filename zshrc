@@ -73,6 +73,7 @@ EOF
     [[ $SH_INTERACTIVE ]] && echo
     [[ $SH_INTERACTIVE ]] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Zsh '${ZSH_VERSION}$COLOR_NONE' on '$COLOR_GREEN_BOLD$SH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$SH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$SH_OS_TYPE$COLOR_NONE')'
 
+    # SSH configuration
     if [[ $SH_OS_TYPE == Windows ]]; then
         export SSH_AUTH_SOCK=/tmp/.ssh-socket
         ssh-add -l >/dev/null 2>&1
@@ -109,6 +110,15 @@ EOF
             else
                 ssh-add ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
             fi
+        fi
+    fi
+
+    # Homebrew
+    if [[ $SH_OS_TYPE == OSX ]]; then
+        if [[ -f /opt/homebrew/bin/brew ]]; then
+            [[ $SH_INTERACTIVE ]] && echo
+            [[ $SH_INTERACTIVE ]] && echo -e 'Configuring '$COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE
+            eval "$(/opt/homebrew/bin/brew shellenv)"
         fi
     fi
 
@@ -165,6 +175,31 @@ EOF
         source $ZSH/oh-my-zsh.sh
     fi
 
+    # ITerm2 integration
+    local ITERM2_INTEGRATION
+    if [[ $SH_OS_TYPE == OSX ]]; then
+        ITERM2_INTEGRATION=$HOME/.iterm2_shell_integration.zsh
+        if [[ -f "$ITERM2_INTEGRATION" ]]; then
+            [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$ITERM2_INTEGRATION$COLOR_NONE
+            . "$ITERM2_INTEGRATION"
+        fi
+    fi
+
+    # Zsh completion
+    local ZSH_COMPLETION_INSTALLED
+    if [[ $SH_OS_TYPE == OSX ]]; then
+        if [[ -f /opt/homebrew/bin/brew ]]; then
+            if [[ -d /opt/homebrew/share/zsh-completions ]]; then
+                ZSH_COMPLETION_INSTALLED=/opt/homebrew/share/zsh-completions
+                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/homebrew/share/zsh-completions'$COLOR_NONE
+                FPATH=/opt/homebrew/share/zsh-completions:$FPATH
+
+                autoload -Uz compinit
+                compinit
+            fi
+        fi
+    fi
+
     local PATH_DIRS=( "${HOME}/bin" )
     if [[ $SH_OS_TYPE == OSX ]]; then
         # Mac OS X paths, including Homebrew and MacPorts
@@ -172,7 +207,7 @@ EOF
     fi
     __add_to_path "${PATH_DIRS[@]}"
 
-    if [[ -n $BASH_COMPLETION_INSTALLED ]]; then
+    if [[ -n $ZSH_COMPLETION_INSTALLED ]]; then
         # Affects cd behavior
         __add_to_cd_path "." "${HOME}" "${HOME}/src"
     fi
@@ -181,27 +216,6 @@ EOF
     if [[ -n $SSH_CLIENT ]]; then
         [[ $SH_INTERACTIVE ]] && echo
         [[ $SH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
-    fi
-
-    # Homebrew
-    if [[ $SH_OS_TYPE == OSX ]]; then
-        if [[ -f /opt/homebrew/bin/brew ]]; then
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-
-            # Zsh completions
-            [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/homebrew/share/zsh-completions'$COLOR_NONE
-            FPATH=/opt/homebrew/share/zsh-completions:$FPATH
-
-            autoload -Uz compinit
-            compinit
-        fi
-    fi
-
-    # ITerm2 integration
-    if [[ $SH_OS_TYPE == OSX ]]; then
-        if [[ -f "${HOME}/.iterm2_shell_integration.zsh" ]]; then
-            . "${HOME}/.iterm2_shell_integration.zsh"
-        fi
     fi
 
     # Dev declarations

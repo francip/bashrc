@@ -73,6 +73,7 @@ EOF
     [[ $SH_INTERACTIVE ]] && echo
     [[ $SH_INTERACTIVE ]] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '${BASH_VERSINFO[0]}'.'${BASH_VERSINFO[1]}'.'${BASH_VERSINFO[2]}$COLOR_NONE' on '$COLOR_GREEN_BOLD$SH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$SH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$SH_OS_TYPE$COLOR_NONE')'
 
+    # SSH configuration
     if [[ $SH_OS_TYPE == Windows ]]; then
         export SSH_AUTH_SOCK=/tmp/.ssh-socket
         ssh-add -l >/dev/null 2>&1
@@ -112,10 +113,30 @@ EOF
         fi
     fi
 
+    # Homebrew
+    if [[ $SH_OS_TYPE == OSX ]]; then
+        if [[ -f /opt/homebrew/bin/brew ]]; then
+            [[ $SH_INTERACTIVE ]] && echo
+            [[ $SH_INTERACTIVE ]] && echo -e 'Configuring '$COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        fi
+    fi
+
     # Source additional global, local, and personal definitions
     [[ $SH_INTERACTIVE ]] && echo
     __include_files "/etc/bashrc" "${HOME}/.bashrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases_local"
 
+    # ITerm2 integration
+    local ITERM2_INTEGRATION
+    if [[ $SH_OS_TYPE == OSX ]]; then
+        ITERM2_INTEGRATION=$HOME/.iterm2_shell_integration.bash
+        if [[ -f "$ITERM2_INTEGRATION" ]]; then
+            [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$ITERM2_INTEGRATION$COLOR_NONE
+            . "$ITERM2_INTEGRATION"
+        fi
+    fi
+
+    # Bash completion
     local BASH_COMPLETION_INSTALLED BASH_COMPLETION_INSTALLED_COMMAND
     if [[ $SH_OS_TYPE == OSX ]]; then
         BASH_COMPLETION_INSTALLED_COMMAND=_brew_completions
@@ -124,7 +145,6 @@ EOF
     fi
     BASH_COMPLETION_INSTALLED=`type -t ${BASH_COMPLETION_INSTALLED_COMMAND}`
 
-    # Bash completion
     if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
         if [[ $SH_OS_TYPE == OSX ]]; then
             # Bash completion for Mac OS X (from Homebrew or MacPorts)
@@ -134,9 +154,11 @@ EOF
             elif [[ -f /opt/local/etc/profile.d/bash_completion.sh ]]; then
                 [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/local/etc/profile.d/bash_completion.sh'$COLOR_NONE
                 . /opt/local/etc/profile.d/bash_completion.sh
-            elif [[ -f /opt/homebrew/etc/profile.d/bash_completion.sh ]]; then
-                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/homebrew/etc/profile.d/bash_completion.sh'$COLOR_NONE
-                . /opt/homebrew/etc/profile.d/bash_completion.sh
+            elif [[ -f /opt/homebrew/bin/brew ]]; then
+                if [[ -f /opt/homebrew/etc/profile.d/bash_completion.sh ]]; then
+                    [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/homebrew/etc/profile.d/bash_completion.sh'$COLOR_NONE
+                    . /opt/homebrew/etc/profile.d/bash_completion.sh
+                fi
             fi
         elif [[ $SH_OS_TYPE == Linux ]]; then
             # Bash completion for Linux
@@ -154,9 +176,8 @@ EOF
         fi
     fi
 
-    local GIT_COMPLETION ADB_COMPLETION
-
     # Git completion
+    local GIT_COMPLETION
     if [[ -z `type -t __git_ps1` ]]; then
         GIT_COMPLETION=`type -P git-completion.bash`
 
@@ -171,6 +192,7 @@ EOF
     fi
 
     # ADB completion
+    local ADB_COMPLETION
     ADB_COMPLETION=`type -P adb.bash`
     if [[ -z $ADB_COMPLETION ]]; then
         ADB_COMPLETION=$HOME/bin/adb.bash
@@ -197,20 +219,6 @@ EOF
     if [[ -n $SSH_CLIENT ]]; then
         [[ $SH_INTERACTIVE ]] && echo
         [[ $SH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
-    fi
-
-    # Homebrew
-    if [[ $SH_OS_TYPE == OSX ]]; then
-        if [[ -f /opt/homebrew/bin/brew ]]; then
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-        fi
-    fi
-
-    # ITerm2 integration
-    if [[ $SH_OS_TYPE == OSX ]]; then
-        if [[ -f "${HOME}/.iterm2_shell_integration.bash" ]]; then
-            . "${HOME}/.iterm2_shell_integration.bash"
-        fi
     fi
 
     # Prompt

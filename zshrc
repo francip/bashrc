@@ -162,7 +162,13 @@ EOF
     zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
     zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
+    if [[ ! -d $HOME/.oh-my-zsh ]]; then
+        [[ $SH_INTERACTIVE ]] && echo -e 'Installing '$COLOR_GREEN_BOLD'oh-my-zsh'$COLOR_NONE
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --keep-zshrc --unattended"
+    fi
+
     if [[ -d $HOME/.oh-my-zsh ]]; then
+        [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$ZSH'/oh-my-zsh.sh'$COLOR_NONE
         export ZSH="$HOME/.oh-my-zsh"
 
         ZSH_THEME="amuse"
@@ -170,7 +176,7 @@ EOF
         DISABLE_UNTRACKED_FILES_DIRTY="true"
         HIST_STAMPS="yyyy-mm-dd"
 
-        plugins=(git mercurial adb nvm node npm python pip osx iterm2 macports)
+        plugins=(git mercurial adb nvm node npm python pip macos iterm2 macports)
 
         source $ZSH/oh-my-zsh.sh
     fi

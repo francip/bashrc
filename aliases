@@ -48,17 +48,18 @@ EOF
 
     alias avd='android avd & '
 
-    if [[ -n CDPATH ]]; then
-        # Replace the cd builtin to turn off the annoying
-        # echo-new-folder behavior when CDPATH is set
-        cd() {
-            if [[ $# -eq 0 ]]; then
-                builtin cd ~ >/dev/null
-            else
-                builtin cd "$@" >/dev/null
-            fi
-        }
-    fi
+    # Replace the cd builtin to turn off the annoying
+    # echo-new-folder behavior when CDPATH is set
+    # and to automatically use the correct node version
+    cd() {
+        if [[ $# -eq 0 ]]; then
+            builtin cd ~ >/dev/null
+        else
+            builtin cd "$@" >/dev/null
+        fi
+
+        [[ -f .nvmrc && -r .nvmrc ]] && nvm use
+    }
 
     ff() {
         find . -name "*" -type f -exec grep --color=auto -HinF "$@" {} \;

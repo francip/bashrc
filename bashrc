@@ -285,16 +285,13 @@ EOF
     if [[ -d $HOME/android-ndk ]]; then
         if [[ -d $HOME/android-ndk/android-ndk-r10e ]]; then
             export ANDROID_NDK=$HOME/android-ndk/android-ndk-r10e
-            export ANDROID_NDK_ROOT=$ANDROID_NDK
-            export ANDROID_NDK_REPOSITORY=$HOME/android-ndk
-            export NDKROOT=$ANDROID_NDK
-            export NDK_MODULE_PATH=$ANDROID_NDK
         else
             export ANDROID_NDK=$HOME/android-ndk
-            export ANDROID_NDK_ROOT=$ANDROID_NDK
-            export NDKROOT=$ANDROID_NDK
-            export NDK_MODULE_PATH=$ANDROID_NDK
         fi
+        export ANDROID_NDK_REPOSITORY=$HOME/android-ndk
+        export ANDROID_NDK_ROOT=$ANDROID_NDK
+        export NDKROOT=$ANDROID_NDK
+        export NDK_MODULE_PATH=$ANDROID_NDK
     fi
 
     # Node
@@ -313,7 +310,7 @@ EOF
     # Ruby
     if [[ -d $HOME/gems ]]; then
         export GEM_HOME="$HOME/gems"
-        export PATH="$HOME/gems/bin:$PATH"
+        __add_to_path "${HOME}/gems/bin"
     fi
 
     # Go
@@ -342,7 +339,7 @@ EOF
         if [ -f "/home/francip/miniconda3/etc/profile.d/conda.sh" ]; then
             . "/home/francip/miniconda3/etc/profile.d/conda.sh"
         else
-            export PATH="/home/francip/miniconda3/bin:$PATH"
+            __add_to_path "${HOME}/miniconda3/bin"
         fi
     fi
     unset __conda_setup

@@ -208,6 +208,9 @@ EOF
         # Mac OS X paths, including Homebrew and MacPorts
         PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "/opt/homebrew/bin" )
     fi
+    if [[ $SH_OS_DISTRO == Ubuntu ]]; then
+        PATH_DIRS=( "${PATH_DIRS[@]}" "/snap/bin" )
+    fi
     __add_to_path "${PATH_DIRS[@]}"
 
     if [[ -n $BASH_COMPLETION_INSTALLED ]]; then

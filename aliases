@@ -43,6 +43,8 @@ EOF
 
     alias dir='ls -al '
 
+    alias path='echo $PATH | sed s/\:/\\n/g '
+
     alias ps='ps -ef '
     alias psu='ps -u ${USER} '
 

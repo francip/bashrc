@@ -277,6 +277,11 @@ EOF
 
     export GNUTERM=x11
 
+    # WSL X configuration
+    if [[ $SH_OS_FLAVOR == WSL ]]; then
+        export GDK_DPI_SCALE=2
+    fi
+
     # Dev declarations
 
     # Android SDK

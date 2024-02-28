@@ -206,10 +206,13 @@ EOF
         fi
     fi
 
-    local PATH_DIRS=( "${HOME}/bin" )
+    local PATH_DIRS=( "${HOME}/bin ${HOME}/.local/bin" )
     if [[ $SH_OS_TYPE == OSX ]]; then
         # Mac OS X paths, including Homebrew and MacPorts
         PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "/opt/homebrew/bin" )
+    fi
+    if [[ $SH_OS_DISTRO == Ubuntu ]]; then
+        PATH_DIRS=( "${PATH_DIRS[@]}" "/snap/bin" )
     fi
     __add_to_path "${PATH_DIRS[@]}"
 
@@ -224,6 +227,15 @@ EOF
         [[ $SH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
     fi
 
+    export EDITOR=vim
+
+    export GNUTERM=x11
+
+    # WSL X configuration
+    if [[ $SH_OS_FLAVOR == WSL ]]; then
+        export GDK_DPI_SCALE=2
+    fi
+
     # Dev declarations
 
     # Android SDK
@@ -235,27 +247,32 @@ EOF
     if [[ -d $HOME/android-ndk ]]; then
         if [[ -d $HOME/android-ndk/android-ndk-r10e ]]; then
             export ANDROID_NDK=$HOME/android-ndk/android-ndk-r10e
-            export ANDROID_NDK_ROOT=$ANDROID_NDK
-            export ANDROID_NDK_REPOSITORY=$HOME/android-ndk
-            export NDKROOT=$ANDROID_NDK
-            export NDK_MODULE_PATH=$ANDROID_NDK
         else
             export ANDROID_NDK=$HOME/android-ndk
-            export ANDROID_NDK_ROOT=$ANDROID_NDK
-            export NDKROOT=$ANDROID_NDK
-            export NDK_MODULE_PATH=$ANDROID_NDK
         fi
+        export ANDROID_NDK_REPOSITORY=$HOME/android-ndk
+        export ANDROID_NDK_ROOT=$ANDROID_NDK
+        export NDKROOT=$ANDROID_NDK
+        export NDK_MODULE_PATH=$ANDROID_NDK
     fi
 
     # Node
     if [[ -d $HOME/.nvm ]]; then
         export NVM_DIR="$HOME/.nvm"
+    fi
+    if [[ -d $NVM_DIR ]]; then
         if [[ -s "$NVM_DIR/nvm.sh" ]]; then
             . "$NVM_DIR/nvm.sh"
         fi
         if [[ -s "$NVM_DIR/bash_completion" ]]; then
             . "$NVM_DIR/bash_completion"
         fi
+    fi
+
+    # Ruby
+    if [[ -d $HOME/gems ]]; then
+        export GEM_HOME="$HOME/gems"
+        __add_to_path "${HOME}/gems/bin"
     fi
 
     # Go
@@ -270,6 +287,10 @@ EOF
         [[ -s "$HOME/torch/install/bin/torch-activate" ]] && . $HOME/torch/install/bin/torch-activate
     fi
 
+    if [[ -d $HOME/flutter ]]; then
+        __add_to_path "${HOME}/flutter/bin" "$HOME/.pub-cache/bin"
+    fi
+
     # Conda
     # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!
@@ -280,7 +301,7 @@ EOF
         if [ -f "/home/francip/miniconda3/etc/profile.d/conda.sh" ]; then
             . "/home/francip/miniconda3/etc/profile.d/conda.sh"
         else
-            export PATH="/home/francip/miniconda3/bin:$PATH"
+            __add_to_path "${HOME}/miniconda3/bin"
         fi
     fi
     unset __conda_setup
@@ -308,7 +329,7 @@ EOF
 
     # Node
     # After local dotrc to ensure we don't pick accidentally local dotrc node version
-    if [[ -d $HOME/.nvm ]]; then
+    if [[ -d $NVM_DIR ]]; then
         if [[ $(nvm current) == system ]]; then
             [[ $SH_INTERACTIVE ]] && echo
             [[ $SH_INTERACTIVE ]] && echo -e 'Switching node from '$COLOR_GREEN_YELLOW'system'$COLOR_YELLOW' to '$COLOR_GREEN_BOLD'nvm default'$COLOR_NONE

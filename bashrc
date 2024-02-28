@@ -97,7 +97,7 @@ EOF
             [[ $SH_INTERACTIVE ]] && echo
             [[ $SH_INTERACTIVE ]] && echo -e 'SSH agent '$COLOR_GREEN_BOLD'running'$COLOR_NONE'. Connecting...'
             export SSH_AGENT_PID=$(pgrep ssh-agent)
-            export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.* 2>/dev/null)
+            export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.\* 2>/dev/null)
         fi
     fi
 

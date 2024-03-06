@@ -60,7 +60,7 @@ EOF
             builtin cd "$@" >/dev/null
         fi
 
-        [[ -f .nvmrc && -r .nvmrc ]] && nvm use
+        [[ -f .nvmrc && -r .nvmrc ]] && nvm use || true
     }
 
     ff() {

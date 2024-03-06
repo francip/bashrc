@@ -120,6 +120,12 @@ EOF
             [[ $SH_INTERACTIVE ]] && echo -e 'Configuring '$COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE
             eval "$(/opt/homebrew/bin/brew shellenv)"
         fi
+    elif [[ $SH_OS_TYPE == Linux ]]; then
+        if [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+            [[ $SH_INTERACTIVE ]] && echo
+            [[ $SH_INTERACTIVE ]] && echo -e 'Configuring '$COLOR_GREEN_BOLD'Linuxbrew'$COLOR_NONE
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        fi
     fi
 
     # Source additional global, local, and personal definitions

@@ -322,6 +322,11 @@ EOF
     fi
 
     # Ruby
+    if [[ $SH_OS_TYPE == OSX ]]; then
+        if [[ -d /opt/homebrew/opt/ruby/bin ]]; then
+            __add_to_path "/opt/homebrew/opt/ruby/bin" "/opt/homebrew/lib/ruby/gems/3.3.0/bin"
+        fi
+    fi
     if [[ -d $HOME/gems ]]; then
         export GEM_HOME="$HOME/gems"
         __add_to_path "${HOME}/gems/bin"
@@ -329,8 +334,8 @@ EOF
 
     # Go
     if [[ $SH_OS_TYPE == OSX ]]; then
-        if [[ -d $HOME/src/Go ]]; then
-            export GOPATH=$HOME/src/Go
+        if [[ -d $HOME/go ]]; then
+            export GOPATH=$HOME/go
         fi
     fi
 

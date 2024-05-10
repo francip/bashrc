@@ -327,9 +327,13 @@ EOF
             __add_to_path "/opt/homebrew/opt/ruby/bin" "/opt/homebrew/lib/ruby/gems/3.3.0/bin"
         fi
     fi
-    if [[ -d $HOME/gems ]]; then
+    if [[ -d $HOME/.gem ]]; then
+        export GEM_HOME="$HOME/.gem"
+    elif [[ -d $HOME/gems ]]; then
         export GEM_HOME="$HOME/gems"
-        __add_to_path "${HOME}/gems/bin"
+    fi
+    if [[ -n $GEM_HOME ]]; then
+        __add_to_path "${GEM_HOME}/bin"
     fi
 
     # Go
@@ -344,6 +348,7 @@ EOF
         [[ -s "$HOME/torch/install/bin/torch-activate" ]] && . $HOME/torch/install/bin/torch-activate
     fi
 
+    # Flutter / Dart
     if [[ -d $HOME/flutter ]]; then
         __add_to_path "${HOME}/flutter/bin" "$HOME/.pub-cache/bin"
     fi

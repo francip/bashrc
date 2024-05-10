@@ -231,8 +231,7 @@ EOF
 
             echo
             echo -e '--- '$COLOR_CYAN_BOLD'iOS'$COLOR_NONE' ---'
-            # instruments -s devices | grep -i -v "simulator" | tail -n +2
-            xcrun xctrace list devices 2>&1 | sed -n '/Simulators/q;p' | sed '1d;$d' | grep -v -i "${HOSTNAME}"
+            xcrun xctrace list devices 2>&1 | sed -n '/Simulators/q;p' | sed '1d;2d;$d'
 
             echo
             echo -e '--- '$COLOR_GREEN_BOLD'Android'$COLOR_NONE' ---'

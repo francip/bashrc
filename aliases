@@ -437,6 +437,7 @@ EOF
                 sudo apt-get update
                 # sudo apt-get upgrade -y
                 sudo apt-get --with-new-pkgs upgrade -y
+                sudo snap refresh
                 if [[ -z $LATEST_SKIP_NPM ]]; then
                     if [[ $(which npm 2>/dev/null) ]]; then
                         npm install -g npm@latest

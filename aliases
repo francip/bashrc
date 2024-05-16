@@ -198,14 +198,14 @@ EOF
         echo
         echo -e 'Looking for '$COLOR_CYAN_BOLD'common'$COLOR_NONE' tools...'
 
-        __get_commands_info nvm node npm python python3 pip pip3 flutter dart go ruby gem
+        __get_commands_info brew nvm node npm yarn python python3 pip pip3 flutter dart go ruby gem arduino-cli
 
         if [[ $SH_OS_TYPE == OSX ]]; then
             # OS X tools
             echo
             echo -e 'Looking for '$COLOR_CYAN_BOLD'OS X'$COLOR_NONE' tools...'
 
-            __get_commands_info brew port
+            __get_commands_info port
         fi
 
         echo

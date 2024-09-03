@@ -363,6 +363,9 @@ EOF
     unset __conda_setup
     # <<< conda initialize <<<
 
+    # Next.js
+    export NEXT_TELEMETRY_DEBUG=1
+
     # Local declarations
     if [[ -n `type -t __bashrc_local_run` ]]; then
         [[ $SH_INTERACTIVE ]] && echo

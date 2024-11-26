@@ -281,8 +281,6 @@ EOF
 
     export EDITOR=vim
 
-    # export GNUTERM=x11
-
     # WSL X configuration
     if [[ $SH_OS_FLAVOR == WSL ]]; then
         export GDK_DPI_SCALE=2

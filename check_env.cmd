@@ -1,56 +1,122 @@
 @echo off
+chcp 65001 >nul
 setlocal EnableDelayedExpansion
 
 :: Color definitions for Windows console
-set "GREEN=[32m"
-set "CYAN=[36m"
-set "RED=[31m"
-set "BOLD=[1m"
-set "RESET=[0m"
+set "ESC="
+for /f "tokens=1,2 delims=#" %%a in ('"prompt #$H#$E# & echo on & for %%b in (1) do rem"') do (
+  set "ESC=%%b"
+)
 
-:: Function to check commands
-:get_commands_info
-    for %%c in (%*) do (
-        where %%c >nul 2>&1
-        if !errorlevel! equ 0 (
-            echo.
-            echo !GREEN!!BOLD!%%c!RESET!
+set "GREEN=%ESC%[92m"
+set "CYAN=%ESC%[96m"
+set "RED=%ESC%[91m"
+set "YELLOW=%ESC%[93m"
+set "RESET=%ESC%[0m"
 
-            :: Try to get version
-            %%c --version >nul 2>&1
-            if !errorlevel! equ 0 (
-                for /f "tokens=*" %%v in ('%%c --version 2^>nul') do (
-                    echo !CYAN!!BOLD!  Version  : !RESET!%%v
-                    goto :version_done_%%c
-                )
-            )
-            %%c version >nul 2>&1
-            if !errorlevel! equ 0 (
-                for /f "tokens=*" %%v in ('%%c version 2^>nul') do (
-                    echo !CYAN!!BOLD!  Version  : !RESET!%%v
-                    goto :version_done_%%c
-                )
-            )
-            :version_done_%%c
+echo.
+echo Looking for %CYAN%common%RESET% tools...
 
-            :: Get location
-            for /f "tokens=*" %%p in ('where %%c 2^>nul') do (
-                echo !CYAN!!BOLD!  Location : !RESET!%%p
-                goto :location_done_%%c
-            )
-            :location_done_%%c
-        ) else (
-            echo.
-            echo !RED!!BOLD!%%c!RESET!
-            echo !RED!!BOLD!  Not found!RESET!
+for %%t in (git gh brew nvm node npm yarn python python3 pip pip3 pipx poetry flutter dart go ruby gem arduino-cli) do (
+    set "CMD_PATH="
+    set "FOUND=0"
+
+    where %%t.cmd >nul 2>&1 && (
+        for /f "tokens=*" %%p in ('where %%t.cmd 2^>nul') do (
+            set "CMD_PATH=%%p"
+            set "FOUND=1"
+            set "IS_SCRIPT=1"
         )
     )
-    exit /b
 
-:: Main script
-echo.
-echo Looking for !CYAN!!BOLD!common!RESET! tools...
+    if !FOUND! equ 0 (
+        where %%t.bat >nul 2>&1 && (
+            for /f "tokens=*" %%p in ('where %%t.bat 2^>nul') do (
+                set "CMD_PATH=%%p"
+                set "FOUND=1"
+                set "IS_SCRIPT=1"
+            )
+        )
+    )
 
-call :get_commands_info git gh brew nvm node npm yarn python python3 pip pip3 pipx poetry flutter dart go ruby gem arduino-cli
+    if !FOUND! equ 0 (
+        where %%t.exe >nul 2>&1 && (
+            for /f "tokens=*" %%p in ('where %%t.exe 2^>nul') do (
+                set "CMD_PATH=%%p"
+                set "FOUND=1"
+                set "IS_SCRIPT=0"
+            )
+        )
+    )
+
+    if !FOUND! equ 0 (
+        where %%t >nul 2>&1 && (
+            for /f "tokens=*" %%p in ('where %%t 2^>nul') do (
+                set "CMD_PATH=%%p"
+                set "FOUND=1"
+                set "IS_SCRIPT=0"
+            )
+        )
+    )
+
+    if !FOUND! equ 1 (
+        echo.
+        echo %GREEN%%%t%RESET%
+
+        if "%%t"=="nvm" (
+            echo %CYAN%  Version  : %RESET%%YELLOW%...nvm is stupid and does not allow standard output redirection...%RESET%
+        ) else (
+            set "VERSION_OUTPUT="
+            if !IS_SCRIPT! equ 1 (
+                call "!CMD_PATH!" --version >nul 2>&1 && (
+                    for /f "usebackq tokens=*" %%v in (`call "!CMD_PATH!" --version 2^>nul`) do (
+                        if defined VERSION_OUTPUT (
+                            set "VERSION_OUTPUT=!VERSION_OUTPUT! %%v"
+                        ) else (
+                            set "VERSION_OUTPUT=%%v"
+                        )
+                    )
+                ) || (
+                    call "!CMD_PATH!" version >nul 2>&1 && (
+                        for /f "usebackq tokens=*" %%v in (`call "!CMD_PATH!" version 2^>nul`) do (
+                            if defined VERSION_OUTPUT (
+                                set "VERSION_OUTPUT=!VERSION_OUTPUT! %%v"
+                            ) else (
+                                set "VERSION_OUTPUT=%%v"
+                            )
+                        )
+                    )
+                )
+            ) else (
+                "!CMD_PATH!" --version >nul 2>&1 && (
+                    for /f "usebackq tokens=*" %%v in (`"!CMD_PATH!" --version 2^>nul`) do (
+                        if defined VERSION_OUTPUT (
+                            set "VERSION_OUTPUT=!VERSION_OUTPUT! %%v"
+                        ) else (
+                            set "VERSION_OUTPUT=%%v"
+                        )
+                    )
+                ) || (
+                    "!CMD_PATH!" version >nul 2>&1 && (
+                        for /f "usebackq tokens=*" %%v in (`"!CMD_PATH!" version 2^>nul`) do (
+                            if defined VERSION_OUTPUT (
+                                set "VERSION_OUTPUT=!VERSION_OUTPUT! %%v"
+                            ) else (
+                                set "VERSION_OUTPUT=%%v"
+                            )
+                        )
+                    )
+                )
+            )
+            if defined VERSION_OUTPUT echo %CYAN%  Version  : %RESET%!VERSION_OUTPUT!
+        )
+
+        echo %CYAN%  Location : %RESET%!CMD_PATH!
+    ) else (
+        echo.
+        echo %RED%%%t%RESET%
+        echo %RED%  Not found%RESET%
+    )
+)
 
 endlocal

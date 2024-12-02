@@ -86,7 +86,6 @@ EOF
             [[ $SH_INTERACTIVE ]] && echo $SSH_AGENT_PID > /tmp/.ssh-agent-pid
         fi
     fi
-
     if [[ $SH_OS_TYPE == Linux ]]; then
         if [[ -z "$(pgrep ssh-agent)" ]]; then
             [[ $SH_INTERACTIVE ]] && echo
@@ -101,14 +100,18 @@ EOF
         fi
     fi
 
-    ssh-add >/dev/null 2>&1
+    # Only add keys in interactive shell
+    if [[ $SH_INTERACTIVE ]]; then
 
-    if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
-        if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
-            if [[ $SH_OS_TYPE == OSX ]]; then
-                ssh-add -K ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
-            else
-                ssh-add ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
+        ssh-add >/dev/null 2>&1
+
+        if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
+            if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
+                if [[ $SH_OS_TYPE == OSX ]]; then
+                    ssh-add -K ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
+                else
+                    ssh-add ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
+                fi
             fi
         fi
     fi

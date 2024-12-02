@@ -336,7 +336,7 @@ EOF
                 if [[ $(which pip3 2>/dev/null) ]]; then
                     # pip3 install --upgrade pip setuptools
                     # pip3 install --user --upgrade pip setuptools
-                    python3 -m pip install --upgrade pip
+                    python3 -m pip install --upgrade pip setuptools
                 fi
             fi
         }
@@ -431,8 +431,6 @@ EOF
                 }
             fi
 
-
-
             latest() {
                 sudo apt-get update
                 # sudo apt-get upgrade -y
@@ -447,11 +445,6 @@ EOF
                 if [[ -z $LATEST_SKIP_YARN ]]; then
                     if [[ $(which yarn 2>/dev/null) ]]; then
                         yarn global upgrade --latest
-                    fi
-                fi
-                if [[ -z $LATEST_SKIP_PYTHON ]]; then
-                    if [[ $(which pip3 2>/dev/null) ]]; then
-                        pip3 install --upgrade pip setuptools
                     fi
                 fi
             }

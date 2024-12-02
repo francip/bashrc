@@ -1,21 +1,29 @@
 @echo off
-chcp 65001 >nul
 setlocal EnableDelayedExpansion
+chcp 65001 >nul
 
-:: Color definitions for Windows console
-set "ESC="
-for /f "tokens=1,2 delims=#" %%a in ('"prompt #$H#$E# & echo on & for %%b in (1) do rem"') do (
-  set "ESC=%%b"
+:: Get script directory (resolving symlinks)
+set "SCRIPT_PATH=%~f0"
+fsutil reparsepoint query "%SCRIPT_PATH%" >nul 2>&1
+if !errorlevel! equ 0 (
+    :: It's a symlink, get the target
+    for /f "tokens=*" %%l in ('dir /al "%SCRIPT_PATH%" ^| find "["') do (
+        set "LINK_TARGET=%%l"
+    )
+    set "LINK_TARGET=!LINK_TARGET:*[=!"
+    set "LINK_TARGET=!LINK_TARGET:]=!"
+    for %%i in ("!LINK_TARGET!") do set "SCRIPT_DIR=%%~dpi"
+    set "SCRIPT_DIR=!SCRIPT_DIR:~0,-1!"
+) else (
+    :: Not a symlink, use the direct path
+    set "SCRIPT_DIR=%~dp0"
+    set "SCRIPT_DIR=!SCRIPT_DIR:~0,-1!"
 )
 
-set "GREEN=%ESC%[92m"
-set "CYAN=%ESC%[96m"
-set "RED=%ESC%[91m"
-set "YELLOW=%ESC%[93m"
-set "RESET=%ESC%[0m"
+call "!SCRIPT_DIR!\configure_colors.cmd"
 
 echo.
-echo Looking for %CYAN%common%RESET% tools...
+echo Looking for %COLOR_CYAN%common%COLOR_NONE% tools...
 
 :: List of tools that output version to stderr
 set STDERR_TOOLS=python python3 pip pip3
@@ -72,10 +80,10 @@ for %%t in (git gh brew nvm node npm yarn python python3 pip pip3 pipx poetry fl
 
     if !FOUND! equ 1 (
         echo.
-        echo %GREEN%%%t%RESET%
+        echo %COLOR_GREEN_BOLD%%%t%COLOR_NONE%
 
         if "%%t"=="nvm" (
-            echo %CYAN%  Version  : %RESET%%YELLOW%...nvm is stupid and does not allow standard output redirection...%RESET%
+            echo %COLOR_CYAN_BOLD%  Version  : %COLOR_NONE%%COLOR_YELLOW%...nvm is stupid and does not allow standard output redirection...%COLOR_NONE%
         ) else (
             set "VERSION_OUTPUT="
             echo !STDERR_TOOLS! | findstr /i "\<%%t\>" >nul && (
@@ -127,14 +135,14 @@ for %%t in (git gh brew nvm node npm yarn python python3 pip pip3 pipx poetry fl
                     )
                 )
             )
-            if defined VERSION_OUTPUT echo %CYAN%  Version  : %RESET%!VERSION_OUTPUT!
+            if defined VERSION_OUTPUT echo %COLOR_CYAN_BOLD%  Version  : %COLOR_NONE%!VERSION_OUTPUT!
         )
 
-        echo %CYAN%  Location : %RESET%!CMD_PATH!
+        echo %COLOR_CYAN_BOLD%  Location : %COLOR_NONE%!CMD_PATH!
     ) else (
         echo.
-        echo %RED%%%t%RESET%
-        echo %RED%  Not found%RESET%
+        echo %COLOR_RED_BOLD%%%t%COLOR_NONE%
+        echo %COLOR_RED_BOLD%  Not found%COLOR_NONE%
     )
 )
 

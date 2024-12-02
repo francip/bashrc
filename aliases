@@ -329,7 +329,7 @@ EOF
             fi
             if [[ -z $LATEST_SKIP_YARN ]]; then
                 if [[ $(which yarn 2>/dev/null) ]]; then
-                    yarn global upgrade --latest
+                    yarn global upgrade --latest --non-interactive
                 fi
             fi
             if [[ -z $LATEST_SKIP_PYTHON ]]; then
@@ -444,7 +444,7 @@ EOF
                 fi
                 if [[ -z $LATEST_SKIP_YARN ]]; then
                     if [[ $(which yarn 2>/dev/null) ]]; then
-                        yarn global upgrade --latest
+                        yarn global upgrade --latest --non-interactive
                     fi
                 fi
             }

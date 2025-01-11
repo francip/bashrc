@@ -82,61 +82,57 @@ for %%t in (git gh brew nvm node npm yarn python python3 pip pip3 pipx poetry fl
         echo.
         echo %COLOR_GREEN_BOLD%%%t%COLOR_NONE%
 
-        if "%%t"=="nvm" (
-            echo %COLOR_CYAN_BOLD%  Version  : %COLOR_NONE%%COLOR_YELLOW%...nvm is stupid and does not allow standard output redirection...%COLOR_NONE%
-        ) else (
-            set "VERSION_OUTPUT="
-            echo !STDERR_TOOLS! | findstr /i "\<%%t\>" >nul && (
-                :: Tool outputs version to stderr (like python and pip)
-                for /f "usebackq tokens=*" %%v in (`"!CMD_PATH!" --version 2^>^&1`) do (
-                    set "VERSION_OUTPUT=%%v"
-                )
-            ) || (
-                :: Normal version output handling
-                if !IS_SCRIPT! equ 1 (
-                    call "!CMD_PATH!" --version >nul 2>&1 && (
-                        for /f "usebackq tokens=*" %%v in (`call "!CMD_PATH!" --version 2^>nul`) do (
+        set "VERSION_OUTPUT="
+        echo !STDERR_TOOLS! | findstr /i "\<%%t\>" >nul && (
+            :: Tool outputs version to stderr (like python and pip)
+            for /f "usebackq tokens=*" %%v in (`"!CMD_PATH!" --version 2^>^&1`) do (
+                set "VERSION_OUTPUT=%%v"
+            )
+        ) || (
+            :: Normal version output handling
+            if !IS_SCRIPT! equ 1 (
+                call "!CMD_PATH!" --version >nul 2>&1 && (
+                    for /f "usebackq tokens=*" %%v in (`call "!CMD_PATH!" --version 2^>nul`) do (
+                        if defined VERSION_OUTPUT (
+                            set "VERSION_OUTPUT=!VERSION_OUTPUT! %%v"
+                        ) else (
+                            set "VERSION_OUTPUT=%%v"
+                        )
+                    )
+                ) || (
+                    call "!CMD_PATH!" version >nul 2>&1 && (
+                        for /f "usebackq tokens=*" %%v in (`call "!CMD_PATH!" version 2^>nul`) do (
                             if defined VERSION_OUTPUT (
                                 set "VERSION_OUTPUT=!VERSION_OUTPUT! %%v"
                             ) else (
                                 set "VERSION_OUTPUT=%%v"
-                            )
-                        )
-                    ) || (
-                        call "!CMD_PATH!" version >nul 2>&1 && (
-                            for /f "usebackq tokens=*" %%v in (`call "!CMD_PATH!" version 2^>nul`) do (
-                                if defined VERSION_OUTPUT (
-                                    set "VERSION_OUTPUT=!VERSION_OUTPUT! %%v"
-                                ) else (
-                                    set "VERSION_OUTPUT=%%v"
-                                )
                             )
                         )
                     )
-                ) else (
-                    "!CMD_PATH!" --version >nul 2>&1 && (
-                        for /f "usebackq tokens=*" %%v in (`"!CMD_PATH!" --version 2^>nul`) do (
+                )
+            ) else (
+                "!CMD_PATH!" --version >nul 2>&1 && (
+                    for /f "usebackq tokens=*" %%v in (`"!CMD_PATH!" --version 2^>nul`) do (
+                        if defined VERSION_OUTPUT (
+                            set "VERSION_OUTPUT=!VERSION_OUTPUT! %%v"
+                        ) else (
+                            set "VERSION_OUTPUT=%%v"
+                        )
+                    )
+                ) || (
+                    "!CMD_PATH!" version >nul 2>&1 && (
+                        for /f "usebackq tokens=*" %%v in (`"!CMD_PATH!" version 2^>nul`) do (
                             if defined VERSION_OUTPUT (
                                 set "VERSION_OUTPUT=!VERSION_OUTPUT! %%v"
                             ) else (
                                 set "VERSION_OUTPUT=%%v"
-                            )
-                        )
-                    ) || (
-                        "!CMD_PATH!" version >nul 2>&1 && (
-                            for /f "usebackq tokens=*" %%v in (`"!CMD_PATH!" version 2^>nul`) do (
-                                if defined VERSION_OUTPUT (
-                                    set "VERSION_OUTPUT=!VERSION_OUTPUT! %%v"
-                                ) else (
-                                    set "VERSION_OUTPUT=%%v"
-                                )
                             )
                         )
                     )
                 )
             )
-            if defined VERSION_OUTPUT echo %COLOR_CYAN_BOLD%  Version  : %COLOR_NONE%!VERSION_OUTPUT!
         )
+        if defined VERSION_OUTPUT echo %COLOR_CYAN_BOLD%  Version  : %COLOR_NONE%!VERSION_OUTPUT!
 
         echo %COLOR_CYAN_BOLD%  Location : %COLOR_NONE%!CMD_PATH!
     ) else (

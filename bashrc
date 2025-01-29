@@ -218,7 +218,7 @@ EOF
         PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "/opt/homebrew/bin" )
     fi
     if [[ $SH_OS_DISTRO == Ubuntu ]]; then
-        PATH_DIRS=( "${PATH_DIRS[@]}" "/snap/bin" )
+        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/cuda/bin" "/snap/bin" )
     fi
     __add_to_path "${PATH_DIRS[@]}"
 
@@ -366,6 +366,11 @@ EOF
 
     # Next.js
     export NEXT_TELEMETRY_DEBUG=1
+
+    # Llama.cpp
+    if [[ $SH_OS_DISTRO == Ubuntu ]]; then
+        export GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
+    fi
 
     # Local declarations
     if [[ -n `type -t __bashrc_local_run` ]]; then

@@ -87,7 +87,7 @@ EOF
         fi
     fi
     if [[ $SH_OS_TYPE == Linux ]]; then
-        if [[ -z "$(pgrep ssh-agent)" ]]; then
+        if [[ -z "$(pgrep -u $USER ssh-agent)" ]]; then
             [[ $SH_INTERACTIVE ]] && echo
             [[ $SH_INTERACTIVE ]] && echo -e 'SSH agent '$COLOR_YELLOW_BOLD'not running'$COLOR_NONE'. Starting new one...'
             rm -rf /tmp/ssh-* 2>/dev/null
@@ -95,7 +95,7 @@ EOF
         else
             [[ $SH_INTERACTIVE ]] && echo
             [[ $SH_INTERACTIVE ]] && echo -e 'SSH agent '$COLOR_GREEN_BOLD'running'$COLOR_NONE'. Connecting...'
-            export SSH_AGENT_PID=$(pgrep ssh-agent)
+            export SSH_AGENT_PID=$(pgrep -u $USER ssh-agent)
             export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.\* 2>/dev/null)
         fi
     fi

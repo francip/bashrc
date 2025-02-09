@@ -211,6 +211,54 @@ EOF
         echo
     }
 
+    deps_update() {
+        if [ ! -f "package.json" ]; then
+            echo "No package.json found in current directory"
+            return 1
+        fi
+
+        # Check if npm-check-updates is installed locally
+        if ! npm list npm-check-updates >/dev/null 2>&1; then
+            echo "Installing npm-check-updates as dev dependency..."
+            npm install -D npm-check-updates
+            echo
+        fi
+
+        echo "Checking for updates..."
+        # Run ncu and capture its output and exit code
+        output=$(npx npm-check-updates -u)
+        exit_code=$?
+        echo
+
+        if [ $exit_code -ne 0 ]; then
+            echo "Error running npm-check-updates"
+            return 1
+        fi
+
+        # Check if any packages were updated
+        if echo "$output" | grep -q "Run npm install"; then
+            echo "Updates found. Running npm install..."
+            npm install
+            echo
+
+            # Check for build script
+            if grep -q "\"build\":" package.json; then
+                echo "Running build script..."
+                npm run build
+                echo
+            fi
+
+            # Check for test script
+            if grep -q "\"test\":" package.json; then
+                echo "Running tests..."
+                npm test
+                echo
+            fi
+        else
+            echo "All packages are up to date!"
+        fi
+    }
+
     # OS-specific aliases and functions
 
     if [[ $SH_OS_TYPE == OSX ]]; then

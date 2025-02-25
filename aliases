@@ -226,7 +226,7 @@ EOF
 
         echo "Checking for updates..."
         # Run ncu and capture its output and exit code
-        output=$(npx npm-check-updates -u)
+        output=$(npx npm-check-updates -u -x react* -x @types/react*)
         exit_code=$?
         echo
 

@@ -48,5 +48,6 @@ if !IS_INTERACTIVE! equ 1 (
     doskey ls=dir $*
 )
 
+setlocal DisableDelayedExpansion
 endlocal
 set "SHRC_RUNNING="

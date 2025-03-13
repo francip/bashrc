@@ -322,6 +322,15 @@ EOF
         fi
     fi
 
+    # Bun
+    if [[ -d $HOME/.bun ]]; then
+        export BUN_INSTALL="$HOME/.bun"
+    fi
+    if [[ -d $BUN_INSTALL ]]; then
+        . "$BUN_INSTALL/bun.sh"
+        __add_to_path "${BUN_INSTALL}/bin"
+    fi
+
     # Ruby
     if [[ $SH_OS_TYPE == OSX ]]; then
         if [[ -d /opt/homebrew/opt/ruby/bin ]]; then

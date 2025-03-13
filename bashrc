@@ -327,7 +327,6 @@ EOF
         export BUN_INSTALL="$HOME/.bun"
     fi
     if [[ -d $BUN_INSTALL ]]; then
-        . "$BUN_INSTALL/bun.sh"
         __add_to_path "${BUN_INSTALL}/bin"
     fi
 

@@ -259,6 +259,29 @@ EOF
         fi
     }
 
+    # Function to find and activate a Python virtual environment in the current directory
+    activate() {
+        eval "$(__sh_color_definitions)"
+        eval "$(__sh_os_definitions)"
+
+        # Check for common venv directory names
+        if [ -d "venv" ] && [ -f "venv/bin/activate" ]; then
+            echo -e "Activating virtual environment: "$COLOR_GREEN_BOLD"venv"$COLOR_NONE
+            source venv/bin/activate
+        elif [ -d ".venv" ] && [ -f ".venv/bin/activate" ]; then
+            echo -e "Activating virtual environment: "$COLOR_GREEN_BOLD".venv"$COLOR_NONE
+            source .venv/bin/activate
+        elif [ -d "env" ] && [ -f "env/bin/activate" ]; then
+            echo -e "Activating virtual environment: "$COLOR_GREEN_BOLD"env"$COLOR_NONE
+            source env/bin/activate
+        elif [ -d ".env" ] && [ -f ".env/bin/activate" ]; then
+            echo -e "Activating virtual environment: "$COLOR_GREEN_BOLD".env"$COLOR_NONE
+            source .env/bin/activate
+        else
+            echo -e $COLOR_YELLOW_BOLD"No virtual environment found in the current directory."$COLOR_NONE
+        fi
+    }
+
     # OS-specific aliases and functions
 
     if [[ $SH_OS_TYPE == OSX ]]; then
@@ -338,7 +361,7 @@ EOF
                 echo
                 echo -e "For example rep s/a/b/ will replace all instances of 'a' in all files with 'b'"
                 echo
-                echo -e "Read "$COLOR_BOLD"sed"$COLOR_NONE" manual for more details"
+                sed --help
                 echo
             else
                 for x in $(find . -type f -name '*' ! -name '.*' ! -path '*/.*'); do
@@ -415,8 +438,6 @@ EOF
                 echo -e "Rep will execute the sed command on all files in the current directory"
                 echo -e "and subdirectories, excluding any hidden files. All commands will be"
                 echo -e "executed in place using sed's -i option."
-                echo
-                echo -e "For example rep s/a/b/ will replace all instances of 'a' in all files with 'b'"
                 echo
                 sed --help
                 echo

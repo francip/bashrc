@@ -137,7 +137,7 @@ EOF
     promptinit
     prompt adam1
 
-    setopt histignorealldups sharehistory
+    setopt histignorealldups sharehistory auto_cd
 
     # Keep 1000 lines of history within the shell and save it to ~/.zsh_history:
     HISTSIZE=1000
@@ -164,6 +164,8 @@ EOF
     zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
     zstyle ':completion:*' use-compctl false
     zstyle ':completion:*' verbose true
+
+    zstyle ':completion:*:(cd|pushd):*' tag-order local-directories path-directories
 
     zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
     zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
@@ -225,6 +227,7 @@ EOF
     if [[ -n $ZSH_COMPLETION_INSTALLED ]]; then
         # Affects cd behavior
         __add_to_cd_path "." "${HOME}" "${HOME}/src"
+        cdpath=$CDPATH
     fi
 
     # SSH client

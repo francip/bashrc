@@ -356,6 +356,8 @@ EOF
     # Llama.cpp
     if [[ $SH_OS_DISTRO == Ubuntu ]]; then
         export GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
+    elif [[ $SH_OS_TYPE == OSX ]]; then
+        export OpenMP_ROOT=$(brew --prefix)/opt/libomp 
     fi
 
     # Local declarations

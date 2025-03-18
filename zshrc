@@ -113,6 +113,9 @@ EOF
         fi
     fi
 
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+
     # Homebrew
     if [[ $SH_OS_TYPE == OSX ]]; then
         if [[ -f /opt/homebrew/bin/brew ]]; then

@@ -291,6 +291,11 @@ EOF
 
     # Dev declarations
 
+    # Windsurf
+    if [[ -d $HOME/.codeium/windsurf/bin]]; then
+        __add_to_path "${HOME}/.codeium/windsurf/bin"
+    fi
+
     # Android SDK
     if [[ -d $HOME/android-sdk ]]; then
         export ANDROID_HOME=$HOME/android-sdk

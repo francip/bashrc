@@ -184,7 +184,7 @@ EOF
         DISABLE_UNTRACKED_FILES_DIRTY="true"
         HIST_STAMPS="yyyy-mm-dd"
 
-        plugins=(git mercurial adb nvm node npm python pip macos iterm2 macports)
+        plugins=(git mercurial nvm node npm python pip macos iterm2 macports)
 
         source $ZSH/oh-my-zsh.sh
     fi

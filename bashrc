@@ -330,6 +330,15 @@ EOF
         __add_to_path "${BUN_INSTALL}/bin"
     fi
 
+    if [[ -d $HOME/.deno ]]; then
+        export DENO_DIR="$HOME/.deno"
+    fi
+    if [[ -d $DENO_DIR ]]; then
+        . "$DENO_DIR/env"
+        . $HOME/.local/share/bash-completion/completions/deno.bash
+    fi
+
+
     # Ruby
     if [[ $SH_OS_TYPE == OSX ]]; then
         if [[ -d /opt/homebrew/opt/ruby/bin ]]; then

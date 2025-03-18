@@ -200,14 +200,6 @@ EOF
 
         __get_commands_info git gh brew bun deno nvm node npm yarn pnpm python python3 pip pip3 pipx poetry huggingface-cli flutter dart go ruby gem arduino-cli claude kode llama-server gcc clang ccache cmake ninja tmux curl convert
 
-        if [[ $SH_OS_TYPE == OSX ]]; then
-            # OS X tools
-            echo
-            echo -e 'Looking for '$COLOR_CYAN_BOLD'OS X'$COLOR_NONE' tools...'
-
-            __get_commands_info port
-        fi
-
         echo
     }
 
@@ -381,15 +373,6 @@ EOF
                     brew update
                     brew upgrade
                     brew cleanup
-                    brew prune
-                fi
-            fi
-            if [[ -z $LATEST_SKIP_PORTS ]]; then
-                if [[ $(which port 2>/dev/null) ]]; then
-                    local PORT_BIN=$(which port)
-                    sudo $PORT_BIN selfupdate
-                    sudo $PORT_BIN upgrade outdated
-                    sudo $PORT_BIN reclaim
                 fi
             fi
             if [[ -z $LATEST_SKIP_NPM ]]; then

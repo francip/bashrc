@@ -275,6 +275,23 @@ EOF
         fi
     fi
 
+    # Bun
+    if [[ -d $HOME/.bun ]]; then
+        export BUN_INSTALL="$HOME/.bun"
+    fi
+    if [[ -d $BUN_INSTALL ]]; then
+        [ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
+        __add_to_path "${BUN_INSTALL}/bin"
+    fi
+
+    if [[ -d $HOME/.deno ]]; then
+        export DENO_DIR="$HOME/.deno"
+    fi
+    if [[ -d $DENO_DIR ]]; then
+        . "$DENO_DIR/env"
+        if [[ ":$FPATH:" != *":/Users/francip/.zsh/completions:"* ]]; then export FPATH="/Users/francip/.zsh/completions:$FPATH"; fi
+    fi
+
     # Ruby
     if [[ $SH_OS_TYPE == OSX ]]; then
         if [[ -d /opt/homebrew/opt/ruby/bin ]]; then

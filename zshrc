@@ -306,13 +306,19 @@ EOF
     # Ruby
     if [[ $SH_OS_TYPE == OSX ]]; then
         if [[ -d /opt/homebrew/opt/ruby/bin ]]; then
-            __add_to_path "/opt/homebrew/opt/ruby/bin" "/opt/homebrew/lib/ruby/gems/3.3.0/bin"
+            __add_to_path "/opt/homebrew/opt/ruby/bin" "/opt/homebrew/lib/ruby/gems/3.4.0/bin"
         fi
     fi
-    if [[ -d $HOME/.gem ]]; then
-        export GEM_HOME="$HOME/.gem"
-    elif [[ -d $HOME/gems ]]; then
-        export GEM_HOME="$HOME/gems"
+    if [[ -z $GEM_HOME ]]; then
+        if [[ -d $HOME/.gem ]]; then
+            export GEM_HOME="$HOME/.gem"
+        elif [[ -d $HOME/gems ]]; then
+            export GEM_HOME="$HOME/gems"
+        elif [[ $SH_OS_TYPE == OSX ]]; then
+            if [[ -d /opt/homebrew/opt/ruby/lib/ruby/gems/3.4.0/gems ]]; then
+                export GEM_HOME="/opt/homebrew/opt/ruby/lib/ruby/gems/3.4.0/gems"
+            fi
+        fi
     fi
     if [[ -n $GEM_HOME ]]; then
         __add_to_path "${GEM_HOME}/bin"

@@ -200,6 +200,13 @@ EOF
 
         __get_commands_info git gh brew bun deno nvm node npm yarn pnpm python python3 pip pip3 pipx poetry huggingface-cli flutter dart go ruby gem arduino-cli claude kode llama-server gcc clang ccache cmake ninja tmux curl convert
 
+        if [[ $SH_OS_TYPE == OSX ]]; then
+            echo
+            echo -e 'Looking for '$COLOR_CYAN_BOLD'OS X'$COLOR_NONE' tools...'
+
+            __get_commands_info pod
+        fi
+
         echo
     }
 

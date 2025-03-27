@@ -578,8 +578,6 @@ EOF
     __aliases_load() {
         local ALIASES_LOAD
 
-        echo Late loading aliases
-
         # Replace the cd builtin to turn off the annoying
         # echo-new-folder behavior when CDPATH is set
         # and to automatically use the correct node version

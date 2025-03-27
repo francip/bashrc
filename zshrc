@@ -88,7 +88,7 @@ EOF
     fi
 
     if [[ $SH_OS_TYPE == Linux ]]; then
-        if [[ -z "$(pgrep ssh-agent)" ]]; then
+        if [[ -z "$(pgrep -u $USER ssh-agent)" ]]; then
             [[ $SH_INTERACTIVE ]] && echo
             [[ $SH_INTERACTIVE ]] && echo -e 'SSH agent '$COLOR_YELLOW_BOLD'not running'$COLOR_NONE'. Starting new one...'
             rm -rf /tmp/ssh-* 2>/dev/null
@@ -96,19 +96,22 @@ EOF
         else
             [[ $SH_INTERACTIVE ]] && echo
             [[ $SH_INTERACTIVE ]] && echo -e 'SSH agent '$COLOR_GREEN_BOLD'running'$COLOR_NONE'. Connecting...'
-            export SSH_AGENT_PID=$(pgrep ssh-agent)
+            export SSH_AGENT_PID=$(pgrep -u $USER ssh-agent)
             export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.\* 2>/dev/null)
         fi
     fi
 
-    ssh-add >/dev/null 2>&1
+    # Only add keys in interactive shell
+    if [[ $SH_INTERACTIVE ]]; then
+        ssh-add >/dev/null 2>&1
 
-    if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
-        if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
-            if [[ $SH_OS_TYPE == OSX ]]; then
-                ssh-add -K ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
-            else
-                ssh-add ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
+        if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
+            if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
+                if [[ $SH_OS_TYPE == OSX ]]; then
+                    ssh-add -K ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
+                else
+                    ssh-add ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
+                fi
             fi
         fi
     fi
@@ -135,7 +138,7 @@ EOF
     [[ $SH_INTERACTIVE ]] && echo
     __include_files "${HOME}/.zshrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases_local"
 
-    # Set up the prompt
+    # Set up default prompt (will be overridden by oh-my-zsh if installed)
     autoload -Uz promptinit
     promptinit
     prompt adam1
@@ -146,8 +149,20 @@ EOF
     HISTSIZE=1000
     SAVEHIST=1000
     HISTFILE=~/.zsh_history
+    
+    # Color directories
+    if [[ $SH_OS_TYPE == OSX ]]; then
+        # Mac OS X settings
+        export LSCOLORS=GxFxCxDxBxegedabagaced
+    fi
+    
+    if [[ $SH_OS_TYPE == Linux ]]; then
+        # Linux settings
+        export LS_COLORS='di=01;36'
+    fi
 
     # Use modern completion system
+    ZSH_DISABLE_COMPFIX=true
     autoload -Uz compinit
     compinit
 
@@ -211,8 +226,7 @@ EOF
                 [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/homebrew/share/zsh-completions'$COLOR_NONE
                 FPATH=/opt/homebrew/share/zsh-completions:$FPATH
 
-                autoload -Uz compinit
-                compinit
+                # Already called compinit at the top level, just update FPATH
             fi
         fi
     fi
@@ -227,16 +241,38 @@ EOF
     fi
     __add_to_path "${PATH_DIRS[@]}"
 
-    if [[ -n $ZSH_COMPLETION_INSTALLED ]]; then
-        # Affects cd behavior
-        __add_to_cd_path "." "${HOME}" "${HOME}/src"
-        cdpath=$CDPATH
-    fi
+    # Affects cd behavior - CDPATH needs to always be set for the cd function in aliases to work properly
+    __add_to_cd_path "." "${HOME}" "${HOME}/src"
+    # Convert CDPATH (colon separated string) to cdpath (array) - zsh requires this conversion
+    # Unlike bash which just uses CDPATH, zsh needs the cdpath array to be properly set
+    cdpath=(${(s.:.)CDPATH})
 
     # SSH client
     if [[ -n $SSH_CLIENT ]]; then
         [[ $SH_INTERACTIVE ]] && echo
         [[ $SH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
+    fi
+    
+    # Git completion - only load if not using oh-my-zsh
+    if [[ ! -d $HOME/.oh-my-zsh ]] && [[ -n $(which git 2>/dev/null) ]]; then
+        # Load custom git completions if available
+        local GIT_COMPLETION
+        GIT_COMPLETION=$HOME/bin/git-completion.zsh
+        
+        if [[ -f "$GIT_COMPLETION" ]]; then
+            [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$GIT_COMPLETION$COLOR_NONE
+            . "$GIT_COMPLETION"
+        fi
+    fi
+
+    # Misc declarations
+    if [[ $SH_OS_TYPE == Linux ]]; then
+        if [[ $SH_OS_DISTRO == Ubuntu ]]; then
+            if [[ -z $SHELL ]]; then
+                # Ubuntu does not always define it for some reason
+                export SHELL=/usr/bin/env zsh
+            fi
+        fi
     fi
 
     export EDITOR=vim
@@ -300,7 +336,8 @@ EOF
     fi
     if [[ -d $DENO_DIR ]]; then
         . "$DENO_DIR/env"
-        if [[ ":$FPATH:" != *":/Users/francip/.zsh/completions:"* ]]; then export FPATH="/Users/francip/.zsh/completions:$FPATH"; fi
+        # Use $HOME instead of hardcoded user path
+        if [[ ":$FPATH:" != *":$HOME/.zsh/completions:"* ]]; then export FPATH="$HOME/.zsh/completions:$FPATH"; fi
     fi
 
     # Ruby
@@ -326,8 +363,8 @@ EOF
 
     # Go
     if [[ $SH_OS_TYPE == OSX ]]; then
-        if [[ -d $HOME/src/Go ]]; then
-            export GOPATH=$HOME/src/Go
+        if [[ -d $HOME/go ]]; then
+            export GOPATH=$HOME/go
         fi
     fi
 
@@ -343,12 +380,12 @@ EOF
     # Conda
     # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!
-    __conda_setup="$('/home/francip/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+    __conda_setup="$('$HOME/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
     if [ $? -eq 0 ]; then
         eval "$__conda_setup"
     else
-        if [ -f "/home/francip/miniconda3/etc/profile.d/conda.sh" ]; then
-            . "/home/francip/miniconda3/etc/profile.d/conda.sh"
+        if [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
+            . "$HOME/miniconda3/etc/profile.d/conda.sh"
         else
             __add_to_path "${HOME}/miniconda3/bin"
         fi
@@ -363,7 +400,7 @@ EOF
     if [[ $SH_OS_DISTRO == Ubuntu ]]; then
         export GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
     elif [[ $SH_OS_TYPE == OSX ]]; then
-        export OpenMP_ROOT=$(brew --prefix)/opt/libomp 
+        export OpenMP_ROOT=$(brew --prefix)/opt/libomp
     fi
 
     # Local declarations

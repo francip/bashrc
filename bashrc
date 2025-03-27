@@ -332,6 +332,8 @@ EOF
         export BUN_INSTALL="$HOME/.bun"
     fi
     if [[ -d $BUN_INSTALL ]]; then
+        # Source Bun shell integration if available
+        [ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
         __add_to_path "${BUN_INSTALL}/bin"
     fi
 
@@ -385,7 +387,7 @@ EOF
     # Conda
     # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!
-    __conda_setup="$('/home/francip/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+    __conda_setup="$('$HOME/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
     if [ $? -eq 0 ]; then
         eval "$__conda_setup"
     fi

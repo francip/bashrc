@@ -8,7 +8,9 @@ if [[ $OSTYPE == darwin* ]]; then
     SH_OS_FLAVOR='OSX'
     SH_OS_RELEASE=`type sw_vers >/dev/null 2>&1 && sw_vers -productVersion`
     SH_OS_DISTRO_NUM=`uname -r | tr "." "\n" | head -n 1`
-    if [[ $OSTYPE == darwin23* ]]; then
+    if [[ $OSTYPE == darwin24* ]]; then
+        SH_OS_DISTRO='Sequoia'
+    elif [[ $OSTYPE == darwin23* ]]; then
         SH_OS_DISTRO='Sonoma'
     elif [[ $OSTYPE == darwin22* ]]; then
         SH_OS_DISTRO='Ventura'

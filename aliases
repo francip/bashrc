@@ -264,8 +264,18 @@ EOF
             echo -e "Activating virtual environment: "$COLOR_GREEN_BOLD".env"$COLOR_NONE
             source .env/bin/activate
         elif [ -f "poetry.lock" ]; then
-            echo -e "Activating virtual environment: "$COLOR_GREEN_BOLD"poetry"$COLOR_NONE
-            eval $(poetry env activate)
+            # Check Poetry version to determine activation method
+            local POETRY_VERSION=$(poetry --version 2>/dev/null | sed -E 's/.*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+            echo -e "Activating virtual environment: "$COLOR_GREEN_BOLD"poetry "$POETRY_VERSION$COLOR_NONE
+            # Extract major version for comparison
+            local POETRY_MAJOR_VERSION=$(echo "$POETRY_VERSION" | cut -d. -f1)
+            if [ -n "$POETRY_VERSION" ] && [ "$POETRY_MAJOR_VERSION" -lt 2 ]; then
+                # For Poetry < 2.0: use poetry shell
+                poetry shell
+            else
+                # For Poetry >= 2.0: use poetry env activate
+                eval $(poetry env activate)
+            fi
         else
             echo -e $COLOR_YELLOW_BOLD"No virtual environment found in the current directory."$COLOR_NONE
         fi

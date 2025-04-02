@@ -397,6 +397,9 @@ EOF
     # Next.js
     export NEXT_TELEMETRY_DEBUG=1
 
+    # Python
+    export PYTHONPATH=./
+
     # Llama.cpp
     if [[ $SH_OS_DISTRO == Ubuntu ]]; then
         export GGML_CUDA_ENABLE_UNIFIED_MEMORY=1

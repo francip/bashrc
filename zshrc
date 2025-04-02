@@ -162,9 +162,10 @@ EOF
     fi
 
     # Use modern completion system
-    ZSH_DISABLE_COMPFIX=true
+    # Set ZSH_DISABLE_COMPFIX at global scope to ensure it works in nested zsh sessions
+    export ZSH_DISABLE_COMPFIX=true
     autoload -Uz compinit
-    compinit
+    compinit -u # Use -u flag to skip the insecure directories check
 
     setopt autocd
 
@@ -395,6 +396,9 @@ EOF
 
     # Next.js
     export NEXT_TELEMETRY_DEBUG=1
+
+    # Python
+    export PYTHONPATH=./
 
     # Llama.cpp
     if [[ $SH_OS_DISTRO == Ubuntu ]]; then

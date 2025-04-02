@@ -263,6 +263,9 @@ EOF
         elif [ -d ".env" ] && [ -f ".env/bin/activate" ]; then
             echo -e "Activating virtual environment: "$COLOR_GREEN_BOLD".env"$COLOR_NONE
             source .env/bin/activate
+        elif [ -f "poetry.lock" ]; then
+            echo -e "Activating virtual environment: "$COLOR_GREEN_BOLD"poetry"$COLOR_NONE
+            eval $(poetry env activate)
         else
             echo -e $COLOR_YELLOW_BOLD"No virtual environment found in the current directory."$COLOR_NONE
         fi

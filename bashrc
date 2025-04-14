@@ -333,7 +333,7 @@ EOF
     fi
     if [[ -d $BUN_INSTALL ]]; then
         # Source Bun shell integration if available
-        [ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
+        # [ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
         __add_to_path "${BUN_INSTALL}/bin"
     fi
 

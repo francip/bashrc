@@ -388,18 +388,6 @@ EOF
                     npm update -g
                 fi
             fi
-            if [[ -z $LATEST_SKIP_YARN ]]; then
-                if [[ $(which yarn 2>/dev/null) ]]; then
-                    yarn global upgrade --latest --non-interactive
-                fi
-            fi
-            if [[ -z $LATEST_SKIP_PYTHON ]]; then
-                if [[ $(which pip3 2>/dev/null) ]]; then
-                    # pip3 install --upgrade pip setuptools
-                    # pip3 install --user --upgrade pip setuptools
-                    python3 -m pip install --upgrade pip setuptools
-                fi
-            fi
         }
 
         mdns_list() {

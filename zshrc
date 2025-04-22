@@ -369,15 +369,6 @@ EOF
         fi
     fi
 
-    # Torch
-    if [[ -n `whence $HOME/torch/install/bin/torch-activate` ]]; then
-        [[ -s "$HOME/torch/install/bin/torch-activate" ]] && . $HOME/torch/install/bin/torch-activate
-    fi
-
-    if [[ -d $HOME/flutter ]]; then
-        __add_to_path "${HOME}/flutter/bin" "$HOME/.pub-cache/bin"
-    fi
-
     # Conda
     # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!

@@ -138,7 +138,7 @@ EOF
 
     # Source additional global, local, and personal definitions
     [[ $SH_INTERACTIVE ]] && echo
-    __include_files "${HOME}/.zshrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases_local"
+    __include_files "${HOME}/.zshrc.local" "${HOME}/.zshrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases.local" "${HOME}/.aliases_local"
 
     # Set up default prompt (will be overridden by oh-my-zsh if installed)
     autoload -Uz promptinit
@@ -151,13 +151,13 @@ EOF
     HISTSIZE=1000
     SAVEHIST=1000
     HISTFILE=~/.zsh_history
-    
+
     # Color directories
     if [[ $SH_OS_TYPE == OSX ]]; then
         # Mac OS X settings
         export LSCOLORS=GxFxCxDxBxegedabagaced
     fi
-    
+
     if [[ $SH_OS_TYPE == Linux ]]; then
         # Linux settings
         export LS_COLORS='di=01;36'
@@ -255,13 +255,13 @@ EOF
         [[ $SH_INTERACTIVE ]] && echo
         [[ $SH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
     fi
-    
+
     # Git completion - only load if not using oh-my-zsh
     if [[ ! -d $HOME/.oh-my-zsh ]] && [[ -n $(which git 2>/dev/null) ]]; then
         # Load custom git completions if available
         local GIT_COMPLETION
         GIT_COMPLETION=$HOME/bin/git-completion.zsh
-        
+
         if [[ -f "$GIT_COMPLETION" ]]; then
             [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$GIT_COMPLETION$COLOR_NONE
             . "$GIT_COMPLETION"

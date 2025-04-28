@@ -135,7 +135,7 @@ EOF
 
     # Source additional global, local, and personal definitions
     [[ $SH_INTERACTIVE ]] && echo
-    __include_files "/etc/bashrc" "${HOME}/.bashrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases_local"
+    __include_files "${HOME}/.bashrc.local" "${HOME}/.bashrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases.local" "${HOME}/.aliases_local"
 
     # ITerm2 integration
     local ITERM2_INTEGRATION

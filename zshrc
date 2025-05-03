@@ -334,6 +334,7 @@ EOF
         __add_to_path "${BUN_INSTALL}/bin"
     fi
 
+    # Deno
     if [[ -d $HOME/.deno ]]; then
         export DENO_DIR="$HOME/.deno"
     fi

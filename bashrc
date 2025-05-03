@@ -334,11 +334,10 @@ EOF
         export BUN_INSTALL="$HOME/.bun"
     fi
     if [[ -d $BUN_INSTALL ]]; then
-        # Source Bun shell integration if available
-        [ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
         __add_to_path "${BUN_INSTALL}/bin"
     fi
 
+    # Deno
     if [[ -d $HOME/.deno ]]; then
         export DENO_DIR="$HOME/.deno"
     fi

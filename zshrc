@@ -394,6 +394,11 @@ EOF
     # Python
     export PYTHONPATH=./
 
+    # Rust
+    if [[ -d $HOME/.cargo ]]; then
+        . "$HOME/.cargo/env"
+    fi
+
     # Llama.cpp
     if [[ $SH_OS_DISTRO == Ubuntu ]]; then
         export GGML_CUDA_ENABLE_UNIFIED_MEMORY=1

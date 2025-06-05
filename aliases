@@ -185,7 +185,7 @@ EOF
         echo
         echo -e 'Looking for '$COLOR_CYAN_BOLD'common'$COLOR_NONE' tools...'
 
-        __get_commands_info git gh brew bun deno nvm node npm pnpm python python3 pip pip3 pipx poetry huggingface-cli go rustc cargo ruby gem arduino-cli claude codex kode llama-server gcc clang ccache cmake ninja tmux curl convert
+        __get_commands_info git gh brew bun deno nvm node npm pnpm python python3 pip pip3 pipx poetry huggingface-cli go rustc cargo ruby gem arduino-cli claude codex llama-server gcc clang ccache cmake ninja tmux curl convert
 
         if [[ $SH_OS_TYPE == OSX ]]; then
             echo

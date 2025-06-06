@@ -140,7 +140,7 @@ EOF
     [[ $SH_INTERACTIVE ]] && echo
     __include_files "${HOME}/.zshrc.local" "${HOME}/.zshrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases.local" "${HOME}/.aliases_local"
 
-    # Set up default prompt (will be overridden by oh-my-zsh if installed)
+    # Set up default prompt
     autoload -Uz promptinit
     promptinit
     prompt adam1
@@ -191,25 +191,6 @@ EOF
     zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
     zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 
-    if [[ ! -d $HOME/.oh-my-zsh ]]; then
-        [[ $SH_INTERACTIVE ]] && echo -e 'Installing '$COLOR_GREEN_BOLD'oh-my-zsh'$COLOR_NONE
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --keep-zshrc --unattended"
-    fi
-
-    if [[ -d $HOME/.oh-my-zsh ]]; then
-        [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$ZSH'/oh-my-zsh.sh'$COLOR_NONE
-        export ZSH="$HOME/.oh-my-zsh"
-
-        ZSH_THEME="amuse"
-        COMPLETION_WAITING_DOTS="true"
-        DISABLE_UNTRACKED_FILES_DIRTY="true"
-        HIST_STAMPS="yyyy-mm-dd"
-
-        plugins=(git mercurial nvm node npm python pip macos iterm2 macports)
-
-        source $ZSH/oh-my-zsh.sh
-    fi
-
     # ITerm2 integration
     local ITERM2_INTEGRATION
     if [[ $SH_OS_TYPE == OSX ]]; then
@@ -257,7 +238,7 @@ EOF
     fi
 
     # Git completion - only load if not using oh-my-zsh
-    if [[ ! -d $HOME/.oh-my-zsh ]] && [[ -n $(which git 2>/dev/null) ]]; then
+    if [[ -n $(which git 2>/dev/null) ]]; then
         # Load custom git completions if available
         local GIT_COMPLETION
         GIT_COMPLETION=$HOME/bin/git-completion.zsh

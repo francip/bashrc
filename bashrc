@@ -133,6 +133,17 @@ EOF
         fi
     fi
 
+    local BREW_DIR
+
+    BREW_DIR=$(brew --prefix 2>>/dev/null)
+    if [ -z "$BREW_DIR" ]; then
+        [[ $SH_INTERACTIVE ]] && echo
+        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_YELLOW_BOLD'Homebrew'$COLOR_NONE' not installed'
+    else
+        [[ $SH_INTERACTIVE ]] && echo
+        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' installed at '$COLOR_GREEN_BOLD$BREW_DIR$COLOR_NONE
+    fi
+
     # Source additional global, local, and personal definitions
     [[ $SH_INTERACTIVE ]] && echo
     __include_files "${HOME}/.bashrc.local" "${HOME}/.bashrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases.local" "${HOME}/.aliases_local"
@@ -165,10 +176,10 @@ EOF
             elif [[ -f /opt/local/etc/profile.d/bash_completion.sh ]]; then
                 [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/local/etc/profile.d/bash_completion.sh'$COLOR_NONE
                 . /opt/local/etc/profile.d/bash_completion.sh
-            elif [[ -f /opt/homebrew/bin/brew ]]; then
-                if [[ -f /opt/homebrew/etc/profile.d/bash_completion.sh ]]; then
-                    [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/homebrew/etc/profile.d/bash_completion.sh'$COLOR_NONE
-                    . /opt/homebrew/etc/profile.d/bash_completion.sh
+            elif [[ -f ${BREW_DIR}/bin/brew ]]; then
+                if [[ -f ${BREW_DIR}/etc/profile.d/bash_completion.sh ]]; then
+                    [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$BREW_DIR'/etc/profile.d/bash_completion.sh'$COLOR_NONE
+                    . ${BREW_DIR}/etc/profile.d/bash_completion.sh
                 fi
             fi
         elif [[ $SH_OS_TYPE == Linux ]]; then
@@ -217,7 +228,7 @@ EOF
     local PATH_DIRS=( "${HOME}/bin" "${HOME}/.local/bin" "${SH_SOURCE_DIR}/scripts" )
     if [[ $SH_OS_TYPE == OSX ]]; then
         # Mac OS X paths, including Homebrew and MacPorts
-        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "/opt/homebrew/bin" )
+        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "${BREW_DIR}/bin" )
     fi
     if [[ $SH_OS_DISTRO == Ubuntu ]]; then
         PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/cuda/bin" "/snap/bin" )
@@ -298,6 +309,11 @@ EOF
         __add_to_path "${HOME}/.codeium/windsurf/bin"
     fi
 
+    # Claude
+    if [[ -d $HOME/.claude/local ]]; then
+        __add_to_path "${HOME}/.claude/local"
+    fi
+    
     # Android SDK
     if [[ -d $HOME/android-sdk ]]; then
         export ANDROID_HOME=$HOME/android-sdk
@@ -349,8 +365,8 @@ EOF
 
     # Ruby
     if [[ $SH_OS_TYPE == OSX ]]; then
-        if [[ -d /opt/homebrew/opt/ruby/bin ]]; then
-            __add_to_path "/opt/homebrew/opt/ruby/bin" "/opt/homebrew/lib/ruby/gems/3.4.0/bin"
+        if [[ -d ${BREW_DIR}/opt/ruby/bin ]]; then
+            __add_to_path "${BREW_DIR}/opt/ruby/bin" "${BREW_DIR}/lib/ruby/gems/3.4.0/bin"
         fi
     fi
     if [[ -z $GEM_HOME ]]; then
@@ -359,8 +375,8 @@ EOF
         elif [[ -d $HOME/gems ]]; then
             export GEM_HOME="$HOME/gems"
         elif [[ $SH_OS_TYPE == OSX ]]; then
-            if [[ -d /opt/homebrew/opt/ruby/lib/ruby/gems/3.4.0/gems ]]; then
-                export GEM_HOME="/opt/homebrew/opt/ruby/lib/ruby/gems/3.4.0/gems"
+            if [[ -d ${BREW_DIR}/opt/ruby/lib/ruby/gems/3.4.0/gems ]]; then
+                export GEM_HOME="${BREW_DIR}/opt/ruby/lib/ruby/gems/3.4.0/gems"
             fi
         fi
     fi

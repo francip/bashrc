@@ -136,6 +136,17 @@ EOF
         fi
     fi
 
+    local BREW_DIR
+
+    BREW_DIR=$(brew --prefix 2>>/dev/null)
+    if [ -z "$BREW_DIR" ]; then
+        [[ $SH_INTERACTIVE ]] && echo
+        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_YELLOW_BOLD'Homebrew'$COLOR_NONE' not installed'
+    else
+        [[ $SH_INTERACTIVE ]] && echo
+        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' installed at '$COLOR_GREEN_BOLD$BREW_DIR$COLOR_NONE
+    fi
+
     # Source additional global, local, and personal definitions
     [[ $SH_INTERACTIVE ]] && echo
     __include_files "${HOME}/.zshrc.local" "${HOME}/.zshrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases.local" "${HOME}/.aliases_local"
@@ -204,11 +215,11 @@ EOF
     # Zsh completion
     local ZSH_COMPLETION_INSTALLED
     if [[ $SH_OS_TYPE == OSX ]]; then
-        if [[ -f /opt/homebrew/bin/brew ]]; then
-            if [[ -d /opt/homebrew/share/zsh-completions ]]; then
-                ZSH_COMPLETION_INSTALLED=/opt/homebrew/share/zsh-completions
-                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/homebrew/share/zsh-completions'$COLOR_NONE
-                FPATH=/opt/homebrew/share/zsh-completions:$FPATH
+        if [[ -f ${BREW_DIR}/bin/brew ]]; then
+            if [[ -d ${BREW_DIR}/share/zsh-completions ]]; then
+                ZSH_COMPLETION_INSTALLED=${BREW_DIR}/share/zsh-completions
+                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$ZSH_COMPLETION_INSTALLED$COLOR_NONE
+                FPATH=$ZSH_COMPLETION_INSTALLED:$FPATH
 
                 # Already called compinit at the top level, just update FPATH
             fi
@@ -218,7 +229,7 @@ EOF
     local PATH_DIRS=( "${HOME}/bin" "${HOME}/.local/bin" "${SH_SOURCE_DIR}/scripts" )
     if [[ $SH_OS_TYPE == OSX ]]; then
         # Mac OS X paths, including Homebrew and MacPorts
-        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "/opt/homebrew/bin" )
+        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "${BREW_DIR}/bin" )
     fi
     if [[ $SH_OS_DISTRO == Ubuntu ]]; then
         PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/cuda/bin" "/snap/bin" )
@@ -275,6 +286,11 @@ EOF
         __add_to_path "${HOME}/.codeium/windsurf/bin"
     fi
 
+    # Claude
+    if [[ -d $HOME/.claude/local ]]; then
+        __add_to_path "${HOME}/.claude/local"
+    fi
+
     # Android SDK
     if [[ -d $HOME/android-sdk ]]; then
         export ANDROID_HOME=$HOME/android-sdk
@@ -327,8 +343,8 @@ EOF
 
     # Ruby
     if [[ $SH_OS_TYPE == OSX ]]; then
-        if [[ -d /opt/homebrew/opt/ruby/bin ]]; then
-            __add_to_path "/opt/homebrew/opt/ruby/bin" "/opt/homebrew/lib/ruby/gems/3.4.0/bin"
+        if [[ -d ${BREW_DIR}/opt/ruby/bin ]]; then
+            __add_to_path "${BREW_DIR}/opt/ruby/bin" "${BREW_DIR}/lib/ruby/gems/3.4.0/bin"
         fi
     fi
     if [[ -z $GEM_HOME ]]; then
@@ -337,8 +353,8 @@ EOF
         elif [[ -d $HOME/gems ]]; then
             export GEM_HOME="$HOME/gems"
         elif [[ $SH_OS_TYPE == OSX ]]; then
-            if [[ -d /opt/homebrew/opt/ruby/lib/ruby/gems/3.4.0/gems ]]; then
-                export GEM_HOME="/opt/homebrew/opt/ruby/lib/ruby/gems/3.4.0/gems"
+            if [[ -d ${BREW_DIR}/opt/ruby/lib/ruby/gems/3.4.0/gems ]]; then
+                export GEM_HOME="${BREW_DIR}/opt/ruby/lib/ruby/gems/3.4.0/gems"
             fi
         fi
     fi
@@ -416,6 +432,13 @@ EOF
 
             nvm use default
         fi
+    fi
+
+    if [[ -f $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+        if [[ -d $(brew --prefix)/share/zsh-syntax-highlighting/highlighters ]]; then
+            export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=$(brew --prefix)/share/zsh-syntax-highlighting/highlighters
+        fi
+        source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
     fi
 
     # Free space

@@ -5,7 +5,7 @@ __bashrc_main() {
 
     if [ -n "$ZSH_VERSION" ]; then
         SH_SOURCE_FILE=${(%):-%x}
-    elif [ -n "$BASH_VERSION" ]; then
+    elif [[ -n "$BASH_VERSION" ]]; then
         SH_SOURCE_FILE=${BASH_SOURCE[0]}
     fi
 
@@ -14,13 +14,17 @@ __bashrc_main() {
     done
 
     SH_SOURCE_DIR=$(dirname "$SH_SOURCE_FILE")
-    SH_SOURCE_DIR=`cd "$SH_SOURCE_DIR" >/dev/null; pwd`
+    SH_SOURCE_DIR=$(
+        cd "$SH_SOURCE_DIR" >/dev/null
+        pwd
+    )
     SH_SOURCE_FILE=$(basename "$SH_SOURCE_FILE")
     SH_SOURCE_FILE_ESCAPED=${SH_SOURCE_FILE// /_}
 
     # SH_SOURCE_DIR is a full path to the location of this script
 
-    eval "$(cat <<EOF
+    eval "$(
+        cat <<EOF
         __get_${SH_SOURCE_FILE_ESCAPED}_dir() {
           echo $SH_SOURCE_DIR
         }
@@ -34,19 +38,20 @@ __bashrc_main() {
           echo "$SH_SOURCE_FILE"
         }
 EOF
-)"
+    )"
 
     local SH_COLOR_DEFS
     if [[ -e "$SH_SOURCE_DIR/configure_colors" ]]; then
-        SH_COLOR_DEFS=`cat "$SH_SOURCE_DIR/configure_colors"`
+        SH_COLOR_DEFS=$(cat "$SH_SOURCE_DIR/configure_colors")
     fi
 
     local SH_OS_DEFS
     if [[ -e "$SH_SOURCE_DIR/configure_os" ]]; then
-        SH_OS_DEFS=`cat "$SH_SOURCE_DIR/configure_os"`
+        SH_OS_DEFS=$(cat "$SH_SOURCE_DIR/configure_os")
     fi
 
-    eval "$(cat <<EOF
+    eval "$(
+        cat <<EOF
         __sh_color_definitions() {
             echo "$SH_COLOR_DEFS"
         }
@@ -54,7 +59,7 @@ EOF
             echo "$SH_OS_DEFS"
         }
 EOF
-)"
+    )"
 
     eval "$(__sh_color_definitions)"
     eval "$(__sh_os_definitions)"
@@ -81,11 +86,12 @@ EOF
             [[ $SH_INTERACTIVE ]] && echo
             [[ $SH_INTERACTIVE ]] && echo -e 'Creating new ssh-agent'
             rm -f /tmp/.ssh-script /tmp/.ssh-agent-pid /tmp/.ssh-socket
-            ssh-agent -a $SSH_AUTH_SOCK > /tmp/.ssh-script
+            ssh-agent -a $SSH_AUTH_SOCK >/tmp/.ssh-script
             . /tmp/.ssh-script
-            [[ $SH_INTERACTIVE ]] && echo $SSH_AGENT_PID > /tmp/.ssh-agent-pid
+            [[ $SH_INTERACTIVE ]] && echo $SSH_AGENT_PID >/tmp/.ssh-agent-pid
         fi
     fi
+
     if [[ $SH_OS_TYPE == Linux ]]; then
         if [[ -z "$(pgrep -u $USER ssh-agent)" ]]; then
             [[ $SH_INTERACTIVE ]] && echo
@@ -102,11 +108,10 @@ EOF
 
     # Only add keys in interactive shell
     if [[ $SH_INTERACTIVE ]]; then
-
         ssh-add >/dev/null 2>&1
 
         if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
-            if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
+            if [[ $(ssh-add -l | grep -i id_rsa_personal | wc -l) -lt 1 ]]; then
                 if [[ $SH_OS_TYPE == OSX ]]; then
                     ssh-add -K ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
                 else
@@ -115,6 +120,9 @@ EOF
             fi
         fi
     fi
+
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
 
     # Homebrew
     if [[ $SH_OS_TYPE == OSX ]]; then
@@ -165,7 +173,7 @@ EOF
     elif [[ $SH_OS_TYPE == Linux ]]; then
         BASH_COMPLETION_INSTALLED_COMMAND=_init_completion
     fi
-    BASH_COMPLETION_INSTALLED=`type -t ${BASH_COMPLETION_INSTALLED_COMMAND}`
+    BASH_COMPLETION_INSTALLED=$(type -t ${BASH_COMPLETION_INSTALLED_COMMAND})
 
     if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
         if [[ $SH_OS_TYPE == OSX ]]; then
@@ -190,7 +198,7 @@ EOF
             fi
         fi
 
-        BASH_COMPLETION_INSTALLED=`type -t ${BASH_COMPLETION_INSTALLED_COMMAND}`
+        BASH_COMPLETION_INSTALLED=$(type -t ${BASH_COMPLETION_INSTALLED_COMMAND})
 
         if [[ -z $BASH_COMPLETION && -z $BASH_COMPLETION_INSTALLED ]]; then
             [[ $SH_INTERACTIVE ]] && echo
@@ -200,8 +208,8 @@ EOF
 
     # Git completion
     local GIT_COMPLETION
-    if [[ -z `type -t __git_ps1` ]]; then
-        GIT_COMPLETION=`type -P git-completion.bash`
+    if [[ -z $(type -t __git_ps1) ]]; then
+        GIT_COMPLETION=$(type -P git-completion.bash)
 
         if [[ -z $GIT_COMPLETION ]]; then
             GIT_COMPLETION=$HOME/bin/git-completion.bash
@@ -215,7 +223,7 @@ EOF
 
     # ADB completion
     local ADB_COMPLETION
-    ADB_COMPLETION=`type -P adb.bash`
+    ADB_COMPLETION=$(type -P adb.bash)
     if [[ -z $ADB_COMPLETION ]]; then
         ADB_COMPLETION=$HOME/bin/adb.bash
     fi
@@ -225,13 +233,13 @@ EOF
         . "$ADB_COMPLETION"
     fi
 
-    local PATH_DIRS=( "${HOME}/bin" "${HOME}/.local/bin" "${SH_SOURCE_DIR}/scripts" )
+    local PATH_DIRS=("${HOME}/bin" "${HOME}/.local/bin" "${SH_SOURCE_DIR}/scripts")
     if [[ $SH_OS_TYPE == OSX ]]; then
         # Mac OS X paths, including Homebrew and MacPorts
-        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "${BREW_DIR}/bin" )
+        PATH_DIRS=("${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "${BREW_DIR}/bin")
     fi
     if [[ $SH_OS_DISTRO == Ubuntu ]]; then
-        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/cuda/bin" "/snap/bin" )
+        PATH_DIRS=("${PATH_DIRS[@]}" "/usr/local/cuda/bin" "/snap/bin")
     fi
     __add_to_path "${PATH_DIRS[@]}"
 
@@ -250,7 +258,7 @@ EOF
     local COLOR_ROOT_INVERT VERSION_CONTROL_PROMPT
 
     COLOR_ROOT_INVERT=$COLOR_GREEN_INVERT
-    if [[ "`whoami`" == "root" ]]; then
+    if [[ "$(whoami)" == "root" ]]; then
         COLOR_ROOT_INVERT=$COLOR_RED_INVERT
     fi
 
@@ -259,7 +267,7 @@ EOF
     __version_control_ps1() {
         if [[ $(which vcprompt 2>/dev/null) ]]; then
             vcprompt -f "[%n %b] "
-        elif [[ -n `type -t __git_ps1` ]]; then
+        elif [[ -n $(type -t __git_ps1) ]]; then
             # Sadly on big repositories this makes the prompt really slow
             #export GIT_PS1_SHOWDIRTYSTATE=true
             #export GIT_PS1_SHOWUNTRACKEDFILES=true
@@ -313,23 +321,34 @@ EOF
     if [[ -d $HOME/.claude/local ]]; then
         __add_to_path "${HOME}/.claude/local"
     fi
-    
+
     # Android SDK
     if [[ -d $HOME/android-sdk ]]; then
         export ANDROID_HOME=$HOME/android-sdk
-        __add_to_path "${HOME}/android-sdk/build-tools/$([[ -d "${HOME}/android-sdk/build-tools/" ]] && ls -1 "${HOME}/android-sdk/build-tools/" | tr -d '/' | sort | tail -n 1)" "${HOME}/android-sdk/platform-tools" "${HOME}/android-sdk/tools" "${HOME}/android-ndk" "${HOME}/android-ndk/android-ndk-r10e"
+    fi
+
+    if [[ -d $HOME/Library/Android/sdk ]]; then
+        export ANDROID_HOME=$HOME/Library/Android/sdk
+    fi
+
+    if [[ -n $ANDROID_HOME ]]; then
+        __add_to_path "${ANDROID_HOME}/build-tools/$([[ -d "${ANDROID_HOME}/build-tools/" ]] && ls -1 "${ANDROID_HOME}/build-tools/" | tr -d '/' | sort -V | tail -n 1)" "${ANDROID_HOME}/platform-tools" "${ANDROID_HOME}/tools"
     fi
 
     if [[ -d $HOME/android-ndk ]]; then
-        if [[ -d $HOME/android-ndk/android-ndk-r10e ]]; then
-            export ANDROID_NDK=$HOME/android-ndk/android-ndk-r10e
-        else
-            export ANDROID_NDK=$HOME/android-ndk
-        fi
-        export ANDROID_NDK_REPOSITORY=$HOME/android-ndk
+        export ANDROID_NDK=$HOME/android-ndk
+    fi
+
+    if [[ -d $ANDROID_HOME/ndk ]]; then
+        export ANDROID_NDK=$ANDROID_HOME/ndk
+    fi
+
+    if [[ -n $ANDROID_NDK ]]; then
+        export ANDROID_NDK_REPOSITORY=$ANDROID_NDK
         export ANDROID_NDK_ROOT=$ANDROID_NDK
         export NDKROOT=$ANDROID_NDK
         export NDK_MODULE_PATH=$ANDROID_NDK
+        __add_to_path "${ANDROID_NDK}/$([[ -d "${ANDROID_NDK}/" ]] && ls -1 "${ANDROID_NDK}/" | tr -d '/' | sort -V | tail -n 1)"
     fi
 
     # Node
@@ -362,7 +381,6 @@ EOF
         . $HOME/.local/share/bash-completion/completions/deno.bash
     fi
 
-
     # Ruby
     if [[ $SH_OS_TYPE == OSX ]]; then
         if [[ -d ${BREW_DIR}/opt/ruby/bin ]]; then
@@ -394,7 +412,7 @@ EOF
     # Conda
     # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!
-    __conda_setup="$('$HOME/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+    __conda_setup="$('$HOME/miniconda3/bin/conda' 'shell.bash' 'hook' 2>/dev/null)"
     if [ $? -eq 0 ]; then
         eval "$__conda_setup"
     fi
@@ -418,7 +436,7 @@ EOF
     fi
 
     # Local declarations
-    if [[ -n `type -t __bashrc_local_run` ]]; then
+    if [[ -n $(type -t __bashrc_local_run) ]]; then
         [[ $SH_INTERACTIVE ]] && echo
         [[ $SH_INTERACTIVE ]] && echo -e 'Executing '$COLOR_GREEN_BOLD$(__bashrc_local)$COLOR_NONE
 
@@ -426,12 +444,12 @@ EOF
     fi
 
     # Global aliases deferred load
-    if [[ -n `type -t __aliases_load` ]]; then
+    if [[ -n $(type -t __aliases_load) ]]; then
         __aliases_load "$@"
     fi
 
     # Local aliases deferred load
-    if [[ -n `type -t __aliases_local_load` ]]; then
+    if [[ -n $(type -t __aliases_local_load) ]]; then
         __aliases_local_load "$@"
     fi
 
@@ -450,11 +468,11 @@ EOF
 
     # Free space
     local FREE_SPACE FREE_SPACE_READABLE
-    FREE_SPACE=`df -k / | tail -n 1 | awk '{printf $4}'`
-    FREE_SPACE_READABLE=`df -h / | tail -n 1 | awk '{printf $4}' | tr -d i`
+    FREE_SPACE=$(df -k / | tail -n 1 | awk '{printf $4}')
+    FREE_SPACE_READABLE=$(df -h / | tail -n 1 | awk '{printf $4}' | tr -d i)
     FREE_SPACE_READABLE=$COLOR_YELLOW_BOLD$FREE_SPACE_READABLE$COLOR_NONE
 
-    if (( $FREE_SPACE <= 5000000 )); then
+    if (($FREE_SPACE <= 5000000)); then
         FREE_SPACE_READABLE=$FREE_SPACE_READABLE' '$COLOR_RED_BOLD'WARNING: Low free disk space!!!'$COLOR_NONE
     fi
 

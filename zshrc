@@ -5,7 +5,7 @@ __zshrc_main() {
 
     if [ -n "$ZSH_VERSION" ]; then
         SH_SOURCE_FILE=${(%):-%x}
-    elif [ -n "$BASH_VERSION" ]; then
+    elif [[ -n "$BASH_VERSION" ]]; then
         SH_SOURCE_FILE=${BASH_SOURCE[0]}
     fi
 
@@ -14,13 +14,17 @@ __zshrc_main() {
     done
 
     SH_SOURCE_DIR=$(dirname "$SH_SOURCE_FILE")
-    SH_SOURCE_DIR=`cd "$SH_SOURCE_DIR" >/dev/null; pwd`
+    SH_SOURCE_DIR=$(
+        cd "$SH_SOURCE_DIR" >/dev/null
+        pwd
+    )
     SH_SOURCE_FILE=$(basename "$SH_SOURCE_FILE")
     SH_SOURCE_FILE_ESCAPED=${SH_SOURCE_FILE// /_}
 
     # SH_SOURCE_DIR is a full path to the location of this script
 
-    eval "$(cat <<EOF
+    eval "$(
+        cat <<EOF
         __get_${SH_SOURCE_FILE_ESCAPED}_dir() {
           echo $SH_SOURCE_DIR
         }
@@ -34,19 +38,20 @@ __zshrc_main() {
           echo "$SH_SOURCE_FILE"
         }
 EOF
-)"
+    )"
 
     local SH_COLOR_DEFS
     if [[ -e "$SH_SOURCE_DIR/configure_colors" ]]; then
-        SH_COLOR_DEFS=`cat "$SH_SOURCE_DIR/configure_colors"`
+        SH_COLOR_DEFS=$(cat "$SH_SOURCE_DIR/configure_colors")
     fi
 
     local SH_OS_DEFS
     if [[ -e "$SH_SOURCE_DIR/configure_os" ]]; then
-        SH_OS_DEFS=`cat "$SH_SOURCE_DIR/configure_os"`
+        SH_OS_DEFS=$(cat "$SH_SOURCE_DIR/configure_os")
     fi
 
-    eval "$(cat <<EOF
+    eval "$(
+        cat <<EOF
         __sh_color_definitions() {
             echo "$SH_COLOR_DEFS"
         }
@@ -54,7 +59,7 @@ EOF
             echo "$SH_OS_DEFS"
         }
 EOF
-)"
+    )"
 
     eval "$(__sh_color_definitions)"
     eval "$(__sh_os_definitions)"
@@ -272,8 +277,6 @@ EOF
 
     export EDITOR=vim
 
-    export GNUTERM=x11
-
     # WSL X configuration
     if [[ $SH_OS_FLAVOR == WSL ]]; then
         export GDK_DPI_SCALE=2
@@ -294,19 +297,30 @@ EOF
     # Android SDK
     if [[ -d $HOME/android-sdk ]]; then
         export ANDROID_HOME=$HOME/android-sdk
-        __add_to_path "${HOME}/android-sdk/build-tools/$([[ -d "${HOME}/android-sdk/build-tools/" ]] && ls -1 "${HOME}/android-sdk/build-tools/" | tr -d '/' | sort | tail -n 1)" "${HOME}/android-sdk/platform-tools" "${HOME}/android-sdk/tools" "${HOME}/android-ndk" "${HOME}/android-ndk/android-ndk-r10e"
+    fi
+
+    if [[ -d $HOME/Library/Android/sdk ]]; then
+        export ANDROID_HOME=$HOME/Library/Android/sdk
+    fi
+
+    if [[ -n $ANDROID_HOME ]]; then
+        __add_to_path "${ANDROID_HOME}/build-tools/$([[ -d "${ANDROID_HOME}/build-tools/" ]] && ls -1 "${ANDROID_HOME}/build-tools/" | tr -d '/' | sort -V | tail -n 1)" "${ANDROID_HOME}/platform-tools" "${ANDROID_HOME}/tools"
     fi
 
     if [[ -d $HOME/android-ndk ]]; then
-        if [[ -d $HOME/android-ndk/android-ndk-r10e ]]; then
-            export ANDROID_NDK=$HOME/android-ndk/android-ndk-r10e
-        else
-            export ANDROID_NDK=$HOME/android-ndk
-        fi
-        export ANDROID_NDK_REPOSITORY=$HOME/android-ndk
+        export ANDROID_NDK=$HOME/android-ndk
+    fi
+
+    if [[ -d $ANDROID_HOME/ndk ]]; then
+        export ANDROID_NDK=$ANDROID_HOME/ndk
+    fi
+
+    if [[ -n $ANDROID_NDK ]]; then
+        export ANDROID_NDK_REPOSITORY=$ANDROID_NDK
         export ANDROID_NDK_ROOT=$ANDROID_NDK
         export NDKROOT=$ANDROID_NDK
         export NDK_MODULE_PATH=$ANDROID_NDK
+        __add_to_path "${ANDROID_NDK}/$([[ -d "${ANDROID_NDK}/" ]] && ls -1 "${ANDROID_NDK}/" | tr -d '/' | sort -V | tail -n 1)"
     fi
 
     # Node

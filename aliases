@@ -145,13 +145,14 @@ EOF
         cd $HG_ROOT/"$@"
     }
 
-    ssht() {
-        ssh $* -t 'tmux a || tmux || /usr/bin/env bash'
+    sshc() {
+        ssh -t "$@" "exec codex --dangerously-bypass-approvals-and-sandbox --search"
     }
 
-    sshz() {
-        ssh $* -t 'tmux a || tmux || /usr/bin/env zsh'
+    ssht() {
+        ssh -t "$@" "exec tmux new-session -As bash '/usr/bin/env bash -l'"
     }
+
 
     __get_commands_info() {
         local COMMAND_LIST COMMAND COMMAND_INSTALLED COMMAND_LOCATION COMMAND_VERSION

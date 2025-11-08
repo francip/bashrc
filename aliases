@@ -389,6 +389,12 @@ EOF
                     npm update -g
                 fi
             fi
+            if [[ -z $LATEST_SKIP_UV ]]; then
+                if [[ $(which uv 2>/dev/null) ]]; then
+                    uv self update
+                    uv tool upgrade --all
+                fi
+            fi
         }
 
         mdns_list() {
@@ -488,6 +494,12 @@ EOF
                     if [[ $(which npm 2>/dev/null) ]]; then
                         npm install -g npm@latest
                         npm update -g
+                    fi
+                fi
+                if [[ -z $LATEST_SKIP_UV ]]; then
+                    if [[ $(which uv 2>/dev/null) ]]; then
+                        uv self update
+                        uv tool upgrade --all
                     fi
                 fi
             }

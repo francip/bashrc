@@ -382,9 +382,12 @@ EOF
     fi
 
     # Ruby
+    local SH_BREW_RUBY SH_DEFAULT_GEM_HOME
     if [[ $SH_OS_TYPE == OSX ]]; then
-        if [[ -d ${BREW_DIR}/opt/ruby/bin ]]; then
-            __add_to_path "${BREW_DIR}/opt/ruby/bin" "${BREW_DIR}/lib/ruby/gems/3.4.0/bin"
+        SH_BREW_RUBY="${BREW_DIR}/opt/ruby/bin/ruby"
+        if [[ -x $SH_BREW_RUBY ]]; then
+            __add_to_path "${BREW_DIR}/opt/ruby/bin"
+            SH_DEFAULT_GEM_HOME=$($SH_BREW_RUBY -e 'require "rubygems"; print Gem.default_dir' 2>/dev/null)
         fi
     fi
     if [[ -z $GEM_HOME ]]; then
@@ -392,10 +395,8 @@ EOF
             export GEM_HOME="$HOME/.gem"
         elif [[ -d $HOME/gems ]]; then
             export GEM_HOME="$HOME/gems"
-        elif [[ $SH_OS_TYPE == OSX ]]; then
-            if [[ -d ${BREW_DIR}/opt/ruby/lib/ruby/gems/3.4.0/gems ]]; then
-                export GEM_HOME="${BREW_DIR}/opt/ruby/lib/ruby/gems/3.4.0/gems"
-            fi
+        elif [[ -n $SH_DEFAULT_GEM_HOME && -d $SH_DEFAULT_GEM_HOME ]]; then
+            export GEM_HOME="$SH_DEFAULT_GEM_HOME"
         fi
     fi
     if [[ -n $GEM_HOME ]]; then

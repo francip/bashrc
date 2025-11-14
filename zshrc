@@ -365,12 +365,12 @@ EOF
         fi
     fi
     if [[ -z $GEM_HOME ]]; then
-        if [[ -d $HOME/.gem ]]; then
+        if [[ -n $SH_DEFAULT_GEM_HOME && -d $SH_DEFAULT_GEM_HOME ]]; then
+            export GEM_HOME="$SH_DEFAULT_GEM_HOME"
+        elif [[ -d $HOME/.gem ]]; then
             export GEM_HOME="$HOME/.gem"
         elif [[ -d $HOME/gems ]]; then
             export GEM_HOME="$HOME/gems"
-        elif [[ -n $SH_DEFAULT_GEM_HOME && -d $SH_DEFAULT_GEM_HOME ]]; then
-            export GEM_HOME="$SH_DEFAULT_GEM_HOME"
         fi
     fi
     if [[ -n $GEM_HOME ]]; then

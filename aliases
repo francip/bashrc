@@ -153,6 +153,10 @@ EOF
         ssh -t "$@" "exec tmux new-session -As bash '/usr/bin/env bash -l'"
     }
 
+    cdx() {
+        codex --dangerously-bypass-approvals-and-sandbox --enable web_search_request "$@"
+    }
+
 
     __get_commands_info() {
         local COMMAND_LIST COMMAND COMMAND_INSTALLED COMMAND_LOCATION COMMAND_VERSION

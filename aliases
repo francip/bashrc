@@ -157,6 +157,10 @@ EOF
         codex --dangerously-bypass-approvals-and-sandbox --enable web_search_request "$@"
     }
 
+    gmn() {
+        gemini --yolo "$@"
+    }
+
 
     __get_commands_info() {
         local COMMAND_LIST COMMAND COMMAND_INSTALLED COMMAND_LOCATION COMMAND_VERSION
@@ -190,7 +194,7 @@ EOF
         echo
         echo -e 'Looking for '$COLOR_CYAN_BOLD'common'$COLOR_NONE' tools...'
 
-        __get_commands_info git gh brew bun deno nvm node npm pnpm python python3 pip pip3 pipx poetry huggingface-cli go rustc cargo ruby gem arduino-cli claude codex kimi-cli llama-server gcc clang ccache cmake ninja tmux curl convert docker uv
+        __get_commands_info git gh brew bun deno nvm node npm pnpm python python3 pip pip3 pipx poetry huggingface-cli go rustc cargo ruby gem agy arduino-cli claude codex gemini-cli kimi-cli llama-server gcc clang ccache cmake ninja tmux curl convert docker uv
 
         if [[ $SH_OS_TYPE == OSX ]]; then
             echo
@@ -203,6 +207,19 @@ EOF
     }
 
     deps_update() {
+        local global_mode=0
+
+        if [[ "$1" == "-g" ]]; then
+            global_mode=1
+            shift
+        fi
+
+        if (( global_mode )); then
+            echo "Updating global npm packages..."
+            npx npm-check-updates -g
+            return $?
+        fi
+
         if [ ! -f "package.json" ]; then
             echo "No package.json found in current directory"
             return 1
@@ -625,23 +642,23 @@ EOF
             # If not, check if Visual Code is installed
             # If not, use default editor
             e() {
-                local CODE_COMMAND WINDSURF_COMMAND
-
-                WINDSURF_COMMAND=`type -t windsurf-next 2>/dev/null || whence windsurf-next 2>/dev/null`
-                CODE_COMMAND=`type -t code 2>/dev/null || whence code 2>/dev/null`
-
-                if [[ -n $WINDSURF_COMMAND ]]; then
-                    # Eval because windsurf-next command can be alias
-                    `windsurf-next "$@"`
-                else
-                    if [[ -n $CODE_COMMAND ]]; then
-                        # Eval because code command can be alias
-                        `code "$@"`
-                    else
-                        open -e "$@"
-                    fi
-                fi
-            }
+                                        local CODE_COMMAND WINDSURF_COMMAND AGY_COMMAND
+                            
+                                        AGY_COMMAND=`type -t agy 2>/dev/null || whence agy 2>/dev_null`
+                                        WINDSURF_COMMAND=`type -t windsurf-next 2>/dev/null || whence windsurf-next 2>/dev/null`
+                                        CODE_COMMAND=`type -t code 2>/dev/null || whence code 2>/dev/null`
+                            
+                                        if [[ -n $AGY_COMMAND ]]; then
+                                            `agy "$@"`
+                                        elif [[ -n $WINDSURF_COMMAND ]]; then
+                                            `windsurf-next "$@"`
+                                        else
+                                            if [[ -n $CODE_COMMAND ]]; then
+                                                `code "$@"`
+                                            else
+                                                open -e "$@"
+                                            fi
+                                        fi            }
         fi
     }
 }

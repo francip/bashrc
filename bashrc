@@ -317,6 +317,11 @@ EOF
         __add_to_path "${HOME}/.codeium/windsurf/bin"
     fi
 
+    # Antigravity
+    if [[ -d $HOME/.antigravity/antigravity/bin ]]; then
+        __add_to_path "${HOME}/.antigravity/antigravity/bin"
+    fi
+
     # Claude
     if [[ -d $HOME/.claude/local ]]; then
         __add_to_path "${HOME}/.claude/local"

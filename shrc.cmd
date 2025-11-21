@@ -37,15 +37,25 @@ if errorlevel 1 (
 
 echo.
 
-:: Example of conditional execution
 if !IS_INTERACTIVE! equ 1 (
     echo Configuring environment for %COLOR_GREEN_BOLD%cmd%COLOR_NONE% on %COLOR_GREEN_BOLD%Windows%COLOR_NONE%
-)
 
-:: Add your interactive-only commands here
-if !IS_INTERACTIVE! equ 1 (
-    :: Example: set aliases or environment variables for interactive use
     doskey ls=dir $*
+    doskey cat=type $*
+    doskey e=agy $*
+
+    :: for /F will launch a new instance of cmd so we create a guard to prevent an infnite loop
+    if not defined FNM_AUTORUN_GUARD (
+        echo.
+        echo Configuring %COLOR_GREEN_BOLD%node.js%COLOR_NONE%
+        endlocal
+        set "FNM_AUTORUN_GUARD=AutorunGuard"
+        for /f "tokens=*" %%z in ('fnm env --use-on-cd') do (
+            echo %%z
+            call %%z
+        )
+        setlocal EnableDelayedExpansion
+    )
 )
 
 setlocal DisableDelayedExpansion

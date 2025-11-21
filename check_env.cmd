@@ -28,7 +28,7 @@ echo Looking for %COLOR_CYAN%common%COLOR_NONE% tools...
 :: List of tools that output version to stderr
 set STDERR_TOOLS=python python3 pip pip3
 
-for %%t in (git gh brew bun nvm node npm pnpm python python3 pip pip3 pipx poetry go rustc cargo ruby gem arduino-cli) do (
+for %%t in (git gh brew bun nvm node npm fnm pnpm uv python python3 pip pip3 pipx poetry go rustc cargo ruby gem arduino-cli codex) do (
     set "CMD_PATH="
     set "FOUND=0"
 

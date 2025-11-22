@@ -216,8 +216,17 @@ EOF
 
         if (( global_mode )); then
             echo "Checking for updates to global npm packages..."
+
+            # Avoid npx's interactive install prompt (which appears to hang on some systems,
+            # e.g. Raspberry Pi) by ensuring npm-check-updates is installed globally up front.
+            if ! command -v ncu >/dev/null 2>&1; then
+                echo "npm-check-updates not found globally; installing..."
+                npm install -g npm-check-updates || return $?
+                echo
+            fi
+
             local json_output
-            json_output=$(npx npm-check-updates -g --jsonUpgraded)
+            json_output=$(ncu -g --jsonUpgraded)
             local ncu_status=$?
             echo
 

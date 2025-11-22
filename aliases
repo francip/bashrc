@@ -215,9 +215,66 @@ EOF
         fi
 
         if (( global_mode )); then
-            echo "Updating global npm packages..."
-            npx npm-check-updates -g
-            return $?
+            echo "Checking for updates to global npm packages..."
+            local json_output
+            json_output=$(npx npm-check-updates -g --jsonUpgraded)
+            local ncu_status=$?
+            echo
+
+            if (( ncu_status != 0 )); then
+                echo "Error running npm-check-updates for global packages"
+                return $ncu_status
+            fi
+
+            if [[ -z "$json_output" || "$json_output" =~ ^[[:space:]]*\{[[:space:]]*\}[[:space:]]*$ ]]; then
+                echo "All global npm packages are up to date!"
+                return 0
+            fi
+
+            local install_args parse_status
+            install_args=$(printf '%s' "$json_output" | node -e '
+const fs = require("fs");
+try {
+  const raw = fs.readFileSync(0, "utf8").trim();
+  if (!raw) {
+    process.exit(1);
+  }
+  const upgrades = Object.entries(JSON.parse(raw));
+  if (!upgrades.length) {
+    process.exit(1);
+  }
+  console.log(upgrades.map(([name, version]) => `${name}@${version}`).join(" "));
+} catch (error) {
+  console.error(error.message);
+  process.exit(2);
+}
+')
+            parse_status=$?
+
+            if (( parse_status == 1 )); then
+                echo "All global npm packages are up to date!"
+                return 0
+            elif (( parse_status != 0 )); then
+                echo "Failed to parse npm-check-updates output"
+                return $parse_status
+            fi
+
+            if [[ -z "$install_args" ]]; then
+                echo "All global npm packages are up to date!"
+                return 0
+            fi
+
+            echo "Running npm install -g $install_args"
+            npm install -g $install_args
+            local install_status=$?
+
+            if (( install_status != 0 )); then
+                echo "npm install -g failed"
+                return $install_status
+            fi
+
+            echo "Global npm packages updated successfully."
+            return 0
         fi
 
         if [ ! -f "package.json" ]; then

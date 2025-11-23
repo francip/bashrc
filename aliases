@@ -708,23 +708,22 @@ try {
             # If not, check if Visual Code is installed
             # If not, use default editor
             e() {
-                                        local CODE_COMMAND WINDSURF_COMMAND AGY_COMMAND
-                            
-                                        AGY_COMMAND=`type -t agy 2>/dev/null || whence agy 2>/dev_null`
-                                        WINDSURF_COMMAND=`type -t windsurf-next 2>/dev/null || whence windsurf-next 2>/dev/null`
-                                        CODE_COMMAND=`type -t code 2>/dev/null || whence code 2>/dev/null`
-                            
-                                        if [[ -n $AGY_COMMAND ]]; then
-                                            `agy "$@"`
-                                        elif [[ -n $WINDSURF_COMMAND ]]; then
-                                            `windsurf-next "$@"`
-                                        else
-                                            if [[ -n $CODE_COMMAND ]]; then
-                                                `code "$@"`
-                                            else
-                                                open -e "$@"
-                                            fi
-                                        fi            }
+                local CODE_COMMAND WINDSURF_COMMAND AGY_COMMAND
+
+                AGY_COMMAND=`type -t agy 2>/dev/null || whence agy 2>/dev/null`
+                WINDSURF_COMMAND=`type -t windsurf-next 2>/dev/null || whence windsurf-next 2>/dev/null`
+                CODE_COMMAND=`type -t code 2>/dev/null || whence code 2>/dev/null`
+
+                if [[ -n $AGY_COMMAND ]]; then
+                    agy "$@"
+                elif [[ -n $WINDSURF_COMMAND ]]; then
+                    windsurf-next "$@"
+                elif [[ -n $CODE_COMMAND ]]; then
+                    code "$@"
+                else
+                    open -e "$@"
+                fi
+            }
         fi
     }
 }

@@ -51,7 +51,6 @@ if !IS_INTERACTIVE! equ 1 (
         endlocal
         set "FNM_AUTORUN_GUARD=AutorunGuard"
         for /f "tokens=*" %%z in ('fnm env --use-on-cd') do (
-            echo %%z
             call %%z
         )
         setlocal EnableDelayedExpansion

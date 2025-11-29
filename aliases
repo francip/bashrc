@@ -158,7 +158,7 @@ EOF
     }
 
     gmn() {
-        gemini --yolo "$@"
+        gemini --yolo --include-directories ~/src "$@"
     }
 
 

@@ -562,15 +562,7 @@ try {
 
             alias dir='ls -al --group-directories-first '
 
-            if [[ $SH_OS_FLAVOR == WSL ]]; then
-                ex() {
-                    if [[ $# -eq 0 ]]; then
-                        explorer.exe .
-                    else
-                        explorer.exe `wslpath -w $1`
-                    fi
-                }
-            fi
+
 
             latest() {
                 sudo apt-get update
@@ -639,6 +631,30 @@ try {
 
             fp() {
                 ps | grep -i "$@"
+            }
+        fi
+
+        if [[ $SH_OS_FLAVOR == WSL ]]; then
+            # WSL aliases and functions
+
+            ex() {
+                if [[ $# -eq 0 ]]; then
+                    explorer.exe .
+                else
+                    explorer.exe `wslpath -w $1`
+                fi
+            }
+
+            e() {
+                if command -v antigravity >/dev/null 2>&1; then
+                    antigravity "$@"
+                elif command -v windsurf-next >/dev/null 2>&1; then
+                    windsurf-next "$@"
+                elif command -v code >/dev/null 2>&1; then
+                    code "$@"
+                else
+                    vim "$@"
+                fi
             }
         fi
     fi

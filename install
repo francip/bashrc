@@ -164,6 +164,38 @@ EOF
             fi
         fi
     done
+
+    # Ghostty config
+    local GHOSTTY_DIR GHOSTTY_CONFIG_SOURCE GHOSTTY_CONFIG_LINK GHOSTTY_CONFIG_TARGET
+    GHOSTTY_DIR=$HOME/.config/ghostty
+    GHOSTTY_CONFIG_SOURCE=$SH_SOURCE_DIR/ghostty.config
+    GHOSTTY_CONFIG_LINK=$GHOSTTY_DIR/config
+
+    mkdir -p "$GHOSTTY_DIR"
+
+    if [[ -e "$GHOSTTY_CONFIG_LINK" ]]; then
+        if [[ ! -L "$GHOSTTY_CONFIG_LINK" ]]; then
+            echo -e $COLOR_YELLOW_BOLD$GHOSTTY_CONFIG_LINK$COLOR_NONE': Exists and cannot be linked to '$COLOR_CYAN_BOLD$GHOSTTY_CONFIG_SOURCE$COLOR_NONE
+        else
+            GHOSTTY_CONFIG_TARGET=$GHOSTTY_CONFIG_LINK
+            while [[ -L "$GHOSTTY_CONFIG_TARGET" ]]; do
+                GHOSTTY_CONFIG_TARGET=$(readlink "$GHOSTTY_CONFIG_TARGET")
+            done
+
+            if [[ "$GHOSTTY_CONFIG_TARGET" == "$GHOSTTY_CONFIG_SOURCE" ]]; then
+                echo -e $COLOR_GREEN_BOLD$GHOSTTY_CONFIG_LINK$COLOR_NONE': Already linked and points to '$COLOR_CYAN_BOLD$GHOSTTY_CONFIG_SOURCE$COLOR_NONE
+            else
+                echo -e $COLOR_YELLOW_BOLD$GHOSTTY_CONFIG_LINK$COLOR_NONE': Already linked but points to '$COLOR_YELLOW_BOLD$GHOSTTY_CONFIG_TARGET$COLOR_NONE' instead of '$COLOR_CYAN_BOLD$GHOSTTY_CONFIG_SOURCE$COLOR_NONE
+            fi
+        fi
+    else
+        if [[ -f "$GHOSTTY_CONFIG_SOURCE" ]]; then
+            ln -s "$GHOSTTY_CONFIG_SOURCE" "$GHOSTTY_CONFIG_LINK"
+            echo -e $COLOR_GREEN_BOLD$GHOSTTY_CONFIG_LINK$COLOR_NONE': Created as a symbolic link and points to '$COLOR_CYAN_BOLD$GHOSTTY_CONFIG_SOURCE$COLOR_NONE
+        else
+            echo -e $COLOR_RED_BOLD$GHOSTTY_CONFIG_LINK$COLOR_NONE': Cannot be linked to non-existing '$COLOR_RED_BOLD$GHOSTTY_CONFIG_SOURCE$COLOR_NONE
+        fi
+    fi
 }
 
 __install_main "$@"

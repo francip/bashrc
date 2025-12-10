@@ -243,9 +243,6 @@ EOF
 
     # Affects cd behavior - CDPATH needs to always be set for the cd function in aliases to work properly
     __add_to_cd_path "." "${HOME}" "${HOME}/src"
-    # Convert CDPATH (colon separated string) to cdpath (array) - zsh requires this conversion
-    # Unlike bash which just uses CDPATH, zsh needs the cdpath array to be properly set
-    cdpath=(${(s.:.)CDPATH})
 
     # SSH client
     if [[ -n $SSH_CLIENT ]]; then
@@ -430,6 +427,10 @@ EOF
 
         __zshrc_local_run "$@"
     fi
+
+    # Convert CDPATH (colon separated string) to cdpath (array) - zsh requires this conversion
+    # Unlike bash which just uses CDPATH, zsh needs the cdpath array to be properly set
+    cdpath=(${(s.:.)CDPATH})
 
     # Global aliases deferred load
     if [[ -n `whence __aliases_load` ]]; then

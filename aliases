@@ -375,12 +375,6 @@ try {
         # OS X aliases
         alias ls='ls -Gp '
 
-        alias www-on='sudo apachectl start'
-        alias www-off='sudo apachectl stop'
-
-        alias atompi='ATOM_HOME=$HOME/.atompi atom'
-        alias apmpi='ATOM_HOME=$HOME/.atompi apm'
-
         list() {
             eval "$(__sh_color_definitions)"
             eval "$(__sh_os_definitions)"
@@ -399,29 +393,6 @@ try {
             echo -e '--- '$COLOR_YELLOW_BOLD'Fastboot'$COLOR_NONE' ---'
             fastboot devices
             echo
-        }
-
-        ij() {
-            open -b com.jetbrains.intellij.ce "$@"
-        }
-
-        as() {
-            # open -b com.google.android.studio "$@"
-            open -a /Applications/Android\ Studio.app "$@"
-        }
-
-        g() {
-            # Consider hroot if it's a Mercurial repository
-            groot
-            ./gradlew "$@"
-        }
-
-        set-title() {
-            eval "$(__sh_color_definitions)"
-
-            local TITLE="$@"
-            echo -e "Setting terminal title to "$COLOR_YELLOW_BOLD"$TITLE"$COLOR_NONE
-            echo -n -e "\033]0;$TITLE\007"
         }
 
         ex() {
@@ -493,14 +464,6 @@ try {
         # Linux aliases and functions
         alias ls='ls --color=auto '
 
-        set-title() {
-            eval "$(__sh_color_definitions)"
-
-            local TITLE="$@"
-            echo -e "Setting terminal title to "$COLOR_YELLOW_BOLD"$TITLE"$COLOR_NONE
-            export PROMPT_COMMAND="echo -n -e \"\033]0;$TITLE\007\"";
-        }
-
         rep() {
             eval "$(__sh_color_definitions)"
 
@@ -561,8 +524,6 @@ try {
             # Debian aliases and functions
 
             alias dir='ls -al --group-directories-first '
-
-
 
             latest() {
                 sudo apt-get update
@@ -720,7 +681,8 @@ try {
                 fi
             fi
 
-            # Check if Windsurf is installed
+            # Check if Antigravity is installed
+            # If not, check if Windsurf is installed
             # If not, check if Visual Code is installed
             # If not, use default editor
             e() {

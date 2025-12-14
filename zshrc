@@ -75,6 +75,13 @@ EOF
 
     . "${SH_SOURCE_DIR}/shrc_helpers"
 
+    # Ghostty terminfo fallback
+    if [[ "$TERM" == "xterm-ghostty" ]]; then
+        if ! infocmp xterm-ghostty >/dev/null 2>&1; then
+            export TERM=xterm-256color
+        fi
+    fi
+
     [[ $SH_INTERACTIVE ]] && echo
     [[ $SH_INTERACTIVE ]] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Zsh '${ZSH_VERSION}$COLOR_NONE' on '$COLOR_GREEN_BOLD$SH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$SH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$SH_OS_TYPE$COLOR_NONE')'
 

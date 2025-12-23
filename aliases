@@ -252,7 +252,7 @@ try {
   if (!upgrades.length) {
     process.exit(1);
   }
-  console.log(upgrades.map(([name, version]) => `${name}@${version}`).join(" "));
+  console.log(upgrades.map(([name, version]) => `${name.trim()}@${String(version).trim()}`).join(" "));
 } catch (error) {
   console.error(error.message);
   process.exit(2);

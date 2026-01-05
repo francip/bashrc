@@ -154,13 +154,16 @@ EOF
     }
 
     cdx() {
-        codex --dangerously-bypass-approvals-and-sandbox --enable web_search_request "$@"
+        codex --dangerously-bypass-approvals-and-sandbox --add-dir ~/src --enable web_search_request "$@"
     }
 
     gmn() {
         gemini --yolo --include-directories ~/src "$@"
     }
 
+    cld() {
+        claude --dangerously-skip-permissions --add-dir ~/src "$@"
+    }
 
     __get_commands_info() {
         local COMMAND_LIST COMMAND COMMAND_INSTALLED COMMAND_LOCATION COMMAND_VERSION

@@ -276,6 +276,10 @@ try {
                 return 0
             fi
 
+            if [ -n "$ZSH_VERSION" ]; then
+                setopt local_options sh_word_split
+            fi
+
             echo "Running npm install -g $install_args"
             npm install -g $install_args
             local install_status=$?

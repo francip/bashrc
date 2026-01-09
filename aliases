@@ -222,14 +222,15 @@ EOF
 
             # Avoid npx's interactive install prompt (which appears to hang on some systems,
             # e.g. Raspberry Pi) by ensuring npm-check-updates is installed globally up front.
-            if ! command -v ncu >/dev/null 2>&1; then
+            # Use full name to avoid conflict with Nvidia CUDA's ncu
+            if ! command -v npm-check-updates >/dev/null 2>&1; then
                 echo "npm-check-updates not found globally; installing..."
                 npm install -g npm-check-updates || return $?
                 echo
             fi
 
             local json_output
-            json_output=$(ncu -g --jsonUpgraded)
+            json_output=$(npm-check-updates -g --jsonUpgraded)
             local ncu_status=$?
             echo
 

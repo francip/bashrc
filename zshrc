@@ -296,6 +296,13 @@ EOF
     # Antigravity
     if [[ -d $HOME/.antigravity/antigravity/bin ]]; then
         __add_to_path "${HOME}/.antigravity/antigravity/bin"
+    elif [[ $SH_OS_FLAVOR == WSL ]]; then
+        # On WSL, Antigravity is installed under Windows user's AppData
+        __WSL_WIN_USER=$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r\n')
+        if [[ -n "$__WSL_WIN_USER" && -d "/mnt/c/Users/${__WSL_WIN_USER}/AppData/Local/Programs/Antigravity/bin" ]]; then
+            __add_to_path "/mnt/c/Users/${__WSL_WIN_USER}/AppData/Local/Programs/Antigravity/bin"
+        fi
+        unset __WSL_WIN_USER
     fi
 
     # Claude

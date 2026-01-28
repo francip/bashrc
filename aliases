@@ -165,6 +165,10 @@ EOF
         claude --dangerously-skip-permissions --add-dir ~/src "$@"
     }
 
+    kimi() {
+        cld --settings ~/.claude/kimi-2.5.json "$@"
+    }
+
     __get_commands_info() {
         local COMMAND_LIST COMMAND COMMAND_INSTALLED COMMAND_LOCATION COMMAND_VERSION
 

@@ -165,7 +165,7 @@ EOF
         claude --dangerously-skip-permissions --add-dir ~/src "$@"
     }
 
-    kimi() {
+    kimi-cld() {
         cld --settings ~/.claude/kimi-2.5.json "$@"
     }
 

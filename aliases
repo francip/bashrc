@@ -169,6 +169,10 @@ EOF
         cld --settings ~/.claude/kimi-2.5.json "$@"
     }
 
+    kim() {
+        kimi --yolo "$@"
+    }
+
     __get_commands_info() {
         local COMMAND_LIST COMMAND COMMAND_INSTALLED COMMAND_LOCATION COMMAND_VERSION
 

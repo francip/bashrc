@@ -467,6 +467,11 @@ try {
                     npm update -g
                 fi
             fi
+            if [[ -z $LATEST_SKIP_PIPX ]]; then
+                if [[ $(which pipx 2>/dev/null) ]]; then
+                    pipx upgrade-all
+                fi
+            fi
             if [[ -z $LATEST_SKIP_UV ]]; then
                 if [[ $(which uv 2>/dev/null) ]]; then
                     uv self update
@@ -549,11 +554,17 @@ try {
                 sudo apt-get update
                 # sudo apt-get upgrade -y
                 sudo apt-get --with-new-pkgs upgrade -y
+                sudo apt-get autoremove -y
                 sudo snap refresh
                 if [[ -z $LATEST_SKIP_NPM ]]; then
                     if [[ $(which npm 2>/dev/null) ]]; then
                         npm install -g npm@latest
                         npm update -g
+                    fi
+                fi
+                if [[ -z $LATEST_SKIP_PIPX ]]; then
+                    if [[ $(which pipx 2>/dev/null) ]]; then
+                        pipx upgrade-all
                     fi
                 fi
                 if [[ -z $LATEST_SKIP_UV ]]; then
@@ -663,6 +674,17 @@ try {
 
         latest() {
             pacman -Syuu
+            if [[ -z $LATEST_SKIP_PIPX ]]; then
+                if [[ $(which pipx 2>/dev/null) ]]; then
+                    pipx upgrade-all
+                fi
+            fi
+            if [[ -z $LATEST_SKIP_UV ]]; then
+                if [[ $(which uv 2>/dev/null) ]]; then
+                    uv self update
+                    uv tool upgrade --all
+                fi
+            fi
         }
     fi
 

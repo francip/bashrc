@@ -169,6 +169,10 @@ EOF
         cld --settings ~/.claude/kimi-2.5.json "$@"
     }
 
+    glm-cld() {
+        cld --settings ~/.claude/glm-4.7.json "$@"
+    }
+
     kim() {
         kimi --yolo "$@"
     }

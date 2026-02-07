@@ -173,6 +173,10 @@ EOF
         cld --settings ~/.claude/glm-4.7.json "$@"
     }
 
+    qwen-cld() {
+        cld --settings ~/.claude/qwen-coder-next.json "$@"
+    }
+
     kim() {
         kimi --yolo "$@"
     }
@@ -209,7 +213,7 @@ EOF
         echo
         echo -e 'Looking for '$COLOR_CYAN_BOLD'common'$COLOR_NONE' tools...'
 
-        __get_commands_info git gh brew bun deno nvm node npm pnpm python python3 pip pip3 pipx poetry huggingface-cli go rustc cargo ruby gem agy antigravity arduino-cli claude codex gemini llama-server gcc clang ccache cmake ninja tmux curl convert docker uv
+        __get_commands_info git gh brew bun deno nvm node npm pnpm pyenv python python3 pip pip3 pipx poetry uv hf go rustc cargo ruby gem agy antigravity arduino-cli claude codex gemini llama-server gcc clang ccache cmake ninja tmux curl convert docker
 
         if [[ $SH_OS_TYPE == OSX ]]; then
             echo

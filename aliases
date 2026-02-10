@@ -213,7 +213,7 @@ EOF
         echo
         echo -e 'Looking for '$COLOR_CYAN_BOLD'common'$COLOR_NONE' tools...'
 
-        __get_commands_info git gh brew bun deno nvm node npm pnpm pyenv python python3 pip pip3 pipx poetry uv hf go rustc cargo ruby gem agy antigravity arduino-cli claude codex gemini llama-server gcc clang ccache cmake ninja tmux curl convert docker
+        __get_commands_info git gh brew bun deno nvm node npm pnpm pyenv python python3 pip pip3 pipx poetry uv hf go rustc cargo ruby gem agy antigravity arduino-cli claude codex gemini llama-server gcc clang ccache cmake ninja tmux curl convert docker mosh
 
         if [[ $SH_OS_TYPE == OSX ]]; then
             echo
@@ -398,6 +398,11 @@ try {
     if [[ $SH_OS_TYPE == OSX ]]; then
         # OS X aliases
         alias ls='ls -Gp '
+
+        # Tailscale CLI (App Store version)
+        if [[ -x "/Applications/Tailscale.app/Contents/MacOS/Tailscale" ]]; then
+            alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
+        fi
 
         list() {
             eval "$(__sh_color_definitions)"

@@ -48,8 +48,6 @@ EOF
     alias ps='ps -ef '
     alias psu='ps -u ${USER} '
 
-    alias avd='android avd & '
-
     ff() {
         find . -name "*" -type f -exec grep --color=auto -HinF "$@" {} \;
     }
@@ -131,18 +129,22 @@ EOF
     }
 
     get_ssh_client_ip() {
-        local SSH_ARGS=($SSH_CLIENT)
-        echo ${SSH_ARGS[0]}
+        local client_ip client_port server_port
+        read client_ip client_port server_port <<< "$SSH_CLIENT"
+        echo $client_ip
+    }
+
+    is_tailscale_ssh() {
+        [[ -n $SSH_CONNECTION ]] || return 1
+        # SSH_CONNECTION format: client_ip client_port server_ip server_port
+        local client_ip client_port server_ip server_port
+        read client_ip client_port server_ip server_port <<< "$SSH_CONNECTION"
+        [[ $server_ip == 100.* ]]
     }
 
     groot() {
         local GIT_ROOT=$(git rev-parse --show-toplevel)
         cd $GIT_ROOT/"$@"
-    }
-
-    hroot() {
-        local HG_ROOT=$(hg root)
-        cd $HG_ROOT/"$@"
     }
 
     sshc() {
@@ -169,8 +171,12 @@ EOF
         cld --settings ~/.claude/kimi-2.5.json "$@"
     }
 
-    glm-cld() {
-        cld --settings ~/.claude/glm-4.7.json "$@"
+    glm4() {
+        cld --settings ~/.claude/glm-4.7-flash.json "$@"
+    }
+
+    glm5() {
+        cld --settings ~/.claude/glm-5.json "$@"
     }
 
     qwen-cld() {
@@ -213,7 +219,7 @@ EOF
         echo
         echo -e 'Looking for '$COLOR_CYAN_BOLD'common'$COLOR_NONE' tools...'
 
-        __get_commands_info git gh brew bun deno nvm node npm pnpm pyenv python python3 pip pip3 pipx poetry uv hf go rustc cargo ruby gem agy antigravity arduino-cli claude codex gemini llama-server gcc clang ccache cmake ninja tmux curl convert docker mosh
+        __get_commands_info git gh brew bun deno nvm node npm pnpm pyenv python python3 pip pip3 pipx poetry uv hf go rustc cargo ruby gem agy antigravity arduino-cli claude codex gemini prime llama-server gcc clang ccache cmake ninja tmux curl convert docker mosh
 
         if [[ $SH_OS_TYPE == OSX ]]; then
             echo

@@ -83,7 +83,7 @@ EOF
     fi
 
     [[ $SH_INTERACTIVE ]] && echo
-    [[ $SH_INTERACTIVE ]] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Zsh '${ZSH_VERSION}$COLOR_NONE' on '$COLOR_GREEN_BOLD$SH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$SH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$SH_OS_TYPE$COLOR_NONE')'
+    [[ $SH_INTERACTIVE ]] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Zsh '$COLOR_YELLOW_BOLD${ZSH_VERSION}$COLOR_NONE' on '$COLOR_GREEN_BOLD$SH_OS_DISTRO$COLOR_NONE' '$COLOR_YELLOW_BOLD$SH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$SH_OS_TYPE$COLOR_NONE')'
 
     # SSH configuration
     if [[ $SH_OS_TYPE == Windows ]]; then
@@ -120,7 +120,7 @@ EOF
         if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
             if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
                 if [[ $SH_OS_TYPE == OSX ]]; then
-                    ssh-add -K ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
+                    ssh-add --apple-use-keychain ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
                 else
                     ssh-add ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
                 fi
@@ -153,10 +153,10 @@ EOF
     BREW_DIR=$(brew --prefix 2>>/dev/null)
     if [ -z "$BREW_DIR" ]; then
         [[ $SH_INTERACTIVE ]] && echo
-        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_YELLOW_BOLD'Homebrew'$COLOR_NONE' not installed'
+        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' not installed'
     else
         [[ $SH_INTERACTIVE ]] && echo
-        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' installed at '$COLOR_GREEN_BOLD$BREW_DIR$COLOR_NONE
+        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' installed at '$COLOR_YELLOW_BOLD$BREW_DIR$COLOR_NONE
     fi
 
     # Source additional global, local, and personal definitions
@@ -192,8 +192,6 @@ EOF
     autoload -Uz compinit
     compinit -u # Use -u flag to skip the insecure directories check
 
-    setopt autocd
-
     zstyle ':completion:*' auto-description 'specify: %d'
     zstyle ':completion:*' completer _expand _complete _correct _approximate
     zstyle ':completion:*' format 'Completing %d'
@@ -219,7 +217,7 @@ EOF
     if [[ $SH_OS_TYPE == OSX ]]; then
         ITERM2_INTEGRATION=$HOME/.iterm2_shell_integration.zsh
         if [[ -f "$ITERM2_INTEGRATION" ]]; then
-            [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$ITERM2_INTEGRATION$COLOR_NONE
+            [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_YELLOW_BOLD$ITERM2_INTEGRATION$COLOR_NONE
             . "$ITERM2_INTEGRATION"
         fi
     fi
@@ -230,7 +228,7 @@ EOF
         if [[ -f ${BREW_DIR}/bin/brew ]]; then
             if [[ -d ${BREW_DIR}/share/zsh-completions ]]; then
                 ZSH_COMPLETION_INSTALLED=${BREW_DIR}/share/zsh-completions
-                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$ZSH_COMPLETION_INSTALLED$COLOR_NONE
+                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_YELLOW_BOLD$ZSH_COMPLETION_INSTALLED$COLOR_NONE
                 FPATH=$ZSH_COMPLETION_INSTALLED:$FPATH
 
                 # Already called compinit at the top level, just update FPATH
@@ -254,7 +252,16 @@ EOF
     # SSH client
     if [[ -n $SSH_CLIENT ]]; then
         [[ $SH_INTERACTIVE ]] && echo
-        [[ $SH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
+        [[ $SH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_YELLOW_BOLD$(get_ssh_client_ip)$COLOR_NONE
+
+        # Tailscale SSH detection
+        if is_tailscale_ssh; then
+            [[ $SH_INTERACTIVE ]] && echo -e 'Connection via '$COLOR_GREEN_BOLD'Tailscale'$COLOR_NONE
+            if [[ $SH_INTERACTIVE && $SH_OS_TYPE == OSX ]]; then
+                echo -e 'Unlocking '$COLOR_CYAN_BOLD'keychain'$COLOR_NONE'...'
+                security unlock-keychain
+            fi
+        fi
     fi
 
     # Git completion - only load if not using oh-my-zsh
@@ -264,7 +271,7 @@ EOF
         GIT_COMPLETION=$HOME/bin/git-completion.zsh
 
         if [[ -f "$GIT_COMPLETION" ]]; then
-            [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$GIT_COMPLETION$COLOR_NONE
+            [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_YELLOW_BOLD$GIT_COMPLETION$COLOR_NONE
             . "$GIT_COMPLETION"
         fi
     fi
@@ -423,7 +430,11 @@ EOF
         eval "$(pyenv init - zsh)"
         eval "$(pyenv virtualenv-init -)"
     fi
-    export PYTHONPATH=./
+
+    # uv
+    if [[ -f "$HOME/.local/bin/env" ]]; then
+        . "$HOME/.local/bin/env"
+    fi
 
     # Rust
     if [[ -d $HOME/.cargo ]]; then
@@ -434,13 +445,13 @@ EOF
     if [[ $SH_OS_DISTRO == Ubuntu ]]; then
         export GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
     elif [[ $SH_OS_TYPE == OSX ]]; then
-        export OpenMP_ROOT=$(brew --prefix)/opt/libomp
+        export OpenMP_ROOT=$BREW_DIR/opt/libomp
     fi
 
     # Local declarations
     if [[ -n `whence __zshrc_local_run` ]]; then
         [[ $SH_INTERACTIVE ]] && echo
-        [[ $SH_INTERACTIVE ]] && echo -e 'Executing '$COLOR_GREEN_BOLD$(__zshrc_local)$COLOR_NONE
+        [[ $SH_INTERACTIVE ]] && echo -e 'Executing '$COLOR_YELLOW_BOLD$(__zshrc_local)$COLOR_NONE
 
         __zshrc_local_run "$@"
     fi
@@ -466,17 +477,17 @@ EOF
     if [[ -d $NVM_DIR ]]; then
         if [[ $(nvm current) == system ]]; then
             [[ $SH_INTERACTIVE ]] && echo
-            [[ $SH_INTERACTIVE ]] && echo -e 'Switching node from '$COLOR_GREEN_YELLOW'system'$COLOR_YELLOW' to '$COLOR_GREEN_BOLD'nvm default'$COLOR_NONE
+            [[ $SH_INTERACTIVE ]] && echo -e 'Switching node from '$COLOR_YELLOW_BOLD'system'$COLOR_NONE' to '$COLOR_YELLOW_BOLD'nvm default'$COLOR_NONE
 
             nvm use default
         fi
     fi
 
-    if [[ -f $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
-        if [[ -d $(brew --prefix)/share/zsh-syntax-highlighting/highlighters ]]; then
-            export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=$(brew --prefix)/share/zsh-syntax-highlighting/highlighters
+    if [[ -n $BREW_DIR && -f $BREW_DIR/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+        if [[ -d $BREW_DIR/share/zsh-syntax-highlighting/highlighters ]]; then
+            export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=$BREW_DIR/share/zsh-syntax-highlighting/highlighters
         fi
-        source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+        source $BREW_DIR/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
     fi
 
     # Free space

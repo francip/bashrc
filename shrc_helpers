@@ -91,7 +91,7 @@ __rc_helpers_main() {
         SH_FILES=( $* )
         for SH_FILE in "${SH_FILES[@]}"; do
             if [[ -f "$SH_FILE" ]]; then
-                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$SH_FILE$COLOR_NONE
+                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_YELLOW_BOLD$SH_FILE$COLOR_NONE
                 . "$SH_FILE"
             fi
         done

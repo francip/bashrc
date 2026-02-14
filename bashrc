@@ -83,7 +83,7 @@ EOF
     fi
 
     [[ $SH_INTERACTIVE ]] && echo
-    [[ $SH_INTERACTIVE ]] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '${BASH_VERSINFO[0]}'.'${BASH_VERSINFO[1]}'.'${BASH_VERSINFO[2]}$COLOR_NONE' on '$COLOR_GREEN_BOLD$SH_OS_DISTRO$COLOR_NONE' '$COLOR_GREEN_BOLD$SH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$SH_OS_TYPE$COLOR_NONE')'
+    [[ $SH_INTERACTIVE ]] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Bash '$COLOR_YELLOW_BOLD${BASH_VERSINFO[0]}'.'${BASH_VERSINFO[1]}'.'${BASH_VERSINFO[2]}$COLOR_NONE' on '$COLOR_GREEN_BOLD$SH_OS_DISTRO$COLOR_NONE' '$COLOR_YELLOW_BOLD$SH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$SH_OS_TYPE$COLOR_NONE')'
 
     # SSH configuration
     if [[ $SH_OS_TYPE == Windows ]]; then
@@ -120,7 +120,7 @@ EOF
         if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
             if [[ $(ssh-add -l | grep -i id_rsa_personal | wc -l) -lt 1 ]]; then
                 if [[ $SH_OS_TYPE == OSX ]]; then
-                    ssh-add -K ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
+                    ssh-add --apple-use-keychain ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
                 else
                     ssh-add ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
                 fi
@@ -153,10 +153,10 @@ EOF
     BREW_DIR=$(brew --prefix 2>>/dev/null)
     if [ -z "$BREW_DIR" ]; then
         [[ $SH_INTERACTIVE ]] && echo
-        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_YELLOW_BOLD'Homebrew'$COLOR_NONE' not installed'
+        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' not installed'
     else
         [[ $SH_INTERACTIVE ]] && echo
-        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' installed at '$COLOR_GREEN_BOLD$BREW_DIR$COLOR_NONE
+        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' installed at '$COLOR_YELLOW_BOLD$BREW_DIR$COLOR_NONE
     fi
 
     # Source additional global, local, and personal definitions
@@ -168,7 +168,7 @@ EOF
     if [[ $SH_OS_TYPE == OSX ]]; then
         ITERM2_INTEGRATION=$HOME/.iterm2_shell_integration.bash
         if [[ -f "$ITERM2_INTEGRATION" ]]; then
-            [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$ITERM2_INTEGRATION$COLOR_NONE
+            [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_YELLOW_BOLD$ITERM2_INTEGRATION$COLOR_NONE
             . "$ITERM2_INTEGRATION"
         fi
     fi
@@ -186,21 +186,21 @@ EOF
         if [[ $SH_OS_TYPE == OSX ]]; then
             # Bash completion for Mac OS X (from Homebrew or MacPorts)
             if [[ -f /usr/local/etc/bash_completion ]]; then
-                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/usr/local/etc/bash_completion'$COLOR_NONE
+                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_YELLOW_BOLD'/usr/local/etc/bash_completion'$COLOR_NONE
                 . /usr/local/etc/bash_completion
             elif [[ -f /opt/local/etc/profile.d/bash_completion.sh ]]; then
-                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/opt/local/etc/profile.d/bash_completion.sh'$COLOR_NONE
+                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_YELLOW_BOLD'/opt/local/etc/profile.d/bash_completion.sh'$COLOR_NONE
                 . /opt/local/etc/profile.d/bash_completion.sh
             elif [[ -f ${BREW_DIR}/bin/brew ]]; then
                 if [[ -f ${BREW_DIR}/etc/profile.d/bash_completion.sh ]]; then
-                    [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$BREW_DIR'/etc/profile.d/bash_completion.sh'$COLOR_NONE
+                    [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_YELLOW_BOLD$BREW_DIR'/etc/profile.d/bash_completion.sh'$COLOR_NONE
                     . ${BREW_DIR}/etc/profile.d/bash_completion.sh
                 fi
             fi
         elif [[ $SH_OS_TYPE == Linux ]]; then
             # Bash completion for Linux
             if [[ -f /etc/bash_completion ]]; then
-                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD'/etc/bash_completion'$COLOR_NONE
+                [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_YELLOW_BOLD'/etc/bash_completion'$COLOR_NONE
                 . /etc/bash_completion
             fi
         fi
@@ -223,7 +223,7 @@ EOF
         fi
 
         if [[ -f "$GIT_COMPLETION" ]]; then
-            [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$GIT_COMPLETION$COLOR_NONE
+            [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_YELLOW_BOLD$GIT_COMPLETION$COLOR_NONE
             . "$GIT_COMPLETION"
         fi
     fi
@@ -236,7 +236,7 @@ EOF
     fi
 
     if [[ -f "$ADB_COMPLETION" ]]; then
-        [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_GREEN_BOLD$ADB_COMPLETION$COLOR_NONE
+        [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_YELLOW_BOLD$ADB_COMPLETION$COLOR_NONE
         . "$ADB_COMPLETION"
     fi
 
@@ -258,7 +258,16 @@ EOF
     # SSH client
     if [[ -n $SSH_CLIENT ]]; then
         [[ $SH_INTERACTIVE ]] && echo
-        [[ $SH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_CYAN_BOLD$(get_ssh_client_ip)$COLOR_NONE
+        [[ $SH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_YELLOW_BOLD$(get_ssh_client_ip)$COLOR_NONE
+
+        # Tailscale SSH detection
+        if is_tailscale_ssh; then
+            [[ $SH_INTERACTIVE ]] && echo -e 'Connection via '$COLOR_GREEN_BOLD'Tailscale'$COLOR_NONE
+            if [[ $SH_INTERACTIVE && $SH_OS_TYPE == OSX ]]; then
+                echo -e 'Unlocking '$COLOR_CYAN_BOLD'keychain'$COLOR_NONE'...'
+                security unlock-keychain
+            fi
+        fi
     fi
 
     # Prompt
@@ -446,7 +455,11 @@ EOF
         eval "$(pyenv init - bash)"
         eval "$(pyenv virtualenv-init -)"
     fi
-    export PYTHONPATH=./
+
+    # uv
+    if [[ -f "$HOME/.local/bin/env" ]]; then
+        . "$HOME/.local/bin/env"
+    fi
 
     # Rust
     if [[ -d $HOME/.cargo ]]; then
@@ -461,7 +474,7 @@ EOF
     # Local declarations
     if [[ -n $(type -t __bashrc_local_run) ]]; then
         [[ $SH_INTERACTIVE ]] && echo
-        [[ $SH_INTERACTIVE ]] && echo -e 'Executing '$COLOR_GREEN_BOLD$(__bashrc_local)$COLOR_NONE
+        [[ $SH_INTERACTIVE ]] && echo -e 'Executing '$COLOR_YELLOW_BOLD$(__bashrc_local)$COLOR_NONE
 
         __bashrc_local_run "$@"
     fi
@@ -483,7 +496,7 @@ EOF
     if [[ -d $NVM_DIR ]]; then
         if [[ $(nvm current) == system ]]; then
             [[ $SH_INTERACTIVE ]] && echo
-            [[ $SH_INTERACTIVE ]] && echo -e 'Switching node from '$COLOR_GREEN_YELLOW'system'$COLOR_YELLOW' to '$COLOR_GREEN_BOLD'nvm default'$COLOR_NONE
+            [[ $SH_INTERACTIVE ]] && echo -e 'Switching node from '$COLOR_YELLOW_BOLD'system'$COLOR_NONE' to '$COLOR_YELLOW_BOLD'nvm default'$COLOR_NONE
 
             nvm use default
         fi

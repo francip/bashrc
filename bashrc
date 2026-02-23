@@ -260,13 +260,13 @@ EOF
         [[ $SH_INTERACTIVE ]] && echo
         [[ $SH_INTERACTIVE ]] && echo -e 'Connected from '$COLOR_YELLOW_BOLD$(get_ssh_client_ip)$COLOR_NONE
 
-        # Tailscale SSH detection
         if is_tailscale_ssh; then
             [[ $SH_INTERACTIVE ]] && echo -e 'Connection via '$COLOR_GREEN_BOLD'Tailscale'$COLOR_NONE
-            if [[ $SH_INTERACTIVE && $SH_OS_TYPE == OSX ]]; then
-                echo -e 'Unlocking '$COLOR_CYAN_BOLD'keychain'$COLOR_NONE'...'
-                security unlock-keychain
-            fi
+        fi
+
+        if [[ $SH_INTERACTIVE && $SH_OS_TYPE == OSX ]]; then
+            echo -e 'Unlocking '$COLOR_CYAN_BOLD'keychain'$COLOR_NONE'...'
+            security unlock-keychain
         fi
     fi
 

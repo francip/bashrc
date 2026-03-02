@@ -264,7 +264,8 @@ EOF
             [[ $SH_INTERACTIVE ]] && echo -e 'Connection via '$COLOR_GREEN_BOLD'Tailscale'$COLOR_NONE
         fi
 
-        if [[ $SH_INTERACTIVE && $SH_OS_TYPE == OSX ]]; then
+        if [[ $SH_INTERACTIVE && $SH_OS_TYPE == OSX && ( -z $SSH_CONNECTION || -n $TMUX ) ]]; then
+            # Skip before tmux auto-attach; will unlock inside the tmux session
             echo -e 'Unlocking '$COLOR_CYAN_BOLD'keychain'$COLOR_NONE'...'
             security unlock-keychain
         fi

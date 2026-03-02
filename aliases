@@ -155,6 +155,21 @@ EOF
         ssh -t "$@" "exec tmux new-session -As bash '/usr/bin/env bash -l'"
     }
 
+    # Attach or create tmux session (default: "main", or pass a name)
+    t() {
+        tmux new-session -As "${1:-main}"
+    }
+
+    # Detach from tmux (phone-friendly alternative to Ctrl-B D)
+    td() {
+        tmux detach-client
+    }
+
+    # List tmux sessions
+    tl() {
+        tmux ls
+    }
+
     cdx() {
         codex --dangerously-bypass-approvals-and-sandbox --add-dir ~/src --enable web_search_request "$@"
     }
@@ -185,6 +200,20 @@ EOF
 
     kim() {
         kimi --yolo "$@"
+    }
+
+    # Kill orphaned MCP servers and biome LSPs from dead Claude Code sessions
+    claude-gc() {
+        local mcp_killed=0 biome_killed=0
+        # Kill mongodb-mcp-server processes whose parent is init (orphaned)
+        while read -r pid; do
+            kill "$pid" 2>/dev/null && ((mcp_killed++))
+        done < <(pgrep -P 1 -f "mongodb-mcp-server")
+        # Kill orphaned biome processes
+        while read -r pid; do
+            kill "$pid" 2>/dev/null && ((biome_killed++))
+        done < <(pgrep -P 1 -f "biome")
+        echo "Reaped $mcp_killed MCP servers, $biome_killed biome LSPs"
     }
 
     __get_commands_info() {
@@ -707,6 +736,15 @@ try {
 
     __aliases_load() {
         local ALIASES_LOAD
+
+        # Auto-attach to tmux on SSH login
+        # exec ensures detach = clean SSH disconnect (ideal for phone)
+        # Set TMUX_AUTO_ATTACH=0 in .bashrc.local/.zshrc.local to disable
+        if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; then
+            if command -v tmux >/dev/null 2>&1; then
+                exec tmux new-session -As main
+            fi
+        fi
 
         # Replace the cd builtin to turn off the annoying
         # echo-new-folder behavior when CDPATH is set

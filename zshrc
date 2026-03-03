@@ -99,7 +99,8 @@ EOF
         fi
     fi
 
-    if [[ $SH_OS_TYPE == Linux ]]; then
+    if [[ $SH_OS_TYPE == Linux && -z $TMUX ]]; then
+        # Skip inside tmux; agent env vars are inherited from the pre-tmux shell
         if [[ -z "$(pgrep -u $USER ssh-agent)" ]]; then
             [[ $SH_INTERACTIVE ]] && echo
             [[ $SH_INTERACTIVE ]] && echo -e 'SSH agent '$COLOR_YELLOW_BOLD'not running'$COLOR_NONE'. Starting new one...'

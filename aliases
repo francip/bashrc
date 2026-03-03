@@ -171,7 +171,7 @@ EOF
     }
 
     cdx() {
-        codex --dangerously-bypass-approvals-and-sandbox --add-dir ~/src --enable web_search_request "$@"
+        codex --dangerously-bypass-approvals-and-sandbox --add-dir ~/src "$@"
     }
 
     gmn() {

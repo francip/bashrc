@@ -101,16 +101,19 @@ EOF
 
     if [[ $SH_OS_TYPE == Linux && -z $TMUX ]]; then
         # Skip inside tmux; agent env vars are inherited from the pre-tmux shell
-        if [[ -z "$(pgrep -u $USER ssh-agent)" ]]; then
-            [[ $SH_INTERACTIVE ]] && echo
-            [[ $SH_INTERACTIVE ]] && echo -e 'SSH agent '$COLOR_YELLOW_BOLD'not running'$COLOR_NONE'. Starting new one...'
-            rm -rf /tmp/ssh-* 2>/dev/null
-            eval $(ssh-agent -s) >/dev/null
-        else
+        local _ssh_sock
+        _ssh_sock=$(find /tmp/ssh-* -name agent.\* 2>/dev/null | head -1)
+        if [[ -n "$(pgrep -u $USER ssh-agent)" && -S "$_ssh_sock" ]]; then
             [[ $SH_INTERACTIVE ]] && echo
             [[ $SH_INTERACTIVE ]] && echo -e 'SSH agent '$COLOR_GREEN_BOLD'running'$COLOR_NONE'. Connecting...'
             export SSH_AGENT_PID=$(pgrep -u $USER ssh-agent)
-            export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.\* 2>/dev/null)
+            export SSH_AUTH_SOCK="$_ssh_sock"
+        else
+            [[ $SH_INTERACTIVE ]] && echo
+            [[ $SH_INTERACTIVE ]] && echo -e 'SSH agent '$COLOR_YELLOW_BOLD'not running'$COLOR_NONE'. Starting new one...'
+            pkill -u $USER ssh-agent 2>/dev/null
+            rm -rf /tmp/ssh-* 2>/dev/null
+            eval $(ssh-agent -s) >/dev/null
         fi
     fi
 

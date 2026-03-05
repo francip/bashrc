@@ -99,6 +99,17 @@ EOF
         fi
     fi
 
+    if [[ $SH_OS_TYPE == OSX && -z $TMUX ]]; then
+        # Find the launchd-managed SSH agent socket (path changes each boot)
+        if [[ -z $SSH_AUTH_SOCK || ! -S $SSH_AUTH_SOCK ]]; then
+            local _mac_sock
+            _mac_sock=$(find /private/tmp/com.apple.launchd.* -name Listeners -user $USER 2>/dev/null | head -1)
+            if [[ -S "$_mac_sock" ]]; then
+                export SSH_AUTH_SOCK="$_mac_sock"
+            fi
+        fi
+    fi
+
     if [[ $SH_OS_TYPE == Linux && -z $TMUX ]]; then
         # Skip inside tmux; agent env vars are inherited from the pre-tmux shell
         local _ssh_sock
@@ -122,7 +133,7 @@ EOF
         ssh-add >/dev/null 2>&1
 
         if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
-            if [[ `ssh-add -l | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
+            if [[ `ssh-add -l 2>/dev/null | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
                 if [[ $SH_OS_TYPE == OSX ]]; then
                     ssh-add --apple-use-keychain ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
                 else

@@ -519,6 +519,7 @@ unset -f __zshrc_main
 # Set TMUX_AUTO_ATTACH=0 in .bashrc.local/.zshrc.local to disable
 if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; then
     if command -v tmux >/dev/null 2>&1; then
-        exec tmux new-session -As main
+        tmux new-session -As main
+        exit
     fi
 fi

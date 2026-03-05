@@ -737,15 +737,6 @@ try {
     __aliases_load() {
         local ALIASES_LOAD
 
-        # Auto-attach to tmux on SSH login
-        # exec ensures detach = clean SSH disconnect (ideal for phone)
-        # Set TMUX_AUTO_ATTACH=0 in .bashrc.local/.zshrc.local to disable
-        if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; then
-            if command -v tmux >/dev/null 2>&1; then
-                exec tmux new-session -As main
-            fi
-        fi
-
         # Replace the cd builtin to turn off the annoying
         # echo-new-folder behavior when CDPATH is set
         # and to automatically use the correct node version

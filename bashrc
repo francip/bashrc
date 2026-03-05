@@ -471,8 +471,10 @@ EOF
         . "$HOME/.cargo/env"
     fi
 
-    # Llama.cpp
-    if [[ $SH_OS_DISTRO == Ubuntu ]]; then
+    # CUDA / Llama.cpp
+    if [[ $SH_OS_DISTRO == Ubuntu && -d /usr/local/cuda ]]; then
+        export CUDA_HOME=/usr/local/cuda
+        export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
         export GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
     fi
 

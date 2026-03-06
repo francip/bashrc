@@ -542,6 +542,15 @@ unset -f __bashrc_main
 # Auto-attach to tmux on SSH login
 # exec ensures detach = clean SSH disconnect (ideal for phone)
 # Set TMUX_AUTO_ATTACH=0 in .bashrc.local/.zshrc.local to disable
+# Show MOTD inside tmux on SSH (since exec tmux clears the pre-tmux terminal)
+if [[ -n $SSH_CONNECTION && -n $TMUX && -f /run/motd.dynamic && -z $MOTD_SHOWN ]]; then
+    export MOTD_SHOWN=1
+    cat /run/motd.dynamic
+fi
+
+# Auto-attach to tmux on SSH login
+# exec ensures detach = clean SSH disconnect (ideal for phone)
+# Set TMUX_AUTO_ATTACH=0 in .bashrc.local/.zshrc.local to disable
 if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; then
     if command -v tmux >/dev/null 2>&1; then
         exec tmux new-session -As main

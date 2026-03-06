@@ -155,9 +155,15 @@ EOF
         ssh -t "$@" "exec tmux new-session -As bash '/usr/bin/env bash -l'"
     }
 
-    # Attach or create tmux session (default: "main", or pass a name)
+    # Switch to tmux session (default: "main", or pass a name); create if needed
     t() {
-        tmux new-session -As "${1:-main}"
+        local name="${1:-main}"
+        if [ -n "$TMUX" ]; then
+            tmux new-session -ds "$name" 2>/dev/null
+            tmux switch-client -t "$name"
+        else
+            tmux new-session -As "$name"
+        fi
     }
 
     # Detach from tmux (phone-friendly alternative to Ctrl-B D)

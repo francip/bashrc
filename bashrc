@@ -489,6 +489,15 @@ EOF
         export GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
     fi
 
+    # >>> nvwb
+    # Sourcing the nvwb wrapper function was added during the NVIDIA AI Workbench installation and
+    # is required for NVIDIA AI Workbench to function properly. When uninstalling
+    # NVIDIA AI Workbench, it will be removed.
+    if [[ -f "$HOME/.local/share/nvwb/nvwb-wrapper.sh" ]]; then
+        source "$HOME/.local/share/nvwb/nvwb-wrapper.sh"
+    fi
+    # >>> nvwb
+
     # Local declarations
     if [[ -n $(type -t __bashrc_local_run) ]]; then
         [[ $SH_INTERACTIVE ]] && echo
@@ -556,3 +565,5 @@ if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; 
         exec tmux new-session -As main
     fi
 fi
+
+

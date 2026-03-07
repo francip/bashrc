@@ -629,6 +629,40 @@ try {
         if [[ $SH_OS_DISTRO == Ubuntu ]]; then
             # Ubuntu aliases and functions
 
+            check_mem() {
+                local compute_total all_total
+
+                compute_total=$(nvidia-smi --query-compute-apps=used_gpu_memory --format=csv,noheader,nounits 2>/dev/null | awk '{s+=$1} END {printf "%.2f", s/1024}')
+                all_total=$(nvidia-smi 2>/dev/null | awk '/^[|] +[0-9]/ {mem=$(NF-1); gsub(/MiB/, "", mem); s+=mem} END {printf "%.2f", s/1024}')
+
+                echo "GPU allocations: ${all_total} GiB total (${compute_total} GiB compute)"
+                awk '/MemTotal/ {t=$2} /MemAvailable/ {a=$2} END {printf "Unified memory: total=%.2f GiB available=%.2f GiB used_or_cached=%.2f GiB\n", t/1024/1024, a/1024/1024, (t-a)/1024/1024}' /proc/meminfo
+                echo
+                echo "Per-process allocations:"
+                printf "%-8s %-4s %-10s %s\n" "PID" "Type" "Alloc" "Process"
+                nvidia-smi 2>/dev/null | awk '
+                    /Processes:/ {in_proc=1; next}
+                    in_proc && /^[|]=/ {next}
+                    in_proc && /^[|][ ]*[0-9]/ {
+                        pid=$5
+                        type=$6
+                        mem=$(NF-1)
+                        name=""
+                        for (i=7; i<=NF-2; i++) {
+                            name = name (name ? OFS : "") $i
+                        }
+                        printf "%-8s %-4s %-10s %s\n", pid, type, mem, name
+                        found=1
+                    }
+                    in_proc && /^[+]/ {
+                        if (!found) {
+                            print "none"
+                        }
+                        exit
+                    }
+                '
+            }
+
             # Ubuntu has a weird bug with graphical sudo and DBUS
             sudo() {
                 local _SUDO_SAVE=$DBUS_SESSION_BUS_ADDRESS

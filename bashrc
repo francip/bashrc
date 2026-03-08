@@ -529,6 +529,15 @@ EOF
         fi
     fi
 
+    # OpenClaw
+    local OPENCLAW_BIN_DIR
+    if [[ -n $(type -t nvm) ]]; then
+        OPENCLAW_BIN_DIR=$(dirname "$(nvm which current 2>/dev/null)")
+        if [[ -x "${OPENCLAW_BIN_DIR}/openclaw" ]]; then
+            __add_to_path "${OPENCLAW_BIN_DIR}"
+        fi
+    fi
+
     # Free space
     local FREE_SPACE FREE_SPACE_READABLE
     FREE_SPACE=$(df -k / | tail -n 1 | awk '{printf $4}')

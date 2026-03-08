@@ -499,6 +499,15 @@ EOF
         fi
     fi
 
+    # OpenClaw
+    local OPENCLAW_BIN_DIR
+    if [[ -n $(whence -w nvm 2>/dev/null) ]]; then
+        OPENCLAW_BIN_DIR=$(dirname "$(nvm which current 2>/dev/null)")
+        if [[ -x "${OPENCLAW_BIN_DIR}/openclaw" ]]; then
+            __add_to_path "${OPENCLAW_BIN_DIR}"
+        fi
+    fi
+
     if [[ -n $BREW_DIR && -f $BREW_DIR/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
         if [[ -d $BREW_DIR/share/zsh-syntax-highlighting/highlighters ]]; then
             export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=$BREW_DIR/share/zsh-syntax-highlighting/highlighters
@@ -534,3 +543,15 @@ if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; 
         exit
     fi
 fi
+
+
+# >>> nvwb
+# Sourcing the nvwb wrapper function was added during the NVIDIA AI Workbench installation and
+# is required for NVIDIA AI Workbench to function properly. When uninstalling
+# NVIDIA AI Workbench, it will be removed. 
+
+source $HOME/.local/share/nvwb/nvwb-wrapper.sh
+# >>> nvwb
+
+# OpenClaw Completion
+source "/Users/francip/.openclaw/completions/openclaw.zsh"

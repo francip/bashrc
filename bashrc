@@ -478,7 +478,7 @@ EOF
     fi
 
     # Rust
-    if [[ -d $HOME/.cargo ]]; then
+    if [[ -d $HOME/.cargo/env ]]; then
         . "$HOME/.cargo/env"
     fi
 

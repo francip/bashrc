@@ -147,12 +147,12 @@ EOF
         cd $GIT_ROOT/"$@"
     }
 
-    sshc() {
-        ssh -t "$@" "exec codex --dangerously-bypass-approvals-and-sandbox --search"
+    ssht() {
+        ssh -t "$@" 'exec tmux new-session -As "${TMUX_AUTO_ATTACH_SESSION:-main}"'
     }
 
-    ssht() {
-        ssh -t "$@" "exec tmux new-session -As bash '/usr/bin/env bash -l'"
+    sshn() {
+        ssh -t "$@" 'exec env TMUX_AUTO_ATTACH=0 "${SHELL:-/bin/sh}" -l'
     }
 
     # Switch to tmux session (default: "main", or pass a name); create if needed

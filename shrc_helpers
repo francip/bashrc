@@ -96,6 +96,49 @@ __rc_helpers_main() {
             fi
         done
     }
+
+    # Pick a tmux session for SSH auto-attach.
+    # auto: prefer the base session, but avoid sharing it when it already has clients
+    # shared: always use the base session
+    # dedicated: always use a per-connection session
+    __tmux_auto_attach_target_session() {
+        local base_session_name mode clients client_ip client_port server_ip server_port session_suffix
+
+        base_session_name="${TMUX_AUTO_ATTACH_SESSION:-main}"
+        mode="${TMUX_AUTO_ATTACH_MODE:-auto}"
+
+        case "$mode" in
+        shared)
+            echo "$base_session_name"
+            return
+            ;;
+        dedicated)
+            ;;
+        auto)
+            clients=$(tmux list-clients -t "$base_session_name" 2>/dev/null)
+            if [[ -z $clients ]]; then
+                echo "$base_session_name"
+                return
+            fi
+            ;;
+        *)
+            echo "$base_session_name"
+            return
+            ;;
+        esac
+
+        if [[ -n $SSH_CONNECTION ]]; then
+            read client_ip client_port server_ip server_port <<< "$SSH_CONNECTION"
+            session_suffix="${client_ip}-${client_port}"
+        elif [[ -n $SSH_TTY ]]; then
+            session_suffix="$SSH_TTY"
+        else
+            session_suffix="$$"
+        fi
+
+        session_suffix=$(printf '%s' "$session_suffix" | tr -c '[:alnum:]_-' '-')
+        echo "${base_session_name}-${session_suffix}"
+    }
 }
 
 __rc_helpers_main "$@"

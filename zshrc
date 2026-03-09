@@ -534,12 +534,14 @@ EOF
 __zshrc_main "$@"
 unset -f __zshrc_main
 
-# Auto-attach to tmux on SSH login
-# exec ensures detach = clean SSH disconnect (ideal for phone)
-# Set TMUX_AUTO_ATTACH=0 in .bashrc.local/.zshrc.local to disable
+# Auto-attach to tmux on SSH login.
+# TMUX_AUTO_ATTACH=0 disables it.
+# TMUX_AUTO_ATTACH_SESSION changes the base session (default: main).
+# TMUX_AUTO_ATTACH_MODE=shared|auto|dedicated controls session sharing.
 if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; then
     if command -v tmux >/dev/null 2>&1; then
-        tmux new-session -As main
+        TMUX_ATTACH_SESSION=$(__tmux_auto_attach_target_session)
+        tmux new-session -As "$TMUX_ATTACH_SESSION"
         exit
     fi
 fi

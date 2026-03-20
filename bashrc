@@ -75,6 +75,23 @@ EOF
 
     . "${SH_SOURCE_DIR}/shrc_helpers"
 
+    # Auto-attach to tmux on SSH login (before heavy init — tmux spawns a fresh shell).
+    # TMUX_AUTO_ATTACH=0 disables it.
+    # TMUX_AUTO_ATTACH_SESSION changes the base session (default: main).
+    # TMUX_AUTO_ATTACH_MODE=shared|auto|dedicated controls session sharing.
+    if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; then
+        if command -v tmux >/dev/null 2>&1; then
+            TMUX_ATTACH_SESSION=$(__tmux_auto_attach_target_session)
+            exec tmux new-session -As "$TMUX_ATTACH_SESSION"
+        fi
+    fi
+
+    # Show MOTD inside tmux on SSH (since exec tmux clears the pre-tmux terminal)
+    if [[ -n $SSH_CONNECTION && -n $TMUX && -f /run/motd.dynamic && -z $MOTD_SHOWN ]]; then
+        export MOTD_SHOWN=1
+        cat /run/motd.dynamic
+    fi
+
     # Ghostty terminfo fallback
     if [[ "$TERM" == "xterm-ghostty" ]]; then
         if ! infocmp xterm-ghostty >/dev/null 2>&1; then
@@ -529,15 +546,6 @@ EOF
         fi
     fi
 
-    # OpenClaw
-    local OPENCLAW_BIN_DIR
-    if [[ -n $(type -t nvm) ]]; then
-        OPENCLAW_BIN_DIR=$(dirname "$(nvm which current 2>/dev/null)")
-        if [[ -x "${OPENCLAW_BIN_DIR}/openclaw" ]]; then
-            __add_to_path "${OPENCLAW_BIN_DIR}"
-        fi
-    fi
-
     # Free space
     local FREE_SPACE FREE_SPACE_READABLE
     FREE_SPACE=$(df -k / | tail -n 1 | awk '{printf $4}')
@@ -556,23 +564,3 @@ EOF
 
 __bashrc_main "$@"
 unset -f __bashrc_main
-
-# Auto-attach to tmux on SSH login.
-# TMUX_AUTO_ATTACH=0 disables it.
-# TMUX_AUTO_ATTACH_SESSION changes the base session (default: main).
-# TMUX_AUTO_ATTACH_MODE=shared|auto|dedicated controls session sharing.
-# Show MOTD inside tmux on SSH (since exec tmux clears the pre-tmux terminal)
-if [[ -n $SSH_CONNECTION && -n $TMUX && -f /run/motd.dynamic && -z $MOTD_SHOWN ]]; then
-    export MOTD_SHOWN=1
-    cat /run/motd.dynamic
-fi
-
-# Auto-attach to tmux on SSH login.
-# exec ensures detach = clean SSH disconnect.
-if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; then
-    if command -v tmux >/dev/null 2>&1; then
-        TMUX_ATTACH_SESSION=$(__tmux_auto_attach_target_session)
-        exec tmux new-session -As "$TMUX_ATTACH_SESSION"
-    fi
-fi
-

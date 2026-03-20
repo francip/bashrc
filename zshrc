@@ -75,6 +75,18 @@ EOF
 
     . "${SH_SOURCE_DIR}/shrc_helpers"
 
+    # Auto-attach to tmux on SSH login (before heavy init — tmux spawns a fresh shell).
+    # TMUX_AUTO_ATTACH=0 disables it.
+    # TMUX_AUTO_ATTACH_SESSION changes the base session (default: main).
+    # TMUX_AUTO_ATTACH_MODE=shared|auto|dedicated controls session sharing.
+    if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; then
+        if command -v tmux >/dev/null 2>&1; then
+            TMUX_ATTACH_SESSION=$(__tmux_auto_attach_target_session)
+            tmux new-session -As "$TMUX_ATTACH_SESSION"
+            exit
+        fi
+    fi
+
     # Ghostty terminfo fallback
     if [[ "$TERM" == "xterm-ghostty" ]]; then
         if ! infocmp xterm-ghostty >/dev/null 2>&1; then
@@ -464,6 +476,15 @@ EOF
         export OpenMP_ROOT=$BREW_DIR/opt/libomp
     fi
 
+    # >>> nvwb
+    # Sourcing the nvwb wrapper function was added during the NVIDIA AI Workbench installation and
+    # is required for NVIDIA AI Workbench to function properly. When uninstalling
+    # NVIDIA AI Workbench, it will be removed.
+    if [[ -f "$HOME/.local/share/nvwb/nvwb-wrapper.sh" ]]; then
+        source "$HOME/.local/share/nvwb/nvwb-wrapper.sh"
+    fi
+    # >>> nvwb
+
     # Local declarations
     if [[ -n `whence __zshrc_local_run` ]]; then
         [[ $SH_INTERACTIVE ]] && echo
@@ -499,15 +520,6 @@ EOF
         fi
     fi
 
-    # OpenClaw
-    local OPENCLAW_BIN_DIR
-    if [[ -n $(whence -w nvm 2>/dev/null) ]]; then
-        OPENCLAW_BIN_DIR=$(dirname "$(nvm which current 2>/dev/null)")
-        if [[ -x "${OPENCLAW_BIN_DIR}/openclaw" ]]; then
-            __add_to_path "${OPENCLAW_BIN_DIR}"
-        fi
-    fi
-
     if [[ -n $BREW_DIR && -f $BREW_DIR/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
         if [[ -d $BREW_DIR/share/zsh-syntax-highlighting/highlighters ]]; then
             export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=$BREW_DIR/share/zsh-syntax-highlighting/highlighters
@@ -533,27 +545,3 @@ EOF
 
 __zshrc_main "$@"
 unset -f __zshrc_main
-
-# Auto-attach to tmux on SSH login.
-# TMUX_AUTO_ATTACH=0 disables it.
-# TMUX_AUTO_ATTACH_SESSION changes the base session (default: main).
-# TMUX_AUTO_ATTACH_MODE=shared|auto|dedicated controls session sharing.
-if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; then
-    if command -v tmux >/dev/null 2>&1; then
-        TMUX_ATTACH_SESSION=$(__tmux_auto_attach_target_session)
-        tmux new-session -As "$TMUX_ATTACH_SESSION"
-        exit
-    fi
-fi
-
-
-# >>> nvwb
-# Sourcing the nvwb wrapper function was added during the NVIDIA AI Workbench installation and
-# is required for NVIDIA AI Workbench to function properly. When uninstalling
-# NVIDIA AI Workbench, it will be removed. 
-
-source $HOME/.local/share/nvwb/nvwb-wrapper.sh
-# >>> nvwb
-
-# OpenClaw Completion
-source "/Users/francip/.openclaw/completions/openclaw.zsh"

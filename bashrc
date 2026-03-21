@@ -75,6 +75,13 @@ EOF
 
     . "${SH_SOURCE_DIR}/shrc_helpers"
 
+    # Ghostty terminfo fallback (must be before tmux auto-attach)
+    if [[ "$TERM" == "xterm-ghostty" ]]; then
+        if ! infocmp xterm-ghostty >/dev/null 2>&1; then
+            export TERM=xterm-256color
+        fi
+    fi
+
     # Auto-attach to tmux on SSH login (before heavy init — tmux spawns a fresh shell).
     # TMUX_AUTO_ATTACH=0 disables it.
     # TMUX_AUTO_ATTACH_SESSION changes the base session (default: main).
@@ -90,13 +97,6 @@ EOF
     if [[ -n $SSH_CONNECTION && -n $TMUX && -f /run/motd.dynamic && -z $MOTD_SHOWN ]]; then
         export MOTD_SHOWN=1
         cat /run/motd.dynamic
-    fi
-
-    # Ghostty terminfo fallback
-    if [[ "$TERM" == "xterm-ghostty" ]]; then
-        if ! infocmp xterm-ghostty >/dev/null 2>&1; then
-            export TERM=xterm-256color
-        fi
     fi
 
     [[ $SH_INTERACTIVE ]] && echo

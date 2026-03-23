@@ -83,7 +83,7 @@ EOF
     fi
 
     # Show MOTD on SSH login (Linux; inside tmux the pre-attach output is lost)
-    if [[ -n $SSH_CONNECTION && $SH_OS_TYPE == Linux && -f /run/motd.dynamic && -z $MOTD_SHOWN ]]; then
+    if [[ $SH_INTERACTIVE && -n $SSH_CONNECTION && $SH_OS_TYPE == Linux && -f /run/motd.dynamic && -z $MOTD_SHOWN ]]; then
         export MOTD_SHOWN=1
         cat /run/motd.dynamic
     fi

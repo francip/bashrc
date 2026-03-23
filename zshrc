@@ -82,6 +82,43 @@ EOF
         fi
     fi
 
+    # Show MOTD on SSH login (Linux; inside tmux the pre-attach output is lost)
+    if [[ -n $SSH_CONNECTION && $SH_OS_TYPE == Linux && -f /run/motd.dynamic && -z $MOTD_SHOWN ]]; then
+        export MOTD_SHOWN=1
+        cat /run/motd.dynamic
+    fi
+
+    [[ $SH_INTERACTIVE ]] && echo
+    [[ $SH_INTERACTIVE ]] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Zsh '$COLOR_YELLOW_BOLD${ZSH_VERSION}$COLOR_NONE' on '$COLOR_GREEN_BOLD$SH_OS_DISTRO$COLOR_NONE' '$COLOR_YELLOW_BOLD$SH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$SH_OS_TYPE$COLOR_NONE')'
+
+    # Homebrew (early, before tmux auto-attach needs it on PATH)
+    if [[ $SH_OS_TYPE == OSX ]]; then
+        if [[ -f /opt/homebrew/bin/brew ]]; then
+            [[ $SH_INTERACTIVE ]] && echo
+            [[ $SH_INTERACTIVE ]] && echo -e 'Configuring '$COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE
+            export HOMEBREW_NO_ENV_HINTS=1
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        fi
+    elif [[ $SH_OS_TYPE == Linux ]]; then
+        if [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+            [[ $SH_INTERACTIVE ]] && echo
+            [[ $SH_INTERACTIVE ]] && echo -e 'Configuring '$COLOR_GREEN_BOLD'Linuxbrew'$COLOR_NONE
+            export HOMEBREW_NO_ENV_HINTS=1
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        fi
+    fi
+
+    local BREW_DIR
+
+    BREW_DIR=$(brew --prefix 2>>/dev/null)
+    if [ -z "$BREW_DIR" ]; then
+        [[ $SH_INTERACTIVE ]] && echo
+        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' not installed'
+    else
+        [[ $SH_INTERACTIVE ]] && echo
+        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' installed at '$COLOR_YELLOW_BOLD$BREW_DIR$COLOR_NONE
+    fi
+
     # Auto-attach to tmux on SSH login (before heavy init — tmux spawns a fresh shell).
     # TMUX_AUTO_ATTACH=0 disables it.
     # TMUX_AUTO_ATTACH_SESSION changes the base session (default: main).
@@ -93,9 +130,6 @@ EOF
             exit
         fi
     fi
-
-    [[ $SH_INTERACTIVE ]] && echo
-    [[ $SH_INTERACTIVE ]] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Zsh '$COLOR_YELLOW_BOLD${ZSH_VERSION}$COLOR_NONE' on '$COLOR_GREEN_BOLD$SH_OS_DISTRO$COLOR_NONE' '$COLOR_YELLOW_BOLD$SH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$SH_OS_TYPE$COLOR_NONE')'
 
     # SSH configuration
     if [[ $SH_OS_TYPE == Windows ]]; then
@@ -157,34 +191,6 @@ EOF
 
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
-
-    # Homebrew
-    if [[ $SH_OS_TYPE == OSX ]]; then
-        if [[ -f /opt/homebrew/bin/brew ]]; then
-            [[ $SH_INTERACTIVE ]] && echo
-            [[ $SH_INTERACTIVE ]] && echo -e 'Configuring '$COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE
-            export HOMEBREW_NO_ENV_HINTS=1
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-        fi
-    elif [[ $SH_OS_TYPE == Linux ]]; then
-        if [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; then
-            [[ $SH_INTERACTIVE ]] && echo
-            [[ $SH_INTERACTIVE ]] && echo -e 'Configuring '$COLOR_GREEN_BOLD'Linuxbrew'$COLOR_NONE
-            export HOMEBREW_NO_ENV_HINTS=1
-            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        fi
-    fi
-
-    local BREW_DIR
-
-    BREW_DIR=$(brew --prefix 2>>/dev/null)
-    if [ -z "$BREW_DIR" ]; then
-        [[ $SH_INTERACTIVE ]] && echo
-        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' not installed'
-    else
-        [[ $SH_INTERACTIVE ]] && echo
-        [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' installed at '$COLOR_YELLOW_BOLD$BREW_DIR$COLOR_NONE
-    fi
 
     # Source additional global, local, and personal definitions
     [[ $SH_INTERACTIVE ]] && echo
@@ -285,8 +291,7 @@ EOF
             [[ $SH_INTERACTIVE ]] && echo -e 'Connection via '$COLOR_GREEN_BOLD'Tailscale'$COLOR_NONE
         fi
 
-        if [[ $SH_INTERACTIVE && $SH_OS_TYPE == OSX && ( -z $SSH_CONNECTION || -n $TMUX ) ]]; then
-            # Skip before tmux auto-attach; will unlock inside the tmux session
+        if [[ $SH_INTERACTIVE && $SH_OS_TYPE == OSX ]]; then
             echo -e 'Unlocking '$COLOR_CYAN_BOLD'keychain'$COLOR_NONE'...'
             security unlock-keychain
         fi

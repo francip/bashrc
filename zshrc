@@ -276,7 +276,7 @@ EOF
         PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "${BREW_DIR}/bin" )
     fi
     if [[ $SH_OS_DISTRO == Ubuntu ]]; then
-        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/cuda/bin" "/snap/bin" )
+        PATH_DIRS=( "${PATH_DIRS[@]}" "/snap/bin" )
     fi
     __add_to_path "${PATH_DIRS[@]}"
 
@@ -473,6 +473,11 @@ EOF
     # Rust
     if [[ -d $HOME/.cargo/env ]]; then
         . "$HOME/.cargo/env"
+    fi
+
+    # CUDA
+    if [[ -d /usr/local/cuda/bin ]]; then
+        __add_to_path "/usr/local/cuda/bin"
     fi
 
     # Llama.cpp

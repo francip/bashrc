@@ -54,7 +54,7 @@ elif [[ $OSTYPE == linux-gnu ]]; then
     # Linux
     SH_OS_TYPE='Linux'
     SH_OS_FLAVOR='Linux'
-    if [[ -n "$WSL_DISTRO_NAME" ]]; then
+    if [[ -v WSL_DISTRO_NAME ]]; then
         SH_OS_FLAVOR='WSL'
     fi
     if [[ -f /etc/lsb-release ]] || type lsb_release >/dev/null 2>&1 ; then

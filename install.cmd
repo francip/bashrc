@@ -68,6 +68,46 @@ for %%s in (%SCRIPTS%) do (
     )
 )
 
+:: Git Bash dotfiles — symlink .bash_profile and .bashrc into %USERPROFILE%
+:: so that Git Bash (and tools that spawn it, like Claude Code) pick up our config.
+set "BASH_FILES=bash_profile bashrc"
+
+for %%b in (%BASH_FILES%) do (
+    set "SOURCE_FILE=%SCRIPT_DIR%\%%b"
+    set "SOURCE_FILE=!SOURCE_FILE:\\=\!"
+    set "TARGET_FILE=%USERPROFILE%\.%%b"
+
+    if not exist "!SOURCE_FILE!" (
+        echo %COLOR_RED_BOLD%!TARGET_FILE!%COLOR_NONE%: Cannot be linked to non-existing %COLOR_RED_BOLD%!SOURCE_FILE!%COLOR_NONE%
+    ) else if exist "!TARGET_FILE!" (
+        fsutil reparsepoint query "!TARGET_FILE!" >nul 2>&1
+        if !errorlevel! equ 0 (
+            :: It's a symlink, check if it points to our file
+            for /f "tokens=*" %%l in ('dir /al "!TARGET_FILE!" ^| find "["') do (
+                set "LINK_TARGET=%%l"
+            )
+            set "LINK_TARGET=!LINK_TARGET:*[=!"
+            set "LINK_TARGET=!LINK_TARGET:]=!"
+            set "LINK_TARGET=!LINK_TARGET:\\=\!"
+
+            if "!LINK_TARGET!"=="!SOURCE_FILE!" (
+                echo %COLOR_GREEN_BOLD%!TARGET_FILE!%COLOR_NONE%: Already linked and points to %COLOR_CYAN_BOLD%!SOURCE_FILE!%COLOR_NONE%
+            ) else (
+                echo %COLOR_YELLOW_BOLD%!TARGET_FILE!%COLOR_NONE%: Already linked but points to %COLOR_YELLOW_BOLD%!LINK_TARGET!%COLOR_NONE% instead of %COLOR_CYAN_BOLD%!SOURCE_FILE!%COLOR_NONE%
+            )
+        ) else (
+            echo %COLOR_YELLOW_BOLD%!TARGET_FILE!%COLOR_NONE%: Exists and cannot be linked to %COLOR_CYAN_BOLD%!SOURCE_FILE!%COLOR_NONE%
+        )
+    ) else (
+        mklink "!TARGET_FILE!" "!SOURCE_FILE!" >nul
+        if !errorlevel! equ 0 (
+            echo %COLOR_GREEN_BOLD%!TARGET_FILE!%COLOR_NONE%: Created as a symbolic link and points to %COLOR_CYAN_BOLD%!SOURCE_FILE!%COLOR_NONE%
+        ) else (
+            echo %COLOR_RED_BOLD%!TARGET_FILE!%COLOR_NONE%: Failed to create symbolic link
+        )
+    )
+)
+
 :: Handle AutoRun registry key
 set "REG_KEY=HKCU\Software\Microsoft\Command Processor"
 set "REG_VALUE=AutoRun"

@@ -132,15 +132,35 @@ EOF
 
     # SSH configuration
     if [[ $SH_OS_TYPE == Windows ]]; then
-        export SSH_AUTH_SOCK=/tmp/.ssh-socket
-        ssh-add -l >/dev/null 2>&1
-        if [[ $? = 2 ]]; then
+        # Use Windows native OpenSSH so that ssh/scp/ssh-add talk to the
+        # Windows ssh-agent service instead of a standalone Git Bash agent.
+        # WIN_OPENSSH_DIR is set by shrc.cmd; fall back to the well-known path.
+        local _win_ssh_dir="${WIN_OPENSSH_DIR:-/c/Windows/System32/OpenSSH}"
+        _win_ssh_dir="${_win_ssh_dir//\\//}"          # backslash → forward slash
+        [[ $_win_ssh_dir != /* ]] && _win_ssh_dir="/c${_win_ssh_dir#C:}"  # C:\… → /c/…
+        if [[ -x "$_win_ssh_dir/ssh.exe" ]]; then
+            # Shell functions override PATH, so Git Bash's /usr/bin/ssh is bypassed.
+            # Use eval to bake the resolved path into the function bodies,
+            # since _win_ssh_dir is local and will be gone after this function exits.
+            eval "ssh()     { \"$_win_ssh_dir/ssh.exe\" \"\$@\"; }"
+            eval "ssh-add() { \"$_win_ssh_dir/ssh-add.exe\" \"\$@\"; }"
+            eval "scp()     { \"$_win_ssh_dir/scp.exe\" \"\$@\"; }"
+            eval "sftp()    { \"$_win_ssh_dir/sftp.exe\" \"\$@\"; }"
+            export -f ssh ssh-add scp sftp
+            export GIT_SSH="$_win_ssh_dir/ssh.exe"
             [[ $SH_INTERACTIVE ]] && echo
-            [[ $SH_INTERACTIVE ]] && echo -e 'Creating new ssh-agent'
-            rm -f /tmp/.ssh-script /tmp/.ssh-agent-pid /tmp/.ssh-socket
-            ssh-agent -a $SSH_AUTH_SOCK >/tmp/.ssh-script
-            . /tmp/.ssh-script
-            [[ $SH_INTERACTIVE ]] && echo $SSH_AGENT_PID >/tmp/.ssh-agent-pid
+            [[ $SH_INTERACTIVE ]] && echo -e 'Using Windows native '$COLOR_GREEN_BOLD'OpenSSH'$COLOR_NONE' + '$COLOR_GREEN_BOLD'ssh-agent'$COLOR_NONE
+        else
+            export SSH_AUTH_SOCK=/tmp/.ssh-socket
+            ssh-add -l >/dev/null 2>&1
+            if [[ $? = 2 ]]; then
+                [[ $SH_INTERACTIVE ]] && echo
+                [[ $SH_INTERACTIVE ]] && echo -e 'Creating new ssh-agent'
+                rm -f /tmp/.ssh-script /tmp/.ssh-agent-pid /tmp/.ssh-socket
+                ssh-agent -a $SSH_AUTH_SOCK >/tmp/.ssh-script
+                . /tmp/.ssh-script
+                [[ $SH_INTERACTIVE ]] && echo $SSH_AGENT_PID >/tmp/.ssh-agent-pid
+            fi
         fi
     fi
 

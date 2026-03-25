@@ -43,6 +43,19 @@ if !IS_INTERACTIVE! equ 1 (
     doskey ls=dir $*
     doskey cat=type $*
     doskey e=agy $*
+    doskey cld=claude --dangerously-skip-permissions --add-dir C:\Src $*
+
+    REM Point Git and SSH at the Windows native OpenSSH so everything
+    REM -- including Git Bash shells spawned by Claude Code -- uses the
+    REM Windows ssh-agent service instead of a standalone Git Bash agent.
+    if exist "C:\Windows\System32\OpenSSH\ssh.exe" (
+        endlocal
+        set "GIT_SSH=C:\Windows\System32\OpenSSH\ssh.exe"
+        set "WIN_OPENSSH_DIR=C:\Windows\System32\OpenSSH"
+        setlocal EnableDelayedExpansion
+        echo.
+        echo Configuring %COLOR_GREEN_BOLD%SSH%COLOR_NONE% to use Windows native %COLOR_GREEN_BOLD%OpenSSH%COLOR_NONE% + %COLOR_GREEN_BOLD%ssh-agent%COLOR_NONE%
+    )
 
     :: for /F will launch a new instance of cmd so we create a guard to prevent an infnite loop
     if not defined FNM_AUTORUN_GUARD (

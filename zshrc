@@ -119,19 +119,8 @@ EOF
         [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' installed at '$COLOR_YELLOW_BOLD$BREW_DIR$COLOR_NONE
     fi
 
-    # Auto-attach to tmux on SSH login (before heavy init — tmux spawns a fresh shell).
-    # TMUX_AUTO_ATTACH=0 disables it.
-    # TMUX_AUTO_ATTACH_SESSION changes the base session (default: main).
-    # TMUX_AUTO_ATTACH_MODE=shared|auto|dedicated controls session sharing.
-    if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; then
-        if command -v tmux >/dev/null 2>&1; then
-            TMUX_ATTACH_SESSION=$(__tmux_auto_attach_target_session)
-            tmux new-session -As "$TMUX_ATTACH_SESSION"
-            exit
-        fi
-    fi
-
-    # SSH configuration
+    # SSH configuration (must run before tmux auto-attach so the agent
+    # environment is inherited by the tmux session)
     if [[ $SH_OS_TYPE == Windows ]]; then
         export SSH_AUTH_SOCK=/tmp/.ssh-socket
         ssh-add -l >/dev/null 2>&1
@@ -171,6 +160,18 @@ EOF
             pkill -u $USER ssh-agent 2>/dev/null
             rm -rf /tmp/ssh-* 2>/dev/null
             eval $(ssh-agent -s) >/dev/null
+        fi
+    fi
+
+    # Auto-attach to tmux on SSH login (before heavy init — tmux spawns a fresh shell).
+    # TMUX_AUTO_ATTACH=0 disables it.
+    # TMUX_AUTO_ATTACH_SESSION changes the base session (default: main).
+    # TMUX_AUTO_ATTACH_MODE=shared|auto|dedicated controls session sharing.
+    if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; then
+        if command -v tmux >/dev/null 2>&1; then
+            TMUX_ATTACH_SESSION=$(__tmux_auto_attach_target_session)
+            tmux new-session -As "$TMUX_ATTACH_SESSION"
+            exit
         fi
     fi
 
@@ -275,7 +276,7 @@ EOF
         PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "${BREW_DIR}/bin" )
     fi
     if [[ $SH_OS_DISTRO == Ubuntu ]]; then
-        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/cuda/bin" "/snap/bin" )
+        PATH_DIRS=( "${PATH_DIRS[@]}" "/snap/bin" )
     fi
     __add_to_path "${PATH_DIRS[@]}"
 
@@ -472,6 +473,11 @@ EOF
     # Rust
     if [[ -d $HOME/.cargo/env ]]; then
         . "$HOME/.cargo/env"
+    fi
+
+    # CUDA
+    if [[ -d /usr/local/cuda/bin ]]; then
+        __add_to_path "/usr/local/cuda/bin"
     fi
 
     # Llama.cpp

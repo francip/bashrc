@@ -197,10 +197,12 @@ EOF
     [[ $SH_INTERACTIVE ]] && echo
     __include_files "${HOME}/.zshrc.local" "${HOME}/.zshrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases.local" "${HOME}/.aliases_local"
 
-    # Set up default prompt
-    autoload -Uz promptinit
-    promptinit
-    prompt adam1
+    # Set up prompt (matching bashrc style: green-bg user, yellow-bg host, cyan path)
+    local COLOR_ROOT_INVERT=$COLOR_GREEN_INVERT
+    if [[ "$(whoami)" == "root" ]]; then
+        COLOR_ROOT_INVERT=$COLOR_RED_INVERT
+    fi
+    PROMPT="%{$COLOR_BOLD%}%{$COLOR_ROOT_INVERT%}%n%{$COLOR_NONE%} %{$COLOR_BOLD$COLOR_YELLOW_INVERT%}%m%{$COLOR_NONE%} %{$COLOR_CYAN_BOLD%}%~%{$COLOR_NONE%} %# "
 
     setopt histignorealldups sharehistory auto_cd
 

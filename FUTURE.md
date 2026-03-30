@@ -8,14 +8,6 @@
 ## Architecture
 - Extract shared code between bashrc and zshrc into a common `shrc_common` file. ~90% of both files is identical, every change has to be made twice (and twice the bugs)
 
-## Replace pyenv with uv
-- Remove pyenv blocks from bashrc and zshrc (saves ~100-200ms startup from two `eval` calls)
-- Do this on the Ubuntu machine where pyenv-installed Python versions need to be migrated
-- Reinstall Python versions via `uv python install`
-- Update any `.python-version` files if needed (uv respects them)
-- Remove pyenv and pyenv-virtualenv from the system after migration
-- uv already handles versions, venvs, packages, and global tools — pyenv is redundant
-
 ## Cleanup
 - iTerm2 shell integration — still needed? Ghostty terminfo fallback suggests a terminal switch happened
 - ADB completion in bashrc — still doing Android dev from bash?

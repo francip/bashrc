@@ -9,11 +9,7 @@
 - Extract shared code between bashrc and zshrc into a common `shrc_common` file. ~90% of both files is identical, every change has to be made twice (and twice the bugs)
 
 ## Cleanup
-- iTerm2 shell integration — still needed? Ghostty terminfo fallback suggests a terminal switch happened
-- ADB completion in bashrc — still doing Android dev from bash?
-- `vcprompt` in bash PS1 — is this still installed anywhere?
 - `which` usage in several places could be `command -v` (builtin, faster)
-- `HISTSIZE=1000` is conservative — 10000+ is common in 2026
 
 ## SSH Agent
 - No ssh-agent setup for macOS — relies on system agent, which isn't available over SSH without forwarding (the "Could not open a connection to your authentication agent" error on Tailscale SSH)

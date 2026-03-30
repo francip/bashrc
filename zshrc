@@ -202,13 +202,25 @@ EOF
     if [[ "$(whoami)" == "root" ]]; then
         COLOR_ROOT_INVERT=$COLOR_RED_INVERT
     fi
-    PROMPT="%{$COLOR_BOLD%}%{$COLOR_ROOT_INVERT%}%n%{$COLOR_NONE%} %{$COLOR_BOLD$COLOR_YELLOW_INVERT%}%m%{$COLOR_NONE%} %{$COLOR_CYAN_BOLD%}%~%{$COLOR_NONE%} %# "
+    # Git branch for prompt
+    __zsh_git_branch() {
+        if (( $+functions[__git_ps1] )); then
+            __git_ps1 '[git %s] '
+        else
+            local branch
+            branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+            [[ -n "$branch" ]] && printf '[git %s] ' "$branch"
+        fi
+    }
+
+    setopt PROMPT_SUBST
+    PROMPT="%{$COLOR_BOLD%}%{$COLOR_ROOT_INVERT%}%n%{$COLOR_NONE%} %{$COLOR_BOLD$COLOR_YELLOW_INVERT%}%m%{$COLOR_NONE%} %{$COLOR_CYAN_BOLD%}%~%{$COLOR_NONE%} %{$COLOR_MAGENTA_BOLD%}\$(__zsh_git_branch)%{$COLOR_NONE%}%# "
 
     setopt histignorealldups sharehistory auto_cd
 
-    # Keep 1000 lines of history within the shell and save it to ~/.zsh_history:
-    HISTSIZE=1000
-    SAVEHIST=1000
+    # Keep history within the shell and save it to ~/.zsh_history:
+    HISTSIZE=10000
+    SAVEHIST=10000
     HISTFILE=~/.zsh_history
 
     # Color directories
@@ -300,7 +312,7 @@ EOF
         fi
     fi
 
-    # Git completion - only load if not using oh-my-zsh
+    # Git completion and prompt
     if [[ -n $(which git 2>/dev/null) ]]; then
         # Load custom git completions if available
         local GIT_COMPLETION
@@ -309,6 +321,13 @@ EOF
         if [[ -f "$GIT_COMPLETION" ]]; then
             [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_YELLOW_BOLD$GIT_COMPLETION$COLOR_NONE
             . "$GIT_COMPLETION"
+        fi
+
+        # Load git-prompt.sh for __git_ps1 (used in prompt)
+        if (( ! $+functions[__git_ps1] )); then
+            if [[ -f /opt/homebrew/etc/bash_completion.d/git-prompt.sh ]]; then
+                . /opt/homebrew/etc/bash_completion.d/git-prompt.sh
+            fi
         fi
     fi
 

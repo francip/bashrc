@@ -229,6 +229,9 @@ EOF
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
 
+    HISTSIZE=10000
+    HISTFILESIZE=10000
+
     # Source additional global, local, and personal definitions
     [[ $SH_INTERACTIVE ]] && echo
     __include_files "${HOME}/.bashrc.local" "${HOME}/.bashrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases.local" "${HOME}/.aliases_local"
@@ -283,7 +286,7 @@ EOF
         fi
     fi
 
-    # Git completion
+    # Git completion and prompt
     local GIT_COMPLETION
     if [[ -z $(type -t __git_ps1) ]]; then
         GIT_COMPLETION=$(type -P git-completion.bash)
@@ -295,6 +298,12 @@ EOF
         if [[ -f "$GIT_COMPLETION" ]]; then
             [[ $SH_INTERACTIVE ]] && echo -e 'Loading '$COLOR_YELLOW_BOLD$GIT_COMPLETION$COLOR_NONE
             . "$GIT_COMPLETION"
+        fi
+    fi
+
+    if [[ -z $(type -t __git_ps1) ]]; then
+        if [[ -f /opt/homebrew/etc/bash_completion.d/git-prompt.sh ]]; then
+            . /opt/homebrew/etc/bash_completion.d/git-prompt.sh
         fi
     fi
 
@@ -348,18 +357,14 @@ EOF
         COLOR_ROOT_INVERT=$COLOR_RED_INVERT
     fi
 
-    # Show version controlled repository status.
-    # vcprompt is used if installed, otherwise __git_ps1 will be tried as well.
+    # Show git branch in prompt
     __version_control_ps1() {
-        if [[ $(which vcprompt 2>/dev/null) ]]; then
-            vcprompt -f "[%n %b] "
-        elif [[ -n $(type -t __git_ps1) ]]; then
-            # Sadly on big repositories this makes the prompt really slow
-            #export GIT_PS1_SHOWDIRTYSTATE=true
-            #export GIT_PS1_SHOWUNTRACKEDFILES=true
-            #export GIT_PS1_SHOWUPSTREAM=auto
-
+        if [[ -n $(type -t __git_ps1) ]]; then
             __git_ps1 '[git %s] '
+        else
+            local branch
+            branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+            [[ -n "$branch" ]] && printf '[git %s] ' "$branch"
         fi
     }
 

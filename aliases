@@ -258,6 +258,12 @@ EOF
 
         # brew — https://brew.sh/
         command -v brew >/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        # Source brew env if not yet in PATH (fresh install)
+        if ! command -v brew >/dev/null; then
+            [ -x /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            [ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+            [ -x /usr/local/bin/brew ] && eval "$(/usr/local/bin/brew shellenv)"
+        fi
 
         # uv — Python package manager — https://docs.astral.sh/uv/
         command -v uv >/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh

@@ -134,8 +134,9 @@ EOF
         fi
     fi
 
-    if [[ $SH_OS_TYPE == OSX && -z $TMUX ]]; then
-        # Find the launchd-managed SSH agent socket (path changes each boot)
+    if [[ $SH_OS_TYPE == OSX ]]; then
+        # Find the launchd-managed SSH agent socket (path changes each boot
+        # and after sleep/wake, so re-discover even inside tmux)
         if [[ -z $SSH_AUTH_SOCK || ! -S $SSH_AUTH_SOCK ]]; then
             local _mac_sock
             # macOS 26+ moved sockets from /private/tmp to /var/run
@@ -153,11 +154,13 @@ EOF
         if [[ -n "$(pgrep -u $USER ssh-agent)" && -S "$_ssh_sock" ]]; then
             [[ $SH_INTERACTIVE ]] && echo
             [[ $SH_INTERACTIVE ]] && echo -e 'SSH agent '$COLOR_GREEN_BOLD'running'$COLOR_NONE'. Connecting...'
-            export SSH_AGENT_PID=$(pgrep -u $USER ssh-agent)
+            export SSH_AGENT_PID=$(pgrep -n -u $USER ssh-agent)
             export SSH_AUTH_SOCK="$_ssh_sock"
-        else
-            [[ $SH_INTERACTIVE ]] && echo
-            [[ $SH_INTERACTIVE ]] && echo -e 'SSH agent '$COLOR_YELLOW_BOLD'not running'$COLOR_NONE'. Starting new one...'
+        elif [[ $SH_INTERACTIVE ]]; then
+            # Only kill/restart in interactive shells — non-interactive shells
+            # (scp, remote git, cron) must not disrupt running agents
+            echo
+            echo -e 'SSH agent '$COLOR_YELLOW_BOLD'not running'$COLOR_NONE'. Starting new one...'
             pkill -u $USER ssh-agent 2>/dev/null
             rm -rf /tmp/ssh-* 2>/dev/null
             eval $(ssh-agent -s) >/dev/null
@@ -171,8 +174,7 @@ EOF
     if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; then
         if command -v tmux >/dev/null 2>&1; then
             TMUX_ATTACH_SESSION=$(__tmux_auto_attach_target_session)
-            tmux new-session -As "$TMUX_ATTACH_SESSION"
-            exit
+            exec tmux new-session -As "$TMUX_ATTACH_SESSION"
         fi
     fi
 
@@ -192,6 +194,12 @@ EOF
 
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
+
+    # Non-interactive shells (scp, remote git commands, cron) only need
+    # the SSH agent and basic env above — skip the rest to avoid latency
+    if [[ ! $SH_INTERACTIVE ]]; then
+        return
+    fi
 
     # Source additional global, local, and personal definitions
     [[ $SH_INTERACTIVE ]] && echo

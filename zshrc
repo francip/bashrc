@@ -138,7 +138,8 @@ EOF
         # Find the launchd-managed SSH agent socket (path changes each boot)
         if [[ -z $SSH_AUTH_SOCK || ! -S $SSH_AUTH_SOCK ]]; then
             local _mac_sock
-            _mac_sock=$(find /private/tmp/com.apple.launchd.* -name Listeners -user $USER 2>/dev/null | head -1)
+            # macOS 26+ moved sockets from /private/tmp to /var/run
+            _mac_sock=$(find /private/tmp /var/run -path "*/com.apple.launchd.*/Listeners" -user $USER 2>/dev/null | head -1)
             if [[ -S "$_mac_sock" ]]; then
                 export SSH_AUTH_SOCK="$_mac_sock"
             fi

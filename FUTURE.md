@@ -12,5 +12,4 @@
 - `which` usage in several places could be `command -v` (builtin, faster)
 
 ## SSH Agent
-- No ssh-agent setup for macOS — relies on system agent, which isn't available over SSH without forwarding (the "Could not open a connection to your authentication agent" error on Tailscale SSH)
 - Could skip `ssh-add` calls when no agent is reachable (check `ssh-add -l` exit code first)

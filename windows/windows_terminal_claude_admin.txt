@@ -1,0 +1,12 @@
+Windows Terminal profile: "Claude Code (admin)"
+
+Add this to profiles.list in:
+%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json
+
+            {
+                "commandline": "cmd /k claude --dangerously-skip-permissions",
+                "elevate": true,
+                "guid": "{b2a1c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d}",
+                "hidden": false,
+                "name": "Claude Code (admin)"
+            }

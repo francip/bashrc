@@ -175,17 +175,16 @@ EOF
         fi
     fi
 
-    # Only add keys in interactive shell
-    if [[ $SH_INTERACTIVE ]]; then
-        ssh-add >/dev/null 2>&1
+    # Add keys in all shells (not just interactive) so git commit signing works
+    # in non-interactive contexts like VS Code's built-in git
+    ssh-add >/dev/null 2>&1
 
-        if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
-            if [[ `ssh-add -l 2>/dev/null | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
-                if [[ $SH_OS_TYPE == OSX ]]; then
-                    ssh-add --apple-use-keychain ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
-                else
-                    ssh-add ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
-                fi
+    if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
+        if [[ `ssh-add -l 2>/dev/null | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
+            if [[ $SH_OS_TYPE == OSX ]]; then
+                ssh-add --apple-use-keychain ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
+            else
+                ssh-add ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
             fi
         fi
     fi

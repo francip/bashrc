@@ -345,18 +345,21 @@ EOF
         command -v go >/dev/null || brew install go
 
         # rustc / cargo — https://rustup.rs/
-        command -v rustc >/dev/null || curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+        command -v rustc >/dev/null || curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
         # ruby / gem — usually preinstalled; macOS: brew install ruby
 
-        # gcc / clang
-        if ! command -v gcc >/dev/null || ! command -v clang >/dev/null; then
+        # gcc / build-essential
+        if ! command -v gcc >/dev/null; then
             if [[ $(uname -s) == "Darwin" ]]; then
                 xcode-select --install 2>/dev/null
             else
-                sudo apt-get install -y build-essential clang
+                sudo apt-get install -y build-essential
             fi
         fi
+
+        # clang
+        command -v clang >/dev/null || brew install llvm
 
         # --- Build tools ---
 
@@ -374,7 +377,15 @@ EOF
         # convert — ImageMagick
         command -v convert >/dev/null || brew install imagemagick
 
-        # docker — macOS: brew install --cask docker; Linux: https://docs.docker.com/engine/install/
+        # docker
+        if ! command -v docker >/dev/null; then
+            if [[ $(uname -s) == "Darwin" ]]; then
+                brew install --cask docker
+            else
+                curl -fsSL https://get.docker.com | sudo sh
+                sudo usermod -aG docker "$USER"
+            fi
+        fi
 
         # arduino-cli
         command -v arduino-cli >/dev/null || brew install arduino-cli

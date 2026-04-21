@@ -88,7 +88,7 @@ EOF
 
     local FILES CURRENT_FILE SOURCE_FILE LINK_FILE LINK_TARGET_FILE
 
-    FILES=( zshrc bash_profile bashrc bash_logout inputrc vimrc tmux.conf configure_colors configure_os )
+    FILES=( zshenv zshrc bash_profile bashrc bashenv bash_logout inputrc vimrc tmux.conf configure_colors configure_os )
     for CURRENT_FILE in "${FILES[@]}"; do
         SOURCE_FILE=$SH_SOURCE_DIR/$CURRENT_FILE
         if [[ -e $SOURCE_FILE'_'$OS_TYPE_SUFFIX'_'$OS_DISTRO_SUFFIX'_'$OS_RELEASE_SUFFIX ]]; then

@@ -1,0 +1,31 @@
+# bashenv — equivalent of zshenv for bash, but bash does NOT auto-source any
+# such file. To activate this for non-interactive bash (e.g. `ssh host 'cmd'`),
+# set BASH_ENV=~/.bashenv in a place exported to the shell session — e.g.:
+#   - ~/.ssh/environment + PermitUserEnvironment=yes in sshd_config (per-user)
+#   - /etc/environment (system-wide)
+#   - SetEnv directive in sshd_config (newer OpenSSH, system-wide)
+#
+# Interactive bash already sources ~/.bashrc which does its own SSH agent
+# discovery. This file exists for non-interactive contexts where bash is
+# invoked with BASH_ENV pointing here.
+
+# ---------------------------------------------------------------------------
+# SSH agent socket discovery
+# ---------------------------------------------------------------------------
+case "$(uname)" in
+    Darwin)
+        if [[ -z "$SSH_AUTH_SOCK" || ! -S "$SSH_AUTH_SOCK" ]]; then
+            # macOS 26+ moved sockets from /private/tmp to /var/run
+            _sock=$(find /private/tmp /var/run -path "*/com.apple.launchd.*/Listeners" -user "$USER" 2>/dev/null | head -1)
+            [[ -S "$_sock" ]] && export SSH_AUTH_SOCK="$_sock"
+            unset _sock
+        fi
+        ;;
+    Linux)
+        if [[ -z "$SSH_AUTH_SOCK" || ! -S "$SSH_AUTH_SOCK" ]]; then
+            _sock=$(find /tmp/ssh-* -name 'agent.*' -user "$USER" 2>/dev/null | head -1)
+            [[ -S "$_sock" ]] && export SSH_AUTH_SOCK="$_sock"
+            unset _sock
+        fi
+        ;;
+esac

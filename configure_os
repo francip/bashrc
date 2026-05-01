@@ -1,6 +1,8 @@
 # Determine the current OS
-
-local SH_OS_TYPE SH_OS_FLAVOR SH_OS_DISTRO SH_OS_DISTRO_NUM SH_OS_RELEASE
+#
+# Sets SH_OS_TYPE, SH_OS_FLAVOR, SH_OS_DISTRO, SH_OS_DISTRO_NUM, SH_OS_RELEASE
+# in the calling scope. Sourced from shenv (where vars need to persist as
+# globals so non-interactive shells see them) and from zshrc/bashrc preambles.
 
 if [[ $OSTYPE == darwin* ]]; then
     # OS X
@@ -54,7 +56,7 @@ elif [[ $OSTYPE == linux-gnu ]]; then
     # Linux
     SH_OS_TYPE='Linux'
     SH_OS_FLAVOR='Linux'
-    if [[ -v WSL_DISTRO_NAME ]]; then
+    if [ -n "$WSL_DISTRO_NAME" ]; then
         SH_OS_FLAVOR='WSL'
     fi
     if [[ -f /etc/lsb-release ]] || type lsb_release >/dev/null 2>&1 ; then

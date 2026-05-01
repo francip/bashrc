@@ -1,40 +1,32 @@
 # zshenv — sourced for ALL zsh invocations (interactive, non-interactive,
-# login, non-login). Keep this file MINIMAL — only env that must be
-# available everywhere, including for `ssh host 'cmd'` style remote commands.
+# login, non-login). Delegates to ~/src/bashrc/shenv for the actual work.
 #
-# Why this exists: ~/.zshrc is NOT sourced for non-interactive zsh, so
-# ssh-agent socket discovery there only helps interactive shells. Putting
-# the discovery here means scp, remote git, cron-from-ssh, etc. all see it.
+# Why this matters: ~/.zshrc is NOT sourced for non-interactive zsh, so
+# `ssh host 'cmd'` only sees what zshenv sets up. Putting PATH, nvm, conda,
+# ssh-agent etc. in shenv means all those non-interactive contexts (scp,
+# remote git, cron-from-ssh, VS Code's git, etc.) work correctly.
 #
-# Anything more involved (prompt, aliases, completion, MOTD) belongs in
+# Anything interactive (prompt, aliases, completion, MOTD) belongs in
 # ~/.zshrc, NOT here.
 
-# ---------------------------------------------------------------------------
-# SSH agent socket discovery
-# ---------------------------------------------------------------------------
-# macOS launchd-managed ssh-agent: socket path changes each boot and after
-# sleep/wake, and is NOT exported via launchctl getenv to non-login shells.
-# Find it by walking the well-known launchd socket directory.
-#
-# Linux user ssh-agent: socket lives under /tmp/ssh-* with restrictive perms.
+__zshenv_main() {
+    local SH_SOURCE_FILE SH_SOURCE_DIR
 
-case "$(uname)" in
-    Darwin)
-        if [[ -z "$SSH_AUTH_SOCK" || ! -S "$SSH_AUTH_SOCK" ]]; then
-            # macOS 26+ moved sockets from /private/tmp to /var/run
-            _sock=$(find /private/tmp /var/run -path "*/com.apple.launchd.*/Listeners" -user "$USER" 2>/dev/null | head -1)
-            [[ -S "$_sock" ]] && export SSH_AUTH_SOCK="$_sock"
-            unset _sock
-        fi
-        ;;
-    Linux)
-        if [[ -z "$SSH_AUTH_SOCK" || ! -S "$SSH_AUTH_SOCK" ]]; then
-            _sock=$(find /tmp/ssh-* -name 'agent.*' -user "$USER" 2>/dev/null | head -1)
-            [[ -S "$_sock" ]] && export SSH_AUTH_SOCK="$_sock"
-            unset _sock
-        fi
-        ;;
-esac
+    SH_SOURCE_FILE=${(%):-%x}
+    while [[ -L "$SH_SOURCE_FILE" ]]; do
+        SH_SOURCE_FILE=$(readlink "$SH_SOURCE_FILE")
+    done
 
-# Rust toolchain (Cargo) — needed in non-interactive contexts too
-[[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
+    SH_SOURCE_DIR=$(dirname "$SH_SOURCE_FILE")
+    SH_SOURCE_DIR=$(
+        cd "$SH_SOURCE_DIR" >/dev/null
+        pwd
+    )
+
+    if [[ -f "$SH_SOURCE_DIR/shenv" ]]; then
+        . "$SH_SOURCE_DIR/shenv"
+    fi
+}
+
+__zshenv_main "$@"
+unset -f __zshenv_main

@@ -1,14 +1,9 @@
 # Source common definitions
 
 __zshrc_main() {
-    local SH_SOURCE_FILE SH_SOURCE_DIR SH_SOURCE_FILE_ESCAPED
+    local SH_SOURCE_FILE SH_SOURCE_DIR
 
-    if [ -n "$ZSH_VERSION" ]; then
-        SH_SOURCE_FILE=${(%):-%x}
-    elif [[ -n "$BASH_VERSION" ]]; then
-        SH_SOURCE_FILE=${BASH_SOURCE[0]}
-    fi
-
+    SH_SOURCE_FILE=${(%):-%x}
     while [[ -L "$SH_SOURCE_FILE" ]]; do
         SH_SOURCE_FILE=$(readlink "$SH_SOURCE_FILE")
     done
@@ -18,62 +13,27 @@ __zshrc_main() {
         cd "$SH_SOURCE_DIR" >/dev/null
         pwd
     )
-    SH_SOURCE_FILE=$(basename "$SH_SOURCE_FILE")
-    SH_SOURCE_FILE_ESCAPED=${SH_SOURCE_FILE// /_}
 
-    # SH_SOURCE_DIR is a full path to the location of this script
-
-    eval "$(
-        cat <<EOF
-        __get_${SH_SOURCE_FILE_ESCAPED}_dir() {
-          echo $SH_SOURCE_DIR
-        }
-        __get_${SH_SOURCE_FILE_ESCAPED}_file() {
-          echo $SH_SOURCE_FILE
-        }
-        __get_sh_scripts_dir() {
-          echo "$SH_SOURCE_DIR"
-        }
-        __get_sh_scripts_file() {
-          echo "$SH_SOURCE_FILE"
-        }
-EOF
-    )"
-
-    local SH_COLOR_DEFS
-    if [[ -e "$SH_SOURCE_DIR/configure_colors" ]]; then
-        SH_COLOR_DEFS=$(cat "$SH_SOURCE_DIR/configure_colors")
+    # Source shared env (idempotent — short-circuits if zshenv already loaded
+    # it). Sets SH_OS_*, BREW_DIR exported globally. Defines __add_to_path,
+    # __include_files, __sh_color_definitions, ... globally. Configures PATH,
+    # nvm, conda, ssh-agent discovery, etc.
+    if [[ -f "$SH_SOURCE_DIR/shenv" ]]; then
+        . "$SH_SOURCE_DIR/shenv"
     fi
 
-    local SH_OS_DEFS
-    if [[ -e "$SH_SOURCE_DIR/configure_os" ]]; then
-        SH_OS_DEFS=$(cat "$SH_SOURCE_DIR/configure_os")
+    # Pull COLOR_* into local scope for prompt/banner use (shenv defines the
+    # function globally; configure_colors uses 'local' so we re-eval here)
+    if (( $+functions[__sh_color_definitions] )); then
+        eval "$(__sh_color_definitions)"
     fi
-
-    eval "$(
-        cat <<EOF
-        __sh_color_definitions() {
-            echo "$SH_COLOR_DEFS"
-        }
-        __sh_os_definitions() {
-            echo "$SH_OS_DEFS"
-        }
-EOF
-    )"
-
-    eval "$(__sh_color_definitions)"
-    eval "$(__sh_os_definitions)"
 
     local SH_INTERACTIVE
-
     case $- in
     *i*)
-        # interactive shell
         SH_INTERACTIVE=1
         ;;
     esac
-
-    . "${SH_SOURCE_DIR}/shrc_helpers"
 
     # Ghostty terminfo fallback (must be before tmux auto-attach)
     if [[ "$TERM" == "xterm-ghostty" ]]; then
@@ -91,27 +51,7 @@ EOF
     [[ $SH_INTERACTIVE ]] && echo
     [[ $SH_INTERACTIVE ]] && echo -e 'Configuring environment for '$COLOR_GREEN_BOLD'Zsh '$COLOR_YELLOW_BOLD${ZSH_VERSION}$COLOR_NONE' on '$COLOR_GREEN_BOLD$SH_OS_DISTRO$COLOR_NONE' '$COLOR_YELLOW_BOLD$SH_OS_RELEASE$COLOR_NONE' ('$COLOR_GREEN_BOLD$SH_OS_TYPE$COLOR_NONE')'
 
-    # Homebrew (early, before tmux auto-attach needs it on PATH)
-    if [[ $SH_OS_TYPE == OSX ]]; then
-        if [[ -f /opt/homebrew/bin/brew ]]; then
-            [[ $SH_INTERACTIVE ]] && echo
-            [[ $SH_INTERACTIVE ]] && echo -e 'Configuring '$COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE
-            export HOMEBREW_NO_ENV_HINTS=1
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-        fi
-    elif [[ $SH_OS_TYPE == Linux ]]; then
-        if [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; then
-            [[ $SH_INTERACTIVE ]] && echo
-            [[ $SH_INTERACTIVE ]] && echo -e 'Configuring '$COLOR_GREEN_BOLD'Linuxbrew'$COLOR_NONE
-            export HOMEBREW_NO_ENV_HINTS=1
-            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        fi
-    fi
-
-    local BREW_DIR
-
-    BREW_DIR=$(brew --prefix 2>>/dev/null)
-    if [ -z "$BREW_DIR" ]; then
+    if [[ -z "$BREW_DIR" ]]; then
         [[ $SH_INTERACTIVE ]] && echo
         [[ $SH_INTERACTIVE ]] && echo -e $COLOR_GREEN_BOLD'Homebrew'$COLOR_NONE' not installed'
     else
@@ -120,7 +60,9 @@ EOF
     fi
 
     # SSH configuration (must run before tmux auto-attach so the agent
-    # environment is inherited by the tmux session)
+    # environment is inherited by the tmux session). shenv did initial socket
+    # discovery; here we handle re-discovery (path changes after sleep/wake)
+    # and starting an agent if none exists (interactive only).
     if [[ $SH_OS_TYPE == Windows ]]; then
         export SSH_AUTH_SOCK=/tmp/.ssh-socket
         ssh-add -l >/dev/null 2>&1
@@ -135,8 +77,8 @@ EOF
     fi
 
     if [[ $SH_OS_TYPE == OSX ]]; then
-        # Find the launchd-managed SSH agent socket (path changes each boot
-        # and after sleep/wake, so re-discover even inside tmux)
+        # Re-discover the launchd-managed socket (path changes each boot
+        # and after sleep/wake; shenv only ran once at shell startup)
         if [[ -z $SSH_AUTH_SOCK || ! -S $SSH_AUTH_SOCK ]]; then
             local _mac_sock
             # macOS 26+ moved sockets from /private/tmp to /var/run
@@ -178,31 +120,15 @@ EOF
         fi
     fi
 
-    # Add keys in all shells (not just interactive) so git commit signing works
-    # in non-interactive contexts like VS Code's built-in git
-    ssh-add >/dev/null 2>&1
-
-    if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
-        if [[ `ssh-add -l 2>/dev/null | grep -i id_rsa_personal | wc -l` -lt 1 ]]; then
-            if [[ $SH_OS_TYPE == OSX ]]; then
-                ssh-add --apple-use-keychain ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
-            else
-                ssh-add ${HOME}/.ssh/id_rsa_personal >/dev/null 2>&1
-            fi
-        fi
-    fi
-
-    export LANG=en_US.UTF-8
-    export LC_ALL=en_US.UTF-8
-
-    # Non-interactive shells (scp, remote git commands, cron) only need
-    # the SSH agent and basic env above — skip the rest to avoid latency
+    # Non-interactive shells have nothing more to do — env was set up by
+    # shenv, and everything below is interactive-only (prompt, completion,
+    # aliases, _local hooks, banners).
     if [[ ! $SH_INTERACTIVE ]]; then
         return
     fi
 
     # Source additional global, local, and personal definitions
-    [[ $SH_INTERACTIVE ]] && echo
+    echo
     __include_files "${HOME}/.zshrc.local" "${HOME}/.zshrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases.local" "${HOME}/.aliases_local"
 
     # Set up prompt (matching bashrc style: green-bg user, yellow-bg host, cyan path)
@@ -292,15 +218,15 @@ EOF
         fi
     fi
 
-    local PATH_DIRS=( "${HOME}/bin" "${HOME}/.local/bin" "${SH_SOURCE_DIR}/scripts" )
-    if [[ $SH_OS_TYPE == OSX ]]; then
-        # Mac OS X paths, including Homebrew and MacPorts
-        PATH_DIRS=( "${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "${BREW_DIR}/bin" )
+    # NVM completion (env loaded nvm.sh; this is the interactive completion)
+    if [[ -d $NVM_DIR && -s "$NVM_DIR/bash_completion" ]]; then
+        . "$NVM_DIR/bash_completion"
     fi
-    if [[ $SH_OS_DISTRO == Ubuntu ]]; then
-        PATH_DIRS=( "${PATH_DIRS[@]}" "/snap/bin" )
+
+    # Bun completion (env added bin to PATH; this is the interactive completion)
+    if [[ -d $BUN_INSTALL && -s "$BUN_INSTALL/_bun" ]]; then
+        . "$BUN_INSTALL/_bun"
     fi
-    __add_to_path "${PATH_DIRS[@]}"
 
     # Affects cd behavior - CDPATH needs to always be set for the cd function in aliases to work properly
     __add_to_cd_path "." "${HOME}" "${HOME}/src"
@@ -349,159 +275,6 @@ EOF
         fi
     fi
 
-    export EDITOR=vim
-
-    # WSL X configuration
-    if [[ $SH_OS_FLAVOR == WSL ]]; then
-        export GDK_DPI_SCALE=2
-    fi
-
-    # Dev declarations
-
-    # Antigravity
-    if [[ -d $HOME/.antigravity/antigravity/bin ]]; then
-        __add_to_path "${HOME}/.antigravity/antigravity/bin"
-    elif [[ $SH_OS_FLAVOR == WSL ]]; then
-        # On WSL, Antigravity is installed under Windows user's AppData
-        __WSL_WIN_USER=$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r\n')
-        if [[ -n "$__WSL_WIN_USER" && -d "/mnt/c/Users/${__WSL_WIN_USER}/AppData/Local/Programs/Antigravity/bin" ]]; then
-            __add_to_path "/mnt/c/Users/${__WSL_WIN_USER}/AppData/Local/Programs/Antigravity/bin"
-        fi
-        unset __WSL_WIN_USER
-    fi
-
-    # Claude
-    if [[ -d $HOME/.claude/local ]]; then
-        __add_to_path "${HOME}/.claude/local"
-    fi
-
-    # Android SDK
-    if [[ -d $HOME/android-sdk ]]; then
-        export ANDROID_HOME=$HOME/android-sdk
-    fi
-
-    if [[ -d $HOME/Library/Android/sdk ]]; then
-        export ANDROID_HOME=$HOME/Library/Android/sdk
-    fi
-
-    if [[ -n $ANDROID_HOME ]]; then
-        __add_to_path "${ANDROID_HOME}/build-tools/$([[ -d "${ANDROID_HOME}/build-tools/" ]] && ls -1 "${ANDROID_HOME}/build-tools/" | tr -d '/' | sort -V | tail -n 1)" "${ANDROID_HOME}/platform-tools" "${ANDROID_HOME}/tools"
-    fi
-
-    if [[ -d $HOME/android-ndk ]]; then
-        export ANDROID_NDK=$HOME/android-ndk
-    fi
-
-    if [[ -d $ANDROID_HOME/ndk ]]; then
-        export ANDROID_NDK=$ANDROID_HOME/ndk
-    fi
-
-    if [[ -n $ANDROID_NDK ]]; then
-        export ANDROID_NDK_REPOSITORY=$ANDROID_NDK
-        export ANDROID_NDK_ROOT=$ANDROID_NDK
-        export NDKROOT=$ANDROID_NDK
-        export NDK_MODULE_PATH=$ANDROID_NDK
-        __add_to_path "${ANDROID_NDK}/$([[ -d "${ANDROID_NDK}/" ]] && ls -1 "${ANDROID_NDK}/" | tr -d '/' | sort -V | tail -n 1)"
-    fi
-
-    # Node
-    if [[ -d $HOME/.nvm ]]; then
-        export NVM_DIR="$HOME/.nvm"
-    fi
-    if [[ -d $NVM_DIR ]]; then
-        if [[ -s "$NVM_DIR/nvm.sh" ]]; then
-            . "$NVM_DIR/nvm.sh"
-        fi
-        if [[ -s "$NVM_DIR/bash_completion" ]]; then
-            . "$NVM_DIR/bash_completion"
-        fi
-    fi
-
-    # Bun
-    if [[ -d $HOME/.bun ]]; then
-        export BUN_INSTALL="$HOME/.bun"
-    fi
-    if [[ -d $BUN_INSTALL ]]; then
-        [ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
-        __add_to_path "${BUN_INSTALL}/bin"
-    fi
-
-    # Ruby
-    if [[ $SH_OS_TYPE == OSX ]]; then
-        local SH_BREW_RUBY SH_DEFAULT_GEM_HOME
-        SH_BREW_RUBY="${BREW_DIR}/opt/ruby/bin/ruby"
-        if [[ -x $SH_BREW_RUBY ]]; then
-            __add_to_path "${BREW_DIR}/opt/ruby/bin"
-            SH_DEFAULT_GEM_HOME=$($SH_BREW_RUBY -e 'require "rubygems"; print Gem.default_dir' 2>/dev/null)
-        fi
-    fi
-    if [[ -z $GEM_HOME ]]; then
-        if [[ -n $SH_DEFAULT_GEM_HOME && -d $SH_DEFAULT_GEM_HOME ]]; then
-            export GEM_HOME="$SH_DEFAULT_GEM_HOME"
-        elif [[ -d $HOME/.gem ]]; then
-            export GEM_HOME="$HOME/.gem"
-        elif [[ -d $HOME/gems ]]; then
-            export GEM_HOME="$HOME/gems"
-        fi
-    fi
-    if [[ -n $GEM_HOME ]]; then
-        __add_to_path "${GEM_HOME}/bin"
-    fi
-
-    # Go
-    if [[ $SH_OS_TYPE == OSX ]]; then
-        if [[ -d $HOME/go ]]; then
-            export GOPATH=$HOME/go
-        fi
-    fi
-
-    # Conda
-    # >>> conda initialize >>>
-    # !! Contents within this block are managed by 'conda init' !!
-    __conda_setup="$('$HOME/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-    if [ $? -eq 0 ]; then
-        eval "$__conda_setup"
-    else
-        if [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
-            . "$HOME/miniconda3/etc/profile.d/conda.sh"
-        else
-            __add_to_path "${HOME}/miniconda3/bin"
-        fi
-    fi
-    unset __conda_setup
-    # <<< conda initialize <<<
-
-    # uv
-    if [[ -f "$HOME/.local/bin/env" ]]; then
-        . "$HOME/.local/bin/env"
-    fi
-
-    # Rust
-    if [[ -f $HOME/.cargo/env ]]; then
-        . "$HOME/.cargo/env"
-    fi
-
-    # CUDA
-    if [[ -d /usr/local/cuda/bin ]]; then
-        __add_to_path "/usr/local/cuda/bin"
-    fi
-
-    # Llama.cpp
-    if [[ $SH_OS_DISTRO == Ubuntu ]]; then
-        export GGML_CUDA_ENABLE_UNIFIED_MEMORY=1
-    elif [[ $SH_OS_TYPE == OSX ]]; then
-        export OpenMP_ROOT=$BREW_DIR/opt/libomp
-    fi
-
-    # >>> nvwb
-    # Sourcing the nvwb wrapper function was added during the NVIDIA AI Workbench installation and
-    # is required for NVIDIA AI Workbench to function properly. When uninstalling
-    # NVIDIA AI Workbench, it will be removed.
-    if [[ -f "$HOME/.local/share/nvwb/nvwb-wrapper.sh" ]]; then
-        source "$HOME/.local/share/nvwb/nvwb-wrapper.sh"
-    fi
-    # >>> nvwb
-
     # Local declarations
     if [[ -n `whence __zshrc_local_run` ]]; then
         [[ $SH_INTERACTIVE ]] && echo
@@ -523,8 +296,6 @@ EOF
     if [[ -n `whence __aliases_local_load` ]]; then
         __aliases_local_load "$@"
     fi
-
-    # Global dotrc deferred load
 
     # Node
     # After local dotrc to ensure we don't pick accidentally local dotrc node version

@@ -1,31 +1,34 @@
-# bashenv — equivalent of zshenv for bash, but bash does NOT auto-source any
-# such file. To activate this for non-interactive bash (e.g. `ssh host 'cmd'`),
-# set BASH_ENV=~/.bashenv in a place exported to the shell session — e.g.:
-#   - ~/.ssh/environment + PermitUserEnvironment=yes in sshd_config (per-user)
+# bashenv — equivalent of zshenv for bash. Bash does NOT auto-source any
+# such file for non-interactive shells, so this only takes effect when
+# BASH_ENV is explicitly set, e.g.:
+#   - sshd_config: SetEnv BASH_ENV=/home/USER/.bashenv  (newer OpenSSH)
+#   - sshd_config: PermitUserEnvironment=yes + ~/.ssh/environment
 #   - /etc/environment (system-wide)
-#   - SetEnv directive in sshd_config (newer OpenSSH, system-wide)
 #
-# Interactive bash already sources ~/.bashrc which does its own SSH agent
-# discovery. This file exists for non-interactive contexts where bash is
-# invoked with BASH_ENV pointing here.
+# Note: bash also has a quirk where it DOES source ~/.bashrc when invoked
+# non-interactively by sshd (stdin = network socket). Our bashrc sources
+# shenv at the top, so for the common `ssh host 'cmd'` case bash gets the
+# full env via that path even without BASH_ENV. This file is the explicit
+# fallback for everything else (cron, scp, etc.).
 
-# ---------------------------------------------------------------------------
-# SSH agent socket discovery
-# ---------------------------------------------------------------------------
-case "$(uname)" in
-    Darwin)
-        if [[ -z "$SSH_AUTH_SOCK" || ! -S "$SSH_AUTH_SOCK" ]]; then
-            # macOS 26+ moved sockets from /private/tmp to /var/run
-            _sock=$(find /private/tmp /var/run -path "*/com.apple.launchd.*/Listeners" -user "$USER" 2>/dev/null | head -1)
-            [[ -S "$_sock" ]] && export SSH_AUTH_SOCK="$_sock"
-            unset _sock
-        fi
-        ;;
-    Linux)
-        if [[ -z "$SSH_AUTH_SOCK" || ! -S "$SSH_AUTH_SOCK" ]]; then
-            _sock=$(find /tmp/ssh-* -name 'agent.*' -user "$USER" 2>/dev/null | head -1)
-            [[ -S "$_sock" ]] && export SSH_AUTH_SOCK="$_sock"
-            unset _sock
-        fi
-        ;;
-esac
+__bashenv_main() {
+    local SH_SOURCE_FILE SH_SOURCE_DIR
+
+    SH_SOURCE_FILE=${BASH_SOURCE[0]}
+    while [[ -L "$SH_SOURCE_FILE" ]]; do
+        SH_SOURCE_FILE=$(readlink "$SH_SOURCE_FILE")
+    done
+
+    SH_SOURCE_DIR=$(dirname "$SH_SOURCE_FILE")
+    SH_SOURCE_DIR=$(
+        cd "$SH_SOURCE_DIR" >/dev/null
+        pwd
+    )
+
+    if [[ -f "$SH_SOURCE_DIR/shenv" ]]; then
+        . "$SH_SOURCE_DIR/shenv"
+    fi
+}
+
+__bashenv_main "$@"
+unset -f __bashenv_main

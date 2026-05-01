@@ -92,13 +92,18 @@ EOF
     # Add personal key (no-op if already added or agent unreachable). Runs in
     # all shells so git commit signing works in non-interactive contexts like
     # VS Code's built-in git.
-    ssh-add >/dev/null 2>&1
-    if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
-        if [[ $(ssh-add -l 2>/dev/null | grep -i id_rsa_personal | wc -l) -lt 1 ]]; then
-            if [[ "$SH_OS_TYPE" == OSX ]]; then
-                ssh-add --apple-use-keychain "${HOME}/.ssh/id_rsa_personal" >/dev/null 2>&1
-            else
-                ssh-add "${HOME}/.ssh/id_rsa_personal" >/dev/null 2>&1
+    #
+    # Skip on physical Linux VT consoles (autologin with no keyboard) where
+    # ssh-add would block forever waiting on /dev/tty for a passphrase.
+    if ! [[ -z $SSH_CONNECTION && $(tty 2>/dev/null) =~ ^/dev/tty[0-9]+$ ]]; then
+        ssh-add >/dev/null 2>&1
+        if [[ -f "${HOME}/.ssh/id_rsa_personal" ]]; then
+            if [[ $(ssh-add -l 2>/dev/null | grep -i id_rsa_personal | wc -l) -lt 1 ]]; then
+                if [[ "$SH_OS_TYPE" == OSX ]]; then
+                    ssh-add --apple-use-keychain "${HOME}/.ssh/id_rsa_personal" >/dev/null 2>&1
+                else
+                    ssh-add "${HOME}/.ssh/id_rsa_personal" >/dev/null 2>&1
+                fi
             fi
         fi
     fi

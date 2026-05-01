@@ -36,14 +36,22 @@ __shenv_main() {
         pwd
     )
 
-    # Define __sh_color_definitions / __sh_os_definitions globally so
-    # shrc_helpers can eval them. Same heredoc pattern the rcs use.
-    local SH_COLOR_DEFS SH_OS_DEFS
+    # OS detection: source configure_os directly (vars become globals since
+    # configure_os no longer uses 'local'). The heredoc-round-trip pattern
+    # the rcs use breaks on `"$VAR"` lines because inner double-quotes
+    # terminate the captured echo argument early — bash then sees `[ -n  ]`
+    # which tests `-n` as a non-empty string and returns true incorrectly.
+    if [[ -e "$SH_SOURCE_DIR/configure_os" ]]; then
+        . "$SH_SOURCE_DIR/configure_os"
+    fi
+    export SH_OS_TYPE SH_OS_FLAVOR SH_OS_DISTRO SH_OS_DISTRO_NUM SH_OS_RELEASE
+
+    # Define __sh_color_definitions globally so shrc_helpers and the rcs can
+    # eval it. configure_colors has no `"$VAR"` patterns so the heredoc trick
+    # is safe here. Stub __sh_os_definitions to silence shrc_helpers' eval.
+    local SH_COLOR_DEFS
     if [[ -e "$SH_SOURCE_DIR/configure_colors" ]]; then
         SH_COLOR_DEFS=$(cat "$SH_SOURCE_DIR/configure_colors")
-    fi
-    if [[ -e "$SH_SOURCE_DIR/configure_os" ]]; then
-        SH_OS_DEFS=$(cat "$SH_SOURCE_DIR/configure_os")
     fi
 
     eval "$(
@@ -52,15 +60,10 @@ __shenv_main() {
             echo "$SH_COLOR_DEFS"
         }
         __sh_os_definitions() {
-            echo "$SH_OS_DEFS"
+            :
         }
 EOF
     )"
-
-    # Populate SH_OS_* (configure_os no longer uses 'local' so these become
-    # globals, surviving after __shenv_main exits)
-    eval "$(__sh_os_definitions)"
-    export SH_OS_TYPE SH_OS_FLAVOR SH_OS_DISTRO SH_OS_DISTRO_NUM SH_OS_RELEASE
 
     # Helpers: __add_to_path, __add_to_cd_path, __include_files, ...
     if [[ -e "$SH_SOURCE_DIR/shrc_helpers" ]]; then

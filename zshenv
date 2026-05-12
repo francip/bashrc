@@ -10,6 +10,13 @@
 # ~/.zshrc, NOT here.
 
 __zshenv_main() {
+    # Prevent /etc/zprofile and /etc/zshrc from running. On macOS,
+    # /etc/zprofile runs path_helper, which re-prepends /etc/paths entries
+    # to PATH AFTER zshenv has already set things up — clobbering our
+    # ordering. shenv runs path_helper itself (earlier) so /etc/paths.d
+    # contents are still picked up.
+    setopt no_global_rcs
+
     local SH_SOURCE_FILE SH_SOURCE_DIR
 
     SH_SOURCE_FILE=${(%):-%x}

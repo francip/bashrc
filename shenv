@@ -121,6 +121,15 @@ EOF
     # ---------------------------------------------------------------------------
     # Homebrew
     # ---------------------------------------------------------------------------
+    # On macOS, run path_helper ourselves so /etc/paths and /etc/paths.d/*
+    # contribute to PATH BEFORE we prepend our own dirs. /etc/zprofile would
+    # otherwise run path_helper after us (login shells only) and shove
+    # /usr/local/bin etc. to the front, mangling our ordering. We disable
+    # that re-run via `setopt no_global_rcs` in zshenv.
+    if [[ "$SH_OS_TYPE" == OSX && -x /usr/libexec/path_helper ]]; then
+        eval "$(/usr/libexec/path_helper -s)"
+    fi
+
     if [[ "$SH_OS_TYPE" == OSX && -f /opt/homebrew/bin/brew ]]; then
         export HOMEBREW_NO_ENV_HINTS=1
         eval "$(/opt/homebrew/bin/brew shellenv)"

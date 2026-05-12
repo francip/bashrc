@@ -127,6 +127,11 @@ __zshrc_main() {
         return
     fi
 
+    # Force emacs-style line editing. Without this, zsh auto-picks vi mode
+    # because $EDITOR matches *vi* (vim) — coupling shell line editing to
+    # file editor preference, which is silly.
+    bindkey -e
+
     # Source additional global, local, and personal definitions
     echo
     __include_files "${HOME}/.zshrc.local" "${HOME}/.zshrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases.local" "${HOME}/.aliases_local"

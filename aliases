@@ -188,6 +188,10 @@ EOF
         claude --dangerously-skip-permissions --add-dir ~/src "$@"
     }
 
+    cpl() {
+        copilot --yolo --add-dir ~/src "$@"
+    }
+
     kimi-cld() {
         cld --settings ~/.claude/kimi-2.5.json "$@"
     }

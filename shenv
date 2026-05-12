@@ -138,7 +138,7 @@ EOF
     local PATH_DIRS
     PATH_DIRS=("${HOME}/bin" "${HOME}/.local/bin" "${SH_SOURCE_DIR}/scripts")
     if [[ "$SH_OS_TYPE" == OSX ]]; then
-        PATH_DIRS=("${PATH_DIRS[@]}" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin" "${BREW_DIR}/bin")
+        PATH_DIRS=("${PATH_DIRS[@]}" "${BREW_DIR}/bin" "/usr/local/bin" "/usr/local/sbin" "/opt/local/bin" "/opt/local/sbin")
     fi
     if [[ "$SH_OS_DISTRO" == Ubuntu ]]; then
         PATH_DIRS=("${PATH_DIRS[@]}" "/snap/bin")

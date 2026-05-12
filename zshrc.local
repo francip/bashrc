@@ -1,0 +1,56 @@
+# Source local definitions
+
+__zshrc_local_main() {
+    local SH_SOURCE_FILE SH_SOURCE_DIR SH_SOURCE_FILE_ESCAPED
+
+    SH_SOURCE_FILE=${(%):-%x}
+    while [[ -L "$SH_SOURCE_FILE" ]]; do
+        SH_SOURCE_FILE=$(readlink "$SH_SOURCE_FILE")
+    done
+
+    SH_SOURCE_DIR=$(dirname "$SH_SOURCE_FILE")
+    SH_SOURCE_DIR=`cd "$SH_SOURCE_DIR" >/dev/null; pwd`
+    SH_SOURCE_FILE=$(basename "$SH_SOURCE_FILE")
+    SH_SOURCE_FILE_ESCAPED=${SH_SOURCE_FILE// /_}
+
+    # SH_SOURCE_DIR is a full path to the location of this script
+
+    eval "$(cat <<EOF
+        __get_${SH_SOURCE_FILE_ESCAPED}_dir() {
+          echo $SH_SOURCE_DIR
+        }
+        __get_${SH_SOURCE_FILE_ESCAPED}_file() {
+          echo $SH_SOURCE_FILE
+        }
+EOF
+)"
+
+    eval "$(__sh_color_definitions)"
+    eval "$(__sh_os_definitions)"
+
+    local SH_INTERACTIVE
+
+    case $- in
+    *i*)
+        # interactive shell
+        SH_INTERACTIVE=1
+        ;;
+    esac
+
+    eval "
+        __zshrc_local() {
+            echo $(__get_${SH_SOURCE_FILE_ESCAPED}_dir)'/'$(__get_${SH_SOURCE_FILE_ESCAPED}_file)
+        }
+    "
+
+    # Early load before dotrc main started
+
+    # Late load after dotrc main finished
+
+    __zshrc_local_run() {
+        local ZSHRC_LOCAL_RUN
+    }
+}
+
+__zshrc_local_main "$@"
+unset -f __zshrc_local_main

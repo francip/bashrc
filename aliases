@@ -189,7 +189,7 @@ EOF
     }
 
     cpl() {
-        copilot --yolo --add-dir ~/src "$@"
+        copilot --yolo --experimental --add-dir ~/src "$@"
     }
 
     kimi-cld() {

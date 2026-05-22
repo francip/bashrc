@@ -49,3 +49,11 @@ CentOS
 ```
 yum install bash-completion -y
 ```
+## Known hacks
+
+### Windows `shrc.cmd` doesn't load the `aliases` file
+
+- **Symptom:** Aliases added to the Unix-side `aliases` file don't automatically show up in `cmd` on Windows.
+- **Cause:** `shrc.cmd` doesn't source `aliases`. It hardcodes a minimal set of `doskey` definitions inline (`ls`, `cat`, `e`, `cld`, `cdx`, `cpl`) and that's the whole list.
+- **Workaround:** If you need an alias in `cmd`, duplicate it as a `doskey` line inside `shrc.cmd`.
+- **When it breaks again:** Every time a new alias gets added to `aliases` and someone expects it to Just Work in `cmd`. It won't. Edit `shrc.cmd` manually, or finally bite the bullet and teach `shrc.cmd` to parse `aliases` (lol, no — screw that guy).

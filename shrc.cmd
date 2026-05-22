@@ -44,6 +44,8 @@ if !IS_INTERACTIVE! equ 1 (
     doskey cat=type $*
     doskey e=agy $*
     doskey cld=claude --dangerously-skip-permissions --add-dir C:\Src $*
+    doskey cdx=codex --dangerously-bypass-approvals-and-sandbox --add-dir C:\Src $*
+    doskey cpl=copilot --yolo --experimental --add-dir C:\Src $*
 
     REM Point Git and SSH at the Windows native OpenSSH so everything
     REM -- including Git Bash shells spawned by Claude Code -- uses the

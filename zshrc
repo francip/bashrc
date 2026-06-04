@@ -338,3 +338,9 @@ __zshrc_main() {
 
 __zshrc_main "$@"
 unset -f __zshrc_main
+
+# BEGIN Agency MANAGED BLOCK
+if [[ ":${PATH}:" != *":/Users/francip/.config/agency/CurrentVersion:"* ]]; then
+    export PATH="/Users/francip/.config/agency/CurrentVersion:${PATH}"
+fi
+# END Agency MANAGED BLOCK

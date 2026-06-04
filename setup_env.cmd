@@ -70,6 +70,7 @@ call :install_via_ps     uv      https://astral.sh/uv/install.ps1
 
 call :install_via_winget git     Git.Git
 call :install_via_winget gh      GitHub.cli
+call :install_via_winget code    Microsoft.VisualStudioCode
 call :install_via_winget copilot GitHub.Copilot
 call :install_via_ps     bun     https://bun.sh/install.ps1
 

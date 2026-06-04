@@ -42,7 +42,7 @@ if !IS_INTERACTIVE! equ 1 (
 
     doskey ls=dir $*
     doskey cat=type $*
-    doskey e=agy $*
+    doskey e=code $*
     doskey cld=claude --dangerously-skip-permissions --add-dir C:\Src $*
     doskey cdx=codex --dangerously-bypass-approvals-and-sandbox --add-dir C:\Src $*
     doskey cpl=copilot --yolo --experimental --add-dir C:\Src $*

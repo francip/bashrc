@@ -192,26 +192,6 @@ EOF
         copilot --yolo --experimental --add-dir ~/src "$@"
     }
 
-    kimi-cld() {
-        cld --settings ~/.claude/kimi-2.5.json "$@"
-    }
-
-    glm4() {
-        cld --settings ~/.claude/glm-4.7-flash.json "$@"
-    }
-
-    glm5() {
-        cld --settings ~/.claude/glm-5.json "$@"
-    }
-
-    qwen-cld() {
-        cld --settings ~/.claude/qwen-coder-next.json "$@"
-    }
-
-    kim() {
-        kimi --yolo "$@"
-    }
-
     # Kill orphaned MCP servers and biome LSPs from dead Claude Code sessions
     claude-gc() {
         local mcp_killed=0 biome_killed=0
@@ -337,8 +317,7 @@ EOF
         # gemini — Google Gemini CLI (npm install -g @anthropic-ai/gemini... nah just kidding)
         # command -v gemini >/dev/null || npm install -g @anthropic-ai/gemini  # TODO: verify package name
 
-        # agy — Antigravity editor (manual install)
-        # antigravity — Windsurf editor (manual install)
+        # code — Visual Studio Code editor (manual install)
         # prime — (manual install)
 
         # hf — Hugging Face CLI
@@ -419,7 +398,7 @@ EOF
         echo
         echo -e 'Looking for '$COLOR_CYAN_BOLD'common'$COLOR_NONE' tools...'
 
-        __get_commands_info git gh brew bun nvm node npm pnpm python python3 pip pip3 pipx poetry uv hf go rustc cargo ruby gem agy antigravity arduino-cli claude codex copilot gemini prime llama-server gcc clang ccache cmake ninja tmux curl convert docker mosh conda nvcc adb jq
+        __get_commands_info git gh brew bun nvm node npm pnpm python python3 pip pip3 pipx poetry uv hf go rustc cargo ruby gem code arduino-cli claude codex copilot gemini prime llama-server gcc clang ccache cmake ninja tmux curl convert docker mosh conda nvcc adb jq
 
         if [[ $SH_OS_TYPE == OSX ]]; then
             echo
@@ -739,7 +718,11 @@ try {
             }
 
             e() {
-                gedit "$@" &
+                if command -v code >/dev/null 2>&1; then
+                    code "$@"
+                else
+                    gedit "$@" &
+                fi
             }
 
             regedit() {
@@ -747,7 +730,11 @@ try {
             }
         else
             e() {
-                vim "$@"
+                if command -v code >/dev/null 2>&1; then
+                    code "$@"
+                else
+                    vim "$@"
+                fi
             }
         fi
 
@@ -887,11 +874,7 @@ try {
             }
 
             e() {
-                if command -v antigravity >/dev/null 2>&1; then
-                    antigravity "$@"
-                elif command -v windsurf-next >/dev/null 2>&1; then
-                    windsurf-next "$@"
-                elif command -v code >/dev/null 2>&1; then
+                if command -v code >/dev/null 2>&1; then
                     code "$@"
                 else
                     vim "$@"
@@ -906,7 +889,11 @@ try {
         alias ls='ls --color=auto'
 
         e() {
-            vim "$@"
+            if command -v code >/dev/null 2>&1; then
+                code "$@"
+            else
+                vim "$@"
+            fi
         }
 
         ex() {
@@ -972,22 +959,12 @@ try {
                 fi
             fi
 
-            # Check if Antigravity is installed
-            # If not, check if Windsurf is installed
-            # If not, check if Visual Code is installed
-            # If not, use default editor
             e() {
-                local CODE_COMMAND WINDSURF_COMMAND AGY_COMMAND
+                local CODE_COMMAND
 
-                AGY_COMMAND=`type -t agy 2>/dev/null || whence agy 2>/dev/null`
-                WINDSURF_COMMAND=`type -t windsurf-next 2>/dev/null || whence windsurf-next 2>/dev/null`
                 CODE_COMMAND=`type -t code 2>/dev/null || whence code 2>/dev/null`
 
-                if [[ -n $AGY_COMMAND ]]; then
-                    agy "$@"
-                elif [[ -n $WINDSURF_COMMAND ]]; then
-                    windsurf-next "$@"
-                elif [[ -n $CODE_COMMAND ]]; then
+                if [[ -n $CODE_COMMAND ]]; then
                     code "$@"
                 else
                     open -e "$@"

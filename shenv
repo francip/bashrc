@@ -155,16 +155,36 @@ EOF
     __add_to_path "${PATH_DIRS[@]}"
 
     # ---------------------------------------------------------------------------
-    # Antigravity
+    # VS Code
     # ---------------------------------------------------------------------------
-    if [[ -d "$HOME/.antigravity/antigravity/bin" ]]; then
-        __add_to_path "${HOME}/.antigravity/antigravity/bin"
-    elif [[ "$SH_OS_FLAVOR" == WSL ]]; then
-        local __WSL_WIN_USER
-        __WSL_WIN_USER=$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r\n')
-        if [[ -n "$__WSL_WIN_USER" && -d "/mnt/c/Users/${__WSL_WIN_USER}/AppData/Local/Programs/Antigravity/bin" ]]; then
-            __add_to_path "/mnt/c/Users/${__WSL_WIN_USER}/AppData/Local/Programs/Antigravity/bin"
+    local VS_CODE_PATH_DIRS
+    VS_CODE_PATH_DIRS=()
+    if [[ "$SH_OS_TYPE" == OSX ]]; then
+        VS_CODE_PATH_DIRS=(
+            "/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+            "${HOME}/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+        )
+    elif [[ "$SH_OS_TYPE" == Linux ]]; then
+        VS_CODE_PATH_DIRS=("/usr/share/code/bin")
+        if [[ "$SH_OS_FLAVOR" == WSL ]]; then
+            local __WSL_WIN_USER
+            __WSL_WIN_USER=$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r\n')
+            if [[ -n "$__WSL_WIN_USER" ]]; then
+                VS_CODE_PATH_DIRS=(
+                    "${VS_CODE_PATH_DIRS[@]}"
+                    "/mnt/c/Users/${__WSL_WIN_USER}/AppData/Local/Programs/Microsoft VS Code/bin"
+                    "/mnt/c/Program Files/Microsoft VS Code/bin"
+                )
+            fi
         fi
+    elif [[ "$SH_OS_TYPE" == Windows && -n "$USERNAME" ]]; then
+        VS_CODE_PATH_DIRS=(
+            "/c/Users/${USERNAME}/AppData/Local/Programs/Microsoft VS Code/bin"
+            "/c/Program Files/Microsoft VS Code/bin"
+        )
+    fi
+    if [[ ${#VS_CODE_PATH_DIRS[@]} -gt 0 ]]; then
+        __add_to_path "${VS_CODE_PATH_DIRS[@]}"
     fi
 
     # ---------------------------------------------------------------------------

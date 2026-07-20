@@ -657,7 +657,7 @@ try {
             fi
             if [[ -z $LATEST_SKIP_NPM ]]; then
                 if [[ $(which npm 2>/dev/null) ]]; then
-                    if [[ $(type -w nvm 2>/dev/null) ]]; then
+                    if command -v nvm >/dev/null 2>&1; then
                         local current_node latest_node
                         current_node=$(nvm current)
                         latest_node=$(nvm version-remote --lts)
@@ -773,7 +773,7 @@ try {
                 sudo snap refresh
                 if [[ -z $LATEST_SKIP_NPM ]]; then
                     if [[ $(which npm 2>/dev/null) ]]; then
-                        if [[ $(type -w nvm 2>/dev/null) ]]; then
+                        if command -v nvm >/dev/null 2>&1; then
                             local current_node latest_node
                             current_node=$(nvm current)
                             latest_node=$(nvm version-remote --lts)

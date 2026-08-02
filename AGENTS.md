@@ -1,4 +1,4 @@
-# CLAUDE.md - Shell Environment Configuration Framework
+# Shell Environment Configuration Framework
 
 ## Commands
 - **Install:** `./bash_install.sh` (Bash) or `./zsh_install.sh` (Zsh)

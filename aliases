@@ -674,6 +674,12 @@ try {
                     npm update -g
                 fi
             fi
+            if [[ -z $LATEST_SKIP_BUN ]]; then
+                if [[ $(which bun 2>/dev/null) ]]; then
+                    bun upgrade
+                    bun update --global --latest
+                fi
+            fi
             if [[ -z $LATEST_SKIP_PIPX ]]; then
                 if [[ $(which pipx 2>/dev/null) ]]; then
                     pipx upgrade-all
@@ -788,6 +794,12 @@ try {
                         fi
                         npm install -g npm@latest || return $?
                         npm update -g
+                    fi
+                fi
+                if [[ -z $LATEST_SKIP_BUN ]]; then
+                    if [[ $(which bun 2>/dev/null) ]]; then
+                        bun upgrade
+                        bun update --global --latest
                     fi
                 fi
                 if [[ -z $LATEST_SKIP_PIPX ]]; then
@@ -936,6 +948,12 @@ try {
 
         latest() {
             pacman -Syuu
+            if [[ -z $LATEST_SKIP_BUN ]]; then
+                if [[ $(which bun 2>/dev/null) ]]; then
+                    bun upgrade
+                    bun update --global --latest
+                fi
+            fi
             if [[ -z $LATEST_SKIP_PIPX ]]; then
                 if [[ $(which pipx 2>/dev/null) ]]; then
                     pipx upgrade-all

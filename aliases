@@ -580,6 +580,144 @@ try {
 
     # OS-specific aliases and functions
 
+    __latest_npm_remote_policy() {
+        local registry tarball registry_host tarball_host
+
+        registry=$(npm config get registry) || return $?
+        tarball=$(npm view npm@latest dist.tarball) || return $?
+        registry_host=${registry#*://}
+        registry_host=${registry_host%%/*}
+        tarball_host=${tarball#*://}
+        tarball_host=${tarball_host%%/*}
+
+        if [[ -n $registry_host && -n $tarball_host && $registry_host != "$tarball_host" ]]; then
+            echo all
+        else
+            echo none
+        fi
+    }
+
+    __latest_npm() {
+        command -v npm >/dev/null 2>&1 || return 0
+
+        local remote_policy
+
+        npm install -g npm@latest --allow-remote=root || return $?
+        remote_policy=$(__latest_npm_remote_policy) || return $?
+
+        if [[ $remote_policy == all ]]; then
+            # Some registry proxies serve tarballs from a different host.
+            npm update -g --allow-remote=all --allow-scripts=azureauth,pnpm || return $?
+        else
+            npm update -g --allow-scripts=azureauth,pnpm || return $?
+        fi
+    }
+
+    __latest_nvm_update() {
+        local latest_nvm_tag
+
+        # The official installer leaves nvm on a detached release tag.
+        command git -C "$NVM_DIR" fetch --tags origin || return $?
+        latest_nvm_tag=$(command git -C "$NVM_DIR" describe --abbrev=0 --tags --match "v[0-9]*" "$(command git -C "$NVM_DIR" rev-list --tags --max-count=1)") || return $?
+        command git -C "$NVM_DIR" checkout "$latest_nvm_tag" || return $?
+        . "$NVM_DIR/nvm.sh" || return $?
+    }
+
+    __latest_nvm_install() {
+        local target_node package_source installed_node
+
+        target_node=$1
+        package_source=$2
+        installed_node=$(nvm version "$target_node")
+
+        if [[ $installed_node == "$target_node" ]]; then
+            nvm use "$target_node" || return $?
+            if [[ $package_source == v* && $package_source != "$target_node" ]]; then
+                nvm reinstall-packages "$package_source" || return $?
+            fi
+        elif [[ $package_source == v* && $package_source != "$target_node" ]]; then
+            nvm install --reinstall-packages-from="$package_source" "$target_node" || return $?
+        else
+            nvm install "$target_node" || return $?
+        fi
+    }
+
+    __latest_nvm_uninstall_old_versions() {
+        local keep_node node_major installed_nodes installed_node
+
+        keep_node=$1
+        node_major=${keep_node#v}
+        node_major=${node_major%%.*}
+        installed_nodes=$(nvm ls --no-colors --no-alias | command sed -n 's/.*\(v[0-9][0-9.]*\).*/\1/p')
+
+        while IFS= read -r installed_node; do
+            if [[ $installed_node == v${node_major}.* && $installed_node != "$keep_node" ]]; then
+                nvm uninstall "$installed_node" || return $?
+            fi
+        done <<EOF
+$installed_nodes
+EOF
+    }
+
+    __latest_nvm() {
+        command -v nvm >/dev/null 2>&1 || return 0
+
+        local current_node latest_lts_node latest_node package_source latest_lts_major latest_major remote_policy
+
+        if [[ -n $ZSH_VERSION ]]; then
+            setopt localoptions typesetsilent
+        fi
+
+        __latest_nvm_update || return $?
+        current_node=$(nvm current) || return $?
+        latest_lts_node=$(nvm version-remote --lts) || return $?
+        latest_node=$(nvm version-remote node) || return $?
+
+        if [[ $latest_lts_node == "N/A" || $latest_node == "N/A" ]]; then
+            echo "Unable to determine the latest Node.js versions"
+            return 1
+        fi
+
+        # Keep npm's exceptions local to package migration. Registry proxies
+        # can serve their tarballs from a different host.
+        local npm_config_allow_scripts
+        npm_config_allow_scripts=azureauth,pnpm
+        export npm_config_allow_scripts
+        if command -v npm >/dev/null 2>&1; then
+            remote_policy=$(__latest_npm_remote_policy) || return $?
+            if [[ $remote_policy == all ]]; then
+                local npm_config_allow_remote
+                npm_config_allow_remote=all
+                export npm_config_allow_remote
+            fi
+        fi
+
+        # Give both target versions the global packages from the Node version
+        # that was active when latest started.
+        package_source=$current_node
+        __latest_nvm_install "$latest_lts_node" "$package_source" || return $?
+        if [[ $package_source != v* ]]; then
+            package_source=$latest_lts_node
+        fi
+        if [[ $latest_node != "$latest_lts_node" ]]; then
+            __latest_nvm_install "$latest_node" "$package_source" || return $?
+        fi
+
+        nvm alias default "$latest_node" || return $?
+        nvm use "$latest_node" || return $?
+
+        # Keep other Node major versions, but remove superseded versions of
+        # the two majors managed above.
+        latest_lts_major=${latest_lts_node#v}
+        latest_lts_major=${latest_lts_major%%.*}
+        latest_major=${latest_node#v}
+        latest_major=${latest_major%%.*}
+        __latest_nvm_uninstall_old_versions "$latest_lts_node" || return $?
+        if [[ $latest_major != "$latest_lts_major" ]]; then
+            __latest_nvm_uninstall_old_versions "$latest_node" || return $?
+        fi
+    }
+
     if [[ $SH_OS_TYPE == OSX ]]; then
         # OS X aliases
         alias ls='ls -Gp '
@@ -655,24 +793,11 @@ try {
                     brew cleanup
                 fi
             fi
+            if [[ -z $LATEST_SKIP_NVM ]]; then
+                __latest_nvm || return $?
+            fi
             if [[ -z $LATEST_SKIP_NPM ]]; then
-                if [[ $(which npm 2>/dev/null) ]]; then
-                    if command -v nvm >/dev/null 2>&1; then
-                        local current_node latest_node
-                        current_node=$(nvm current)
-                        latest_node=$(nvm version-remote --lts)
-                        if [[ $latest_node != "N/A" && $current_node != "$latest_node" ]]; then
-                            if [[ $current_node == v* ]]; then
-                                nvm install --reinstall-packages-from="$current_node" "$latest_node" || return $?
-                            else
-                                nvm install "$latest_node" || return $?
-                            fi
-                            nvm alias default "$latest_node" || return $?
-                        fi
-                    fi
-                    npm install -g npm@latest || return $?
-                    npm update -g
-                fi
+                __latest_npm || return $?
             fi
             if [[ -z $LATEST_SKIP_BUN ]]; then
                 if [[ $(which bun 2>/dev/null) ]]; then
@@ -777,24 +902,11 @@ try {
                 sudo apt-get --with-new-pkgs upgrade -y
                 sudo apt-get autoremove -y
                 sudo snap refresh
+                if [[ -z $LATEST_SKIP_NVM ]]; then
+                    __latest_nvm || return $?
+                fi
                 if [[ -z $LATEST_SKIP_NPM ]]; then
-                    if [[ $(which npm 2>/dev/null) ]]; then
-                        if command -v nvm >/dev/null 2>&1; then
-                            local current_node latest_node
-                            current_node=$(nvm current)
-                            latest_node=$(nvm version-remote --lts)
-                            if [[ $latest_node != "N/A" && $current_node != "$latest_node" ]]; then
-                                if [[ $current_node == v* ]]; then
-                                    nvm install --reinstall-packages-from="$current_node" "$latest_node" || return $?
-                                else
-                                    nvm install "$latest_node" || return $?
-                                fi
-                                nvm alias default "$latest_node" || return $?
-                            fi
-                        fi
-                        npm install -g npm@latest || return $?
-                        npm update -g
-                    fi
+                    __latest_npm || return $?
                 fi
                 if [[ -z $LATEST_SKIP_BUN ]]; then
                     if [[ $(which bun 2>/dev/null) ]]; then

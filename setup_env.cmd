@@ -77,6 +77,7 @@ call :install_via_ps     bun     https://bun.sh/install.ps1
 :: --- Languages ---
 
 call :install_via_winget go      GoLang.Go
+call :install_via_winget zig     zig.zig
 :: rustup provides rustc + cargo (run "rustup default stable" after install)
 call :install_via_winget rustc   Rustlang.Rustup
 :: ruby installer provides gem

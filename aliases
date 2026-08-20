@@ -661,8 +661,6 @@ EOF
     }
 
     __latest_nvm_without_skipped_packages() {
-        local status
-
         # Keep user-managed packages out of NVM's registry-based migration.
         npm() {
             if [[ $1 == list && $2 == -g && $3 == --depth=0 ]]; then
@@ -683,9 +681,7 @@ EOF
         }
 
         nvm "$@"
-        status=$?
         unset -f npm
-        return $status
     }
 
     __latest_nvm_install() {

@@ -192,6 +192,14 @@ EOF
         copilot --yolo --experimental --add-dir ~/src "$@"
     }
 
+    prm() {
+        prime-agent "$@"
+    }
+
+    ompy() {
+        omp --approval-mode yolo --add-dir ~/src "$@"
+    }
+
     # Kill orphaned MCP servers and biome LSPs from dead Claude Code sessions
     claude-gc() {
         local mcp_killed=0 biome_killed=0
@@ -272,9 +280,6 @@ EOF
         # tmux
         command -v tmux >/dev/null || brew install tmux
 
-        # mosh
-        command -v mosh >/dev/null || brew install mosh
-
         # --- JavaScript ---
 
         # bun — https://bun.sh/
@@ -300,8 +305,6 @@ EOF
 
         # poetry
         command -v poetry >/dev/null || pipx install poetry
-
-        # conda — https://docs.conda.io/ (manual install)
 
         # --- AI/ML tools ---
 
@@ -401,7 +404,7 @@ EOF
         echo
         echo -e 'Looking for '$COLOR_CYAN_BOLD'common'$COLOR_NONE' tools...'
 
-        __get_commands_info git gh brew bun nvm node npm pnpm python python3 pip pip3 pipx poetry uv hf go zig rustc cargo ruby gem code arduino-cli claude codex copilot gemini prime llama-server gcc clang ccache cmake ninja tmux curl convert docker mosh conda nvcc adb jq
+        __get_commands_info git gh brew bun nvm node npm pnpm python python3 pip pip3 pipx poetry uv hf go zig rustc cargo ruby gem code arduino-cli claude codex copilot gemini prime prime-agent omp pi llama-server gcc clang ccache cmake ninja tmux curl convert docker nvcc adb jq
 
         if [[ $SH_OS_TYPE == OSX ]]; then
             echo

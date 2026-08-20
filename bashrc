@@ -17,7 +17,7 @@ __bashrc_main() {
     # Source shared env (idempotent — short-circuits if bashenv already loaded
     # it). Sets SH_OS_*, BREW_DIR exported globally. Defines __add_to_path,
     # __include_files, __sh_color_definitions, ... globally. Configures PATH,
-    # nvm, conda, ssh-agent discovery, etc.
+    # nvm, ssh-agent discovery, etc.
     if [[ -f "$SH_SOURCE_DIR/shenv" ]]; then
         . "$SH_SOURCE_DIR/shenv"
     fi

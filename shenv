@@ -2,7 +2,7 @@
 # by zshrc/bashrc (idempotent — short-circuits if already loaded).
 #
 # Holds env setup that must be available to BOTH interactive and
-# non-interactive shells: PATH, language toolchains (nvm/conda/uv/cargo/...),
+# non-interactive shells: PATH, language toolchains (nvm/uv/cargo/...),
 # ssh-agent socket discovery, locale.
 #
 # Anything interactive-only (prompt, completion, MOTD, tmux auto-attach,
@@ -10,7 +10,7 @@
 #
 # Why this exists: zshrc is not sourced for non-interactive zsh, and bashrc
 # is sourced inconsistently for non-interactive bash. Without a shared env
-# file, `ssh host 'cmd'` runs without nvm/conda/PATH set up.
+# file, `ssh host 'cmd'` runs without nvm/PATH set up.
 
 if [[ -n "$_SHENV_LOADED" ]]; then
     return
@@ -280,26 +280,6 @@ EOF
     # ---------------------------------------------------------------------------
     if [[ "$SH_OS_TYPE" == OSX && -d "$HOME/go" ]]; then
         export GOPATH="$HOME/go"
-    fi
-
-    # ---------------------------------------------------------------------------
-    # Conda
-    # ---------------------------------------------------------------------------
-    if [[ -x "$HOME/miniconda3/bin/conda" ]]; then
-        local __conda_setup __conda_shell
-        if [[ -n "$ZSH_VERSION" ]]; then
-            __conda_shell=zsh
-        else
-            __conda_shell=bash
-        fi
-        __conda_setup="$("$HOME/miniconda3/bin/conda" "shell.${__conda_shell}" "hook" 2>/dev/null)"
-        if [[ $? -eq 0 ]]; then
-            eval "$__conda_setup"
-        elif [[ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]]; then
-            . "$HOME/miniconda3/etc/profile.d/conda.sh"
-        else
-            __add_to_path "${HOME}/miniconda3/bin"
-        fi
     fi
 
     # ---------------------------------------------------------------------------

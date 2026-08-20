@@ -2,7 +2,7 @@
 # login, non-login). Delegates to ~/src/bashrc/shenv for the actual work.
 #
 # Why this matters: ~/.zshrc is NOT sourced for non-interactive zsh, so
-# `ssh host 'cmd'` only sees what zshenv sets up. Putting PATH, nvm, conda,
+# `ssh host 'cmd'` only sees what zshenv sets up. Putting PATH and nvm,
 # ssh-agent etc. in shenv means all those non-interactive contexts (scp,
 # remote git, cron-from-ssh, VS Code's git, etc.) work correctly.
 #

@@ -586,23 +586,6 @@ try {
 
     # OS-specific aliases and functions
 
-    __latest_npm_remote_policy() {
-        local registry tarball registry_host tarball_host
-
-        registry=$(npm config get registry) || return $?
-        tarball=$(npm view npm@latest dist.tarball) || return $?
-        registry_host=${registry#*://}
-        registry_host=${registry_host%%/*}
-        tarball_host=${tarball#*://}
-        tarball_host=${tarball_host%%/*}
-
-        if [[ -n $registry_host && -n $tarball_host && $registry_host != "$tarball_host" ]]; then
-            echo all
-        else
-            echo none
-        fi
-    }
-
     __latest_npm_script_policy() {
         # latest allows all global npm install scripts by default. On a restricted
         # machine, add `export LATEST_NPM_ALLOW_SCRIPTS=azureauth,pnpm` to
@@ -617,7 +600,7 @@ try {
     __latest_npm() {
         command -v npm >/dev/null 2>&1 || return 0
 
-        local remote_policy script_policy
+        local script_policy
         local npm_config_allow_scripts npm_config_dangerously_allow_all_scripts
 
         npm_config_allow_scripts=
@@ -631,14 +614,8 @@ try {
 
         script_policy=$(__latest_npm_script_policy) || return $?
         npm install -g npm@latest --allow-remote=root "$script_policy" || return $?
-        remote_policy=$(__latest_npm_remote_policy) || return $?
-
-        if [[ $remote_policy == all ]]; then
-            # Some registry proxies serve tarballs from a different host.
-            npm update -g --allow-remote=all "$script_policy" || return $?
-        else
-            npm update -g "$script_policy" || return $?
-        fi
+        # Global packages can depend on tarballs hosted outside their registry.
+        npm update -g --allow-remote=all "$script_policy" || return $?
     }
 
     __latest_nvm_update() {
@@ -706,9 +683,10 @@ EOF
             return 1
         fi
 
-        # Keep npm's policy local to package migration. Registry proxies
-        # can serve their tarballs from a different host.
-        local npm_config_allow_scripts npm_config_dangerously_allow_all_scripts
+        # Keep npm's policy local to package migration. Global packages can
+        # depend on tarballs hosted outside their registry.
+        local npm_config_allow_remote npm_config_allow_scripts npm_config_dangerously_allow_all_scripts
+        npm_config_allow_remote=all
         npm_config_allow_scripts=
         npm_config_dangerously_allow_all_scripts=false
         if [[ -n $LATEST_NPM_ALLOW_SCRIPTS ]]; then
@@ -716,15 +694,7 @@ EOF
         else
             npm_config_dangerously_allow_all_scripts=true
         fi
-        export npm_config_allow_scripts npm_config_dangerously_allow_all_scripts
-        if command -v npm >/dev/null 2>&1; then
-            remote_policy=$(__latest_npm_remote_policy) || return $?
-            if [[ $remote_policy == all ]]; then
-                local npm_config_allow_remote
-                npm_config_allow_remote=all
-                export npm_config_allow_remote
-            fi
-        fi
+        export npm_config_allow_remote npm_config_allow_scripts npm_config_dangerously_allow_all_scripts
 
         # Give both target versions the global packages from the Node version
         # that was active when latest started.

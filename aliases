@@ -597,12 +597,27 @@ try {
         fi
     }
 
+    __latest_npm_registry_packages() {
+        npm ls -g --depth=0 --json | node -e '
+            let input = "";
+            process.stdin.on("data", chunk => input += chunk);
+            process.stdin.on("end", () => {
+                const excluded = new Set(["corepack", "npm", "prime-agent"]);
+                const dependencies = JSON.parse(input).dependencies || {};
+                for (const name of Object.keys(dependencies)) {
+                    if (!excluded.has(name)) console.log(name);
+                }
+            });
+        '
+    }
+
     __latest_npm() {
         command -v npm >/dev/null 2>&1 || return 0
 
-        local script_policy
-        local npm_config_allow_scripts npm_config_dangerously_allow_all_scripts
+        local package_names package_name script_policy
+        local npm_config_allow_remote npm_config_allow_scripts npm_config_dangerously_allow_all_scripts
 
+        npm_config_allow_remote=all
         npm_config_allow_scripts=
         npm_config_dangerously_allow_all_scripts=false
         if [[ -n $LATEST_NPM_ALLOW_SCRIPTS ]]; then
@@ -610,12 +625,24 @@ try {
         else
             npm_config_dangerously_allow_all_scripts=true
         fi
-        export npm_config_allow_scripts npm_config_dangerously_allow_all_scripts
+        export npm_config_allow_remote npm_config_allow_scripts npm_config_dangerously_allow_all_scripts
 
         script_policy=$(__latest_npm_script_policy) || return $?
         npm install -g npm@latest --allow-remote=root "$script_policy" || return $?
-        # Global packages can depend on tarballs hosted outside their registry.
-        npm update -g --allow-remote=all "$script_policy" || return $?
+        package_names=$(__latest_npm_registry_packages) || return $?
+        if [[ -n $package_names ]]; then
+            set --
+            while IFS= read -r package_name; do
+                [[ -n $package_name ]] && set -- "$@" "$package_name"
+            done <<EOF
+$package_names
+EOF
+            # Global packages can depend on tarballs hosted outside their registry.
+            npm update -g --allow-remote=all "$script_policy" "$@" || return $?
+        fi
+        if command -v prime-agent >/dev/null 2>&1; then
+            prime-agent update || return $?
+        fi
     }
 
     __latest_nvm_update() {
@@ -628,22 +655,53 @@ try {
         . "$NVM_DIR/nvm.sh" || return $?
     }
 
+    __latest_nvm_without_prime() {
+        local status
+
+        # Prime Agent is installed from its release service, not npm's registry.
+        npm() {
+            if [[ $1 == list && $2 == -g && $3 == --depth=0 ]]; then
+                command npm "$@" | command sed '/ prime-agent@[^ ]*$/d'
+            else
+                command npm "$@"
+            fi
+        }
+
+        nvm "$@"
+        status=$?
+        unset -f npm
+        return $status
+    }
+
+    __latest_prime_install() {
+        curl -fsSL https://app.primeintellect.ai/prime-agent/install.sh |
+            PRIME_AGENT_INSTALLER_PLAIN=1 sh
+    }
+
     __latest_nvm_install() {
-        local target_node package_source installed_node
+        local target_node package_source installed_node migrate_prime
 
         target_node=$1
         package_source=$2
         installed_node=$(nvm version "$target_node")
+        migrate_prime=
+        if [[ $package_source == v* && -d $NVM_DIR/versions/node/$package_source/lib/node_modules/prime-agent ]]; then
+            migrate_prime=1
+        fi
 
         if [[ $installed_node == "$target_node" ]]; then
             nvm use "$target_node" || return $?
             if [[ $package_source == v* && $package_source != "$target_node" ]]; then
-                nvm reinstall-packages "$package_source" || return $?
+                __latest_nvm_without_prime reinstall-packages "$package_source" || return $?
             fi
         elif [[ $package_source == v* && $package_source != "$target_node" ]]; then
-            nvm install --reinstall-packages-from="$package_source" "$target_node" || return $?
+            __latest_nvm_without_prime install --reinstall-packages-from="$package_source" "$target_node" || return $?
         else
             nvm install "$target_node" || return $?
+        fi
+
+        if [[ -n $migrate_prime && $package_source != "$target_node" ]]; then
+            __latest_prime_install || return $?
         fi
     }
 

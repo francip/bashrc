@@ -586,6 +586,9 @@ try {
 
     # OS-specific aliases and functions
 
+    # Space- or comma-separated packages managed outside `latest`.
+    NPM_SKIP_GLOBAL_PACKAGES=${NPM_SKIP_GLOBAL_PACKAGES-prime-agent}
+
     __latest_npm_script_policy() {
         # latest allows all global npm install scripts by default. On a restricted
         # machine, add `export LATEST_NPM_ALLOW_SCRIPTS=azureauth,pnpm` to
@@ -602,13 +605,14 @@ try {
             let input = "";
             process.stdin.on("data", chunk => input += chunk);
             process.stdin.on("end", () => {
-                const excluded = new Set(["corepack", "npm", "prime-agent"]);
+                const skipped = process.argv.slice(1).join(" ").split(/[,\s]+/).filter(Boolean);
+                const excluded = new Set(["corepack", "npm", ...skipped]);
                 const dependencies = JSON.parse(input).dependencies || {};
                 for (const name of Object.keys(dependencies)) {
                     if (!excluded.has(name)) console.log(name);
                 }
             });
-        '
+        ' "$NPM_SKIP_GLOBAL_PACKAGES"
     }
 
     __latest_npm() {
@@ -640,9 +644,6 @@ EOF
             # Global packages can depend on tarballs hosted outside their registry.
             npm update -g --allow-remote=all "$script_policy" "$@" || return $?
         fi
-        if command -v prime-agent >/dev/null 2>&1; then
-            prime-agent update || return $?
-        fi
     }
 
     __latest_nvm_update() {
@@ -655,13 +656,23 @@ EOF
         . "$NVM_DIR/nvm.sh" || return $?
     }
 
-    __latest_nvm_without_prime() {
+    __latest_nvm_without_skipped_packages() {
         local status
 
-        # Prime Agent is installed from its release service, not npm's registry.
+        # Keep user-managed packages out of NVM's registry-based migration.
         npm() {
             if [[ $1 == list && $2 == -g && $3 == --depth=0 ]]; then
-                command npm "$@" | command sed '/ prime-agent@[^ ]*$/d'
+                command npm "$@" | command awk -v skipped="$NPM_SKIP_GLOBAL_PACKAGES" '
+                    BEGIN {
+                        count = split(skipped, names, /[[:space:],]+/)
+                        for (i = 1; i <= count; i++) skip[names[i]] = 1
+                    }
+                    {
+                        package_name = $NF
+                        sub(/@[^@]*$/, "", package_name)
+                        if (!skip[package_name]) print
+                    }
+                '
             else
                 command npm "$@"
             fi
@@ -673,35 +684,22 @@ EOF
         return $status
     }
 
-    __latest_prime_install() {
-        curl -fsSL https://app.primeintellect.ai/prime-agent/install.sh |
-            PRIME_AGENT_INSTALLER_PLAIN=1 sh
-    }
-
     __latest_nvm_install() {
-        local target_node package_source installed_node migrate_prime
+        local target_node package_source installed_node
 
         target_node=$1
         package_source=$2
         installed_node=$(nvm version "$target_node")
-        migrate_prime=
-        if [[ $package_source == v* && -d $NVM_DIR/versions/node/$package_source/lib/node_modules/prime-agent ]]; then
-            migrate_prime=1
-        fi
 
         if [[ $installed_node == "$target_node" ]]; then
             nvm use "$target_node" || return $?
             if [[ $package_source == v* && $package_source != "$target_node" ]]; then
-                __latest_nvm_without_prime reinstall-packages "$package_source" || return $?
+                __latest_nvm_without_skipped_packages reinstall-packages "$package_source" || return $?
             fi
         elif [[ $package_source == v* && $package_source != "$target_node" ]]; then
-            __latest_nvm_without_prime install --reinstall-packages-from="$package_source" "$target_node" || return $?
+            __latest_nvm_without_skipped_packages install --reinstall-packages-from="$package_source" "$target_node" || return $?
         else
             nvm install "$target_node" || return $?
-        fi
-
-        if [[ -n $migrate_prime && $package_source != "$target_node" ]]; then
-            __latest_prime_install || return $?
         fi
     }
 

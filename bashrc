@@ -260,6 +260,9 @@ __bashrc_main() {
         . "$NVM_DIR/bash_completion"
     fi
 
+    # bun completions
+    # Keep this sentinel aligned with zshrc in case Bun starts mutating Bash startup files.
+
     if [[ -n $BASH_COMPLETION_INSTALLED ]]; then
         # Affects cd behavior
         __add_to_cd_path "." "${HOME}" "${HOME}/src"

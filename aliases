@@ -197,7 +197,7 @@ EOF
     }
 
     ompy() {
-        omp --approval-mode yolo --add-dir ~/src "$@"
+        bun --no-env-file "$(command -v omp)" --approval-mode yolo --add-dir ~/src "$@"
     }
 
     hms() {

@@ -228,6 +228,8 @@ __zshrc_main() {
         . "$NVM_DIR/bash_completion"
     fi
 
+    # bun completions
+    # Keep the exact marker above so Bun upgrades do not append a duplicate block.
     # Bun completion (env added bin to PATH; this is the interactive completion)
     if [[ -d $BUN_INSTALL && -s "$BUN_INSTALL/_bun" ]]; then
         . "$BUN_INSTALL/_bun"

@@ -619,10 +619,46 @@ try {
         ' "$NPM_SKIP_GLOBAL_PACKAGES"
     }
 
+    __latest_npm_package_supported() {
+        local package_name package_metadata
+
+        package_name=$1
+        package_metadata=$(npm view "$package_name@latest" version os cpu --json) || return $?
+
+        node -e '
+            const packageName = process.argv[1];
+            let metadata = JSON.parse(process.argv[2]);
+            if (Array.isArray(metadata)) {
+                metadata = metadata[metadata.length - 1];
+            }
+            if (typeof metadata !== "object" || metadata === null) {
+                metadata = { version: metadata };
+            }
+
+            const matches = (constraint, actual) => {
+                if (constraint === undefined) return true;
+                const values = Array.isArray(constraint) ? constraint : [constraint];
+                if (values.includes(`!${actual}`)) return false;
+                const allowed = values.filter(value => !value.startsWith("!"));
+                return allowed.length === 0 || allowed.includes(actual);
+            };
+
+            if (!matches(metadata.os, process.platform) || !matches(metadata.cpu, process.arch)) {
+                const supportedOs = metadata.os === undefined ? "any OS" : [].concat(metadata.os).join(",");
+                const supportedCpu = metadata.cpu === undefined ? "any CPU" : [].concat(metadata.cpu).join(",");
+                console.error(
+                    `Skipping ${packageName}@${metadata.version || "latest"}: ` +
+                    `requires ${supportedOs}/${supportedCpu}, current platform is ${process.platform}/${process.arch}`
+                );
+                process.exit(2);
+            }
+        ' "$package_name" "$package_metadata"
+    }
+
     __latest_npm() {
         command -v npm >/dev/null 2>&1 || return 0
 
-        local package_names package_name script_policy
+        local package_names package_name package_status script_policy
         local npm_config_allow_remote npm_config_allow_scripts npm_config_dangerously_allow_all_scripts
 
         npm_config_allow_remote=all
@@ -641,12 +677,21 @@ try {
         if [[ -n $package_names ]]; then
             set --
             while IFS= read -r package_name; do
-                [[ -n $package_name ]] && set -- "$@" "$package_name"
+                if [[ -n $package_name ]]; then
+                    if __latest_npm_package_supported "$package_name"; then
+                        set -- "$@" "$package_name"
+                    else
+                        package_status=$?
+                        [[ $package_status -eq 2 ]] || return $package_status
+                    fi
+                fi
             done <<EOF
 $package_names
 EOF
-            # Global packages can depend on tarballs hosted outside their registry.
-            npm update -g --allow-remote=all "$script_policy" "$@" || return $?
+            if [[ $# -gt 0 ]]; then
+                # Global packages can depend on tarballs hosted outside their registry.
+                npm update -g --allow-remote=all "$script_policy" "$@" || return $?
+            fi
         fi
     }
 

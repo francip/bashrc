@@ -895,7 +895,7 @@ EOF
                 if [[ $(which brew 2>/dev/null) ]]; then
                     brew analytics off
                     brew update
-                    brew upgrade
+                    brew upgrade --no-ask
                     brew cleanup
                 fi
             fi

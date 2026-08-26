@@ -46,6 +46,26 @@ __shenv_main() {
     fi
     export SH_OS_TYPE SH_OS_FLAVOR SH_OS_DISTRO SH_OS_DISTRO_NUM SH_OS_RELEASE
 
+    # Load the local-only password that the SSH client sends to snappy. Keep the
+    # secret outside the repository so this plumbing can be shared safely.
+    local SNAPPY_KEYCHAIN_PASSWORD_FILE
+    SNAPPY_KEYCHAIN_PASSWORD_FILE="${HOME}/.ssh/snappy-keychain-password"
+    if [[ "$SH_OS_TYPE" == Linux && -r "$SNAPPY_KEYCHAIN_PASSWORD_FILE" ]]; then
+        IFS= read -r SNAPPY_KEYCHAIN_PASSWORD < "$SNAPPY_KEYCHAIN_PASSWORD_FILE"
+        export SNAPPY_KEYCHAIN_PASSWORD
+    fi
+
+    # zshenv loads shenv for both interactive and command-only SSH sessions.
+    # Unlock here so remote commands used by agents can access the keychain too.
+    if [[ -n "$SSH_CONNECTION" && "$SH_OS_TYPE" == OSX && -n "$SNAPPY_KEYCHAIN_PASSWORD" ]]; then
+        if security unlock-keychain -p "$SNAPPY_KEYCHAIN_PASSWORD" "${HOME}/Library/Keychains/login.keychain-db"; then
+            export SH_KEYCHAIN_UNLOCKED=1
+        else
+            echo 'WARNING: Could not unlock the login keychain with the password received over SSH.' >&2
+        fi
+        unset SNAPPY_KEYCHAIN_PASSWORD
+    fi
+
     # Define __sh_color_definitions globally so shrc_helpers and the rcs can
     # eval it. configure_colors has no `"$VAR"` patterns so the heredoc trick
     # is safe here. Stub __sh_os_definitions to silence shrc_helpers' eval.

@@ -49,6 +49,28 @@ CentOS
 ```
 yum install bash-completion -y
 ```
+
+## Automatic macOS keychain unlock over SSH
+
+The SSH client sends `SNAPPY_KEYCHAIN_PASSWORD` only when connecting to `snappy`
+or `snappy.ts`. On a trusted Linux client, save the password in the local
+mode-600 file `~/.ssh/snappy-keychain-password`:
+
+```bash
+~/src/bashrc/scripts/set-snappy-keychain-password
+```
+
+On the macOS SSH server, install the tracked `sshd` configuration once:
+
+```zsh
+sudo install -m 644 ~/src/bashrc/sshd-keychain.conf /etc/ssh/sshd_config.d/100-bashrc-keychain.conf
+sudo launchctl kickstart -k system/com.openssh.sshd
+```
+
+Interactive SSH clients without the saved password still get the normal
+keychain password prompt. Command-only SSH sessions unlock the keychain from
+the received password before running their command.
+
 ## Known hacks
 
 ### Windows `shrc.cmd` doesn't load the `aliases` file

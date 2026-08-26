@@ -165,6 +165,37 @@ EOF
         fi
     done
 
+    # SSH client config
+    local SSH_DIR SSH_CONFIG_SOURCE SSH_CONFIG_LINK SSH_CONFIG_TARGET
+    SSH_DIR=$HOME/.ssh
+    SSH_CONFIG_SOURCE=$SH_SOURCE_DIR/ssh-config
+    SSH_CONFIG_LINK=$SSH_DIR/config
+
+    mkdir -p "$SSH_DIR"
+    chmod 700 "$SSH_DIR"
+
+    if [[ -e "$SSH_CONFIG_LINK" ]]; then
+        if [[ ! -L "$SSH_CONFIG_LINK" ]]; then
+            echo -e $COLOR_YELLOW_BOLD$SSH_CONFIG_LINK$COLOR_NONE': Exists and cannot be linked to '$COLOR_CYAN_BOLD$SSH_CONFIG_SOURCE$COLOR_NONE
+        else
+            SSH_CONFIG_TARGET=$SSH_CONFIG_LINK
+            while [[ -L "$SSH_CONFIG_TARGET" ]]; do
+                SSH_CONFIG_TARGET=$(readlink "$SSH_CONFIG_TARGET")
+            done
+
+            if [[ "$SSH_CONFIG_TARGET" == "$SSH_CONFIG_SOURCE" ]]; then
+                echo -e $COLOR_GREEN_BOLD$SSH_CONFIG_LINK$COLOR_NONE': Already linked and points to '$COLOR_CYAN_BOLD$SSH_CONFIG_SOURCE$COLOR_NONE
+            else
+                echo -e $COLOR_YELLOW_BOLD$SSH_CONFIG_LINK$COLOR_NONE': Already linked but points to '$COLOR_YELLOW_BOLD$SSH_CONFIG_TARGET$COLOR_NONE' instead of '$COLOR_CYAN_BOLD$SSH_CONFIG_SOURCE$COLOR_NONE
+            fi
+        fi
+    elif [[ -f "$SSH_CONFIG_SOURCE" ]]; then
+        ln -s "$SSH_CONFIG_SOURCE" "$SSH_CONFIG_LINK"
+        echo -e $COLOR_GREEN_BOLD$SSH_CONFIG_LINK$COLOR_NONE': Created as a symbolic link and points to '$COLOR_CYAN_BOLD$SSH_CONFIG_SOURCE$COLOR_NONE
+    else
+        echo -e $COLOR_RED_BOLD$SSH_CONFIG_LINK$COLOR_NONE': Cannot be linked to non-existing '$COLOR_RED_BOLD$SSH_CONFIG_SOURCE$COLOR_NONE
+    fi
+
     # Ghostty config
     local GHOSTTY_DIR GHOSTTY_CONFIG_SOURCE GHOSTTY_CONFIG_LINK GHOSTTY_CONFIG_TARGET
     GHOSTTY_DIR=$HOME/.config/ghostty

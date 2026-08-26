@@ -247,9 +247,9 @@ __zshrc_main() {
             [[ $SH_INTERACTIVE ]] && echo -e 'Connection via '$COLOR_GREEN_BOLD'Tailscale'$COLOR_NONE
         fi
 
-        if [[ $SH_INTERACTIVE && $SH_OS_TYPE == OSX ]]; then
+        if [[ $SH_INTERACTIVE && $SH_OS_TYPE == OSX && -z $SH_KEYCHAIN_UNLOCKED ]]; then
             echo -e 'Unlocking '$COLOR_CYAN_BOLD'keychain'$COLOR_NONE'...'
-            security unlock-keychain
+            security unlock-keychain "${HOME}/Library/Keychains/login.keychain-db"
         fi
     fi
 

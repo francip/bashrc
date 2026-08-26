@@ -1,0 +1,88 @@
+Host 140 141 142 143 144 145 146 147 148 149
+  User pi
+  Hostname 192.168.2.%h
+  IdentityFile ~/.ssh/id_rsa_personal
+
+Host moodymoose
+  User pi
+  Hostname 192.168.2.140
+  IdentityFile ~/.ssh/id_rsa_personal
+
+Host lazylemur
+  User pi
+  Hostname 192.168.2.141
+  IdentityFile ~/.ssh/id_rsa_personal
+
+Host curiouscat
+  User pi
+  Hostname 192.168.2.142
+  IdentityFile ~/.ssh/id_rsa_personal
+
+Host feistyfox
+  User pi
+  Hostname 192.168.2.143
+  IdentityFile ~/.ssh/id_rsa_personal
+
+Host happyhippo
+  User pi
+  Hostname 192.168.2.144
+  IdentityFile ~/.ssh/id_rsa_personal
+
+Host sneakysnake
+  User pi
+  Hostname 192.168.2.145
+  IdentityFile ~/.ssh/id_rsa_personal
+
+Host wisewolf bravebadger tinyangryowl tinyshypuppy
+  User pi
+  Hostname %h.local
+  IdentityFile ~/.ssh/id_rsa_personal
+
+Host 3 4 5 6 8
+  User francip
+  Hostname 192.168.2.%h
+  IdentityFile ~/.ssh/id_rsa_personal
+
+Host smarty
+  User francip
+  Hostname 192.168.2.3
+  IdentityFile ~/.ssh/id_rsa_personal
+
+Host smarty.ts
+  Hostname smarty.armadillo-albacore.ts.net
+  User francip
+  IdentityFile ~/.ssh/id_rsa_personal
+
+Host snappy
+  User francip
+  Hostname 192.168.2.6
+  IdentityFile ~/.ssh/id_rsa_personal
+  SendEnv SNAPPY_KEYCHAIN_PASSWORD
+
+Host snappy.ts
+  Hostname snappy.armadillo-albacore.ts.net
+  User francip
+  IdentityFile ~/.ssh/id_rsa_personal
+  SendEnv SNAPPY_KEYCHAIN_PASSWORD
+
+Host scrappy
+  User francip
+  Hostname 192.168.2.5
+  IdentityFile ~/.ssh/id_rsa_personal
+
+Host scrappy.ts
+  Hostname scrappy.armadillo-albacore.ts.net
+  User francip
+  IdentityFile ~/.ssh/id_rsa_personal
+
+Host *
+  StrictHostKeyChecking no
+  AddKeysToAgent yes
+  GSSAPIAuthentication no
+  AddressFamily inet
+  ServerAliveInterval 5
+  ServerAliveCountMax 3
+  TCPKeepAlive yes
+  IPQoS lowdelay throughput
+  IgnoreUnknown UseKeychain
+  UseKeychain yes

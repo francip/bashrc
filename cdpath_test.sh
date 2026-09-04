@@ -1,48 +1,58 @@
-#!/bin/zsh
-# Test CDPATH behavior in zsh
+#!/usr/bin/env bash
+set -euo pipefail
 
-echo "SHELL: $SHELL"
-echo "CDPATH: $CDPATH"
-echo "cdpath: ${cdpath[@]}"
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+TEST_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/bashrc-cdpath.XXXXXX")"
+TEST_ROOT="$(CDPATH= cd -- "$TEST_ROOT" && pwd -P)"
+trap 'rm -rf "${TEST_ROOT:?}"' EXIT
 
-# Test cd function
-if typeset -f cd > /dev/null; then
-    echo "Found cd function:"
-    typeset -f cd
-else
-    echo "No cd function found, using builtin"
-fi
+mkdir -p "$TEST_ROOT/search/target" "$TEST_ROOT/extra" "$TEST_ROOT/start"
 
-# Start from home directory
-cd $HOME
-echo "Starting from: $(pwd)"
+test_shell() {
+    local shell_bin=$1
 
-# Test changing to a directory in CDPATH without path
-echo "Trying to cd to a directory in CDPATH without path..."
-cd src 2>&1
-echo "Current directory: $(pwd)"
+    "$shell_bin" -c '
+        set -e
 
-# Reset
-cd $HOME
-echo "Reset to: $(pwd)"
+        repo_dir=$1
+        test_root=$2
+        shell_bin=$3
 
-# Test using subdirectory in CDPATH
-if [[ -d $HOME/src/bashrc ]]; then
-    echo "Trying to cd to a subdirectory of a CDPATH entry..."
-    cd bashrc 2>&1
-    echo "Current directory: $(pwd)"
-    
-    # Reset
-    cd $HOME
-    echo "Reset to: $(pwd)"
-    
-    # Try with full CDPATH search
-    echo "Trying cd with just the subdirectory name..."
-    cd bashrc 2>&1
-    echo "Current directory: $(pwd)"
-fi
+        # Reproduce a new shell inheriting the old, exported configuration.
+        export CDPATH="$test_root/search"
 
-# Test autocompletion
-echo ""
-echo "To test autocompletion, run: cd ba<TAB>"
-echo "It should complete to 'cd bashrc' if CDPATH is working correctly"
+        __sh_color_definitions() { :; }
+        __sh_os_definitions() { :; }
+        . "$repo_dir/shrc_helpers"
+
+        __add_to_cd_path "$test_root/search" "$test_root/extra"
+
+        expected="$test_root/search:$test_root/extra"
+        if [[ $CDPATH != "$expected" ]]; then
+            echo "$shell_bin: unexpected CDPATH: $CDPATH" >&2
+            exit 1
+        fi
+
+        if env | grep -q "^CDPATH="; then
+            echo "$shell_bin: CDPATH leaked into the environment" >&2
+            exit 1
+        fi
+
+        builtin cd "$test_root/start"
+        builtin cd target >/dev/null
+        if [[ $PWD != "$test_root/search/target" ]]; then
+            echo "$shell_bin: CDPATH lookup failed: $PWD" >&2
+            exit 1
+        fi
+
+        if ! "$shell_bin" -c '\''[[ -z ${CDPATH:-} ]]'\''; then
+            echo "$shell_bin: child shell inherited a CDPATH value" >&2
+            exit 1
+        fi
+    ' cdpath-test "$SCRIPT_DIR" "$TEST_ROOT" "$shell_bin"
+
+    echo "$shell_bin: Success"
+}
+
+test_shell bash
+test_shell zsh

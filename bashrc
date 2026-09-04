@@ -263,10 +263,9 @@ __bashrc_main() {
     # bun completions
     # Keep this sentinel aligned with zshrc in case Bun starts mutating Bash startup files.
 
-    if [[ -n $BASH_COMPLETION_INSTALLED ]]; then
-        # Affects cd behavior
-        __add_to_cd_path "." "${HOME}" "${HOME}/src"
-    fi
+    # Affects interactive cd behavior. Keep CDPATH shell-local so child
+    # scripts do not inherit Bash's path-printing behavior.
+    __add_to_cd_path "." "${HOME}" "${HOME}/src"
 
     # SSH client
     if [[ -n $SSH_CLIENT ]]; then

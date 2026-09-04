@@ -78,10 +78,20 @@ __rc_helpers_main() {
 
         if [[ -n $CDPATH_DIRS_LIST ]]; then
             if [[ -n $CDPATH ]]; then
-                export CDPATH=$CDPATH:$CDPATH_DIRS_LIST
+                CDPATH=$CDPATH:$CDPATH_DIRS_LIST
             else
-                export CDPATH=$CDPATH_DIRS_LIST
+                CDPATH=$CDPATH_DIRS_LIST
             fi
+        fi
+
+        # CDPATH is interactive shell configuration. If it reaches child
+        # processes, Bash may print paths during `cd` and corrupt command
+        # substitutions used by otherwise well-behaved scripts. Explicitly
+        # remove the export attribute in case it came from a parent shell.
+        if [[ -n ${ZSH_VERSION:-} ]]; then
+            typeset +x CDPATH
+        else
+            export -n CDPATH
         fi
     }
 

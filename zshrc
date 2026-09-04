@@ -235,7 +235,8 @@ __zshrc_main() {
         . "$BUN_INSTALL/_bun"
     fi
 
-    # Affects cd behavior - CDPATH needs to always be set for the cd function in aliases to work properly
+    # Affects interactive cd behavior. The helper keeps CDPATH shell-local so
+    # child scripts do not inherit path-printing behavior.
     __add_to_cd_path "." "${HOME}" "${HOME}/src"
 
     # SSH client

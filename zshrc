@@ -132,6 +132,36 @@ __zshrc_main() {
     # file editor preference, which is silly.
     bindkey -e
 
+    # zshenv disables global startup files to keep /etc/zprofile's path_helper
+    # from reordering PATH. Restore the system's interactive defaults (including
+    # terminal key bindings) before applying our own prompt/history settings.
+    if [[ -r /etc/zshrc ]]; then
+        . /etc/zshrc
+    elif [[ -r /etc/zsh/zshrc ]]; then
+        # Debian/Ubuntu keep their global Zsh configuration in this directory.
+        . /etc/zsh/zshrc
+    fi
+
+    # Treat Shift+arrows like plain arrows instead of inserting escape tails.
+    bindkey '^[[1;2A' up-line-or-history
+    bindkey '^[[1;2B' down-line-or-history
+    bindkey '^[[1;2C' forward-char
+    bindkey '^[[1;2D' backward-char
+
+    # A Ctrl-C already queued while a TUI exits can arrive in CSI-u form.
+    bindkey '^[[99;5u' send-break
+
+    # Recover legacy keyboard reporting at each prompt if a TUI leaves Kitty
+    # or xterm modifyOtherKeys mode enabled. Do not write escapes into pipes
+    # or to terminals outside the xterm-compatible families we use.
+    __zsh_reset_keyboard_mode() {
+        if [[ -t 1 && $TERM == (xterm*|screen*|tmux*) ]]; then
+            printf '\033[=0u\033[>4;0m'
+        fi
+    }
+    autoload -Uz add-zsh-hook
+    add-zsh-hook precmd __zsh_reset_keyboard_mode
+
     # Source additional global, local, and personal definitions
     echo
     __include_files "${HOME}/.zshrc.local" "${HOME}/.zshrc_local" "${SH_SOURCE_DIR}/aliases" "${HOME}/.aliases.local" "${HOME}/.aliases_local"

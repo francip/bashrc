@@ -49,6 +49,16 @@ __rc_helpers_main() {
         fi
     }
 
+    __configure_rust_path() {
+        # rustup's env file is optional; Cargo also supports a custom home.
+        __add_to_path "${CARGO_HOME:-$HOME/.cargo}/bin"
+        if [[ -n "$BREW_DIR" ]]; then
+            # Homebrew keeps Rust proxies here, outside its main bin directory.
+            # Older ~/.cargo/bin proxies may still point at removed rustup-init.
+            __add_to_path "${BREW_DIR}/opt/rustup/bin"
+        fi
+    }
+
     __add_to_cd_path() {
         local SHOW_HEADER=1
         __add_to_cd_path_no_header $*

@@ -244,6 +244,30 @@ EOF
         done
     }
 
+    __setup_rust() {
+        __configure_rust_path
+        if ! command -v rustup >/dev/null 2>&1; then
+            # shenv owns PATH setup; don't let the installer edit shell files.
+            (
+                set -o pipefail
+                curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs |
+                    sh -s -- -y --no-modify-path --default-toolchain stable
+            ) || return $?
+            __configure_rust_path
+        fi
+        # Selecting an already-installed stable alone does not update it.
+        rustup update stable || return $?
+        rustup default stable
+    }
+
+    __latest_rustup() {
+        __configure_rust_path
+        command -v rustup >/dev/null 2>&1 || return 0
+        # Updates installed toolchains and self-updates standalone rustup.
+        # Packaged builds (including Homebrew) disable self-update at build time.
+        rustup update
+    }
+
     setup_env() {
         # Ensure passwordless sudo
         if ! sudo -n true 2>/dev/null; then
@@ -341,8 +365,8 @@ EOF
         # zig
         command -v zig >/dev/null || brew install zig
 
-        # rustc / cargo — https://rustup.rs/
-        command -v rustc >/dev/null || curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        # rustup / cargo / rustc — https://rustup.rs/
+        __setup_rust || return $?
 
         # ruby / gem — usually preinstalled; macOS: brew install ruby
 
@@ -409,7 +433,7 @@ EOF
         echo
         echo -e 'Looking for '$COLOR_CYAN_BOLD'common'$COLOR_NONE' tools...'
 
-        __get_commands_info git gh brew bun nvm node npm pnpm python python3 pip pip3 pipx poetry uv hf go zig rustc cargo ruby gem code arduino-cli claude codex copilot gemini prime prime-agent omp pi llama-server gcc clang ccache cmake ninja tmux curl convert docker nvcc adb jq
+        __get_commands_info git gh brew bun nvm node npm pnpm python python3 pip pip3 pipx poetry uv hf go zig rustup cargo rustc ruby gem code arduino-cli claude codex copilot gemini prime prime-agent omp pi llama-server gcc clang ccache cmake ninja tmux curl convert docker nvcc adb jq
 
         if [[ $SH_OS_TYPE == OSX ]]; then
             echo
@@ -899,6 +923,9 @@ EOF
                     brew cleanup
                 fi
             fi
+            if [[ -z $LATEST_SKIP_RUSTUP ]]; then
+                __latest_rustup || return $?
+            fi
             if [[ -z $LATEST_SKIP_NVM ]]; then
                 __latest_nvm || return $?
             fi
@@ -1008,6 +1035,9 @@ EOF
                 sudo apt-get --with-new-pkgs upgrade -y
                 sudo apt-get autoremove -y
                 sudo snap refresh
+                if [[ -z $LATEST_SKIP_RUSTUP ]]; then
+                    __latest_rustup || return $?
+                fi
                 if [[ -z $LATEST_SKIP_NVM ]]; then
                     __latest_nvm || return $?
                 fi
@@ -1166,6 +1196,9 @@ EOF
 
         latest() {
             pacman -Syuu
+            if [[ -z $LATEST_SKIP_RUSTUP ]]; then
+                __latest_rustup || return $?
+            fi
             if [[ -z $LATEST_SKIP_BUN ]]; then
                 if [[ $(which bun 2>/dev/null) ]]; then
                     bun upgrade

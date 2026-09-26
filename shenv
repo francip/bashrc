@@ -262,7 +262,9 @@ EOF
             NVM_DEFAULT_BIN="$NVM_DIR/versions/node/v${NVM_DEFAULT_BIN#v}/bin"
         fi
         if [[ -n "$NVM_DEFAULT_BIN" && -x "$NVM_DEFAULT_BIN/node" ]]; then
-            __add_to_path_no_header "$NVM_DEFAULT_BIN"
+            # Prepend unconditionally, like `nvm use`: the dir may already sit
+            # later in an inherited PATH, behind Homebrew's node.
+            export PATH="$NVM_DEFAULT_BIN:$PATH"
         elif [[ -s "$NVM_DIR/nvm.sh" ]]; then
             . "$NVM_DIR/nvm.sh"
             # nvm.sh leaves "system" active by default; switch to nvm's default.

@@ -252,7 +252,18 @@ EOF
         export NVM_DIR="$HOME/.nvm"
     fi
     if [[ -d "$NVM_DIR" ]]; then
-        if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+        # Non-interactive fast path: sourcing nvm.sh costs ~0.6s, which adds up
+        # for ssh-driven tooling (e.g. agent-bus hooks). When the default alias
+        # names an installed version exactly, put its bin dir on PATH directly.
+        # Interactive shells still get the full nvm function below.
+        local NVM_DEFAULT_BIN=""
+        if [[ $- != *i* && -s "$NVM_DIR/alias/default" ]]; then
+            NVM_DEFAULT_BIN=$(<"$NVM_DIR/alias/default")
+            NVM_DEFAULT_BIN="$NVM_DIR/versions/node/v${NVM_DEFAULT_BIN#v}/bin"
+        fi
+        if [[ -n "$NVM_DEFAULT_BIN" && -x "$NVM_DEFAULT_BIN/node" ]]; then
+            __add_to_path_no_header "$NVM_DEFAULT_BIN"
+        elif [[ -s "$NVM_DIR/nvm.sh" ]]; then
             . "$NVM_DIR/nvm.sh"
             # nvm.sh leaves "system" active by default; switch to nvm's default.
             # Interactive shells re-check this later in zshrc/bashrc, so a _local

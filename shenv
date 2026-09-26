@@ -188,7 +188,7 @@ EOF
         VS_CODE_PATH_DIRS=("/usr/share/code/bin")
         if [[ "$SH_OS_FLAVOR" == WSL ]]; then
             local __WSL_WIN_USER
-            __WSL_WIN_USER=$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r\n')
+            __WSL_WIN_USER=$(cmd.exe /c "echo %USERNAME%" </dev/null 2>/dev/null | tr -d '\r\n')
             if [[ -n "$__WSL_WIN_USER" ]]; then
                 VS_CODE_PATH_DIRS=(
                     "${VS_CODE_PATH_DIRS[@]}"

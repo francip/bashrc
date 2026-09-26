@@ -39,10 +39,10 @@ __bashrc_main() {
     # Windows OpenSSH doesn't pass SSH env vars into WSL; import them
     if [[ $SH_OS_FLAVOR == WSL && -z $SSH_CONNECTION ]]; then
         local _win_ssh
-        _win_ssh=$(cmd.exe /c "echo %SSH_CONNECTION%" 2>/dev/null | tr -d '\r\n')
+        _win_ssh=$(cmd.exe /c "echo %SSH_CONNECTION%" </dev/null 2>/dev/null | tr -d '\r\n')
         if [[ -n "$_win_ssh" && "$_win_ssh" != "%SSH_CONNECTION%" ]]; then
             export SSH_CONNECTION="$_win_ssh"
-            _win_ssh=$(cmd.exe /c "echo %SSH_CLIENT%" 2>/dev/null | tr -d '\r\n')
+            _win_ssh=$(cmd.exe /c "echo %SSH_CLIENT%" </dev/null 2>/dev/null | tr -d '\r\n')
             [[ -n "$_win_ssh" && "$_win_ssh" != "%SSH_CLIENT%" ]] && export SSH_CLIENT="$_win_ssh"
         fi
         unset _win_ssh

@@ -86,3 +86,15 @@ Host *
   IPQoS lowdelay throughput
   IgnoreUnknown UseKeychain
   UseKeychain yes
+
+Host static
+  HostName 192.168.2.101
+  User francip
+  IdentityFile ~/.ssh/id_rsa_personal
+  IdentitiesOnly yes
+
+Host shock
+  HostName 192.168.2.102
+  User francip
+  IdentityFile ~/.ssh/id_rsa_personal
+  IdentitiesOnly yes

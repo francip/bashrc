@@ -98,8 +98,11 @@ EOF
         OSX)
             if [[ -z "$SSH_AUTH_SOCK" || ! -S "$SSH_AUTH_SOCK" ]]; then
                 local _mac_sock
-                # macOS 26+ moved sockets from /private/tmp to /var/run
-                _mac_sock=$(find /private/tmp /var/run -path "*/com.apple.launchd.*/Listeners" -user "$USER" 2>/dev/null | head -1)
+                # macOS 26+ moved sockets from /private/tmp to /var/run.
+                # The socket is always <dir>/com.apple.launchd.*/Listeners; an
+                # unbounded find walks all of /private/tmp and took ~24 s per
+                # non-interactive SSH login.
+                _mac_sock=$(find /private/tmp /var/run -maxdepth 2 -path "*/com.apple.launchd.*/Listeners" -user "$USER" 2>/dev/null | head -1)
                 [[ -S "$_mac_sock" ]] && export SSH_AUTH_SOCK="$_mac_sock"
             fi
             ;;

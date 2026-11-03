@@ -790,6 +790,23 @@ $installed_nodes
 EOF
     }
 
+    __latest_nvm_stable_version() {
+        local remote_nodes stable_node
+
+        remote_nodes=$(nvm ls-remote --no-colors "$@") || return $?
+        # NVM lists releases oldest first and may include prereleases.
+        stable_node=$(printf '%s\n' "$remote_nodes" | command awk '
+            { sub(/^[[:space:]]*->[[:space:]]*/, "") }
+            $1 ~ /^v[0-9]+\.[0-9]+\.[0-9]+$/ { version = $1 }
+            END { print version }
+        ')
+        if [[ -z $stable_node ]]; then
+            echo -e "${COLOR_RED_BOLD}Unable to determine the latest stable Node.js version${COLOR_NONE}" >&2
+            return 1
+        fi
+        printf '%s\n' "$stable_node"
+    }
+
     __latest_nvm() {
         command -v nvm >/dev/null 2>&1 || return 0
 
@@ -801,13 +818,8 @@ EOF
 
         __latest_nvm_update || return $?
         current_node=$(nvm current) || return $?
-        latest_lts_node=$(nvm version-remote --lts) || return $?
-        latest_node=$(nvm version-remote node) || return $?
-
-        if [[ $latest_lts_node == "N/A" || $latest_node == "N/A" ]]; then
-            echo "Unable to determine the latest Node.js versions"
-            return 1
-        fi
+        latest_lts_node=$(__latest_nvm_stable_version --lts) || return $?
+        latest_node=$(__latest_nvm_stable_version) || return $?
 
         # Keep npm's policy local to package migration. Global packages can
         # depend on tarballs hosted outside their registry.

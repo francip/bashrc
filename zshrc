@@ -265,6 +265,11 @@ __zshrc_main() {
         . "$BUN_INSTALL/_bun"
     fi
 
+    # TensorFold native CLI
+    if [[ -f "$HOME/.tensorfold/env" ]]; then
+        . "$HOME/.tensorfold/env"
+    fi
+
     # Affects interactive cd behavior. The helper keeps CDPATH shell-local so
     # child scripts do not inherit path-printing behavior.
     __add_to_cd_path "." "${HOME}" "${HOME}/src"
@@ -371,9 +376,3 @@ __zshrc_main() {
 
 __zshrc_main "$@"
 unset -f __zshrc_main
-
-# BEGIN Agency MANAGED BLOCK
-if [[ ":${PATH}:" != *":/Users/francip/.config/agency/CurrentVersion:"* ]]; then
-    export PATH="/Users/francip/.config/agency/CurrentVersion:${PATH}"
-fi
-# END Agency MANAGED BLOCK

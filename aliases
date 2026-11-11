@@ -1007,7 +1007,9 @@ EOF
             }
 
             e() {
-                if command -v code >/dev/null 2>&1; then
+                if command -v sideleaf >/dev/null 2>&1; then
+                    sideleaf "$@"
+                elif command -v code >/dev/null 2>&1; then
                     code "$@"
                 else
                     gedit "$@" &
@@ -1019,7 +1021,9 @@ EOF
             }
         else
             e() {
-                if command -v code >/dev/null 2>&1; then
+                if command -v sideleaf >/dev/null 2>&1; then
+                    sideleaf "$@"
+                elif command -v code >/dev/null 2>&1; then
                     code "$@"
                 else
                     vim "$@"
@@ -1172,7 +1176,9 @@ EOF
             }
 
             e() {
-                if command -v code >/dev/null 2>&1; then
+                if command -v sideleaf >/dev/null 2>&1; then
+                    sideleaf "$@"
+                elif command -v code >/dev/null 2>&1; then
                     code "$@"
                 else
                     vim "$@"
@@ -1187,7 +1193,9 @@ EOF
         alias ls='ls --color=auto'
 
         e() {
-            if command -v code >/dev/null 2>&1; then
+            if command -v sideleaf >/dev/null 2>&1; then
+                sideleaf "$@"
+            elif command -v code >/dev/null 2>&1; then
                 code "$@"
             else
                 vim "$@"
@@ -1271,7 +1279,9 @@ EOF
 
                 CODE_COMMAND=`type -t code 2>/dev/null || whence code 2>/dev/null`
 
-                if [[ -n $CODE_COMMAND ]]; then
+                if command -v sideleaf >/dev/null 2>&1; then
+                    sideleaf "$@"
+                elif [[ -n $CODE_COMMAND ]]; then
                     code "$@"
                 else
                     open -e "$@"

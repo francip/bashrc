@@ -71,6 +71,20 @@ Interactive SSH clients without the saved password still get the normal
 keychain password prompt. Command-only SSH sessions unlock the keychain from
 the received password before running their command.
 
+## tmux session listing
+
+`tl` uses `node "$HOME/src/terminal/tools/tl.mjs"` when that helper file is
+readable and Node is available. The helper lists sessions across tmux servers
+owned by the current user. Use `tl --help` for its supported options.
+
+Without the helper or Node, `tl` falls back to `tmux ls`, which lists sessions
+on the current or default server only. This repository does not install Node
+or the terminal helper. Arguments pass unchanged to the selected command;
+helper errors are returned directly rather than triggering the fallback.
+
+Run the isolated routing and fallback tests with `bash ./tmux-list-test.sh`
+and `zsh ./tmux-list-test.sh`. They use local fixtures and never contact tmux.
+
 ## Known hacks
 
 ### Windows `shrc.cmd` doesn't load the `aliases` file

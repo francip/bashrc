@@ -171,9 +171,14 @@ EOF
         tmux detach-client
     }
 
-    # List tmux sessions
+    # List sessions across owned tmux servers when the terminal helper is installed.
     tl() {
-        tmux ls
+        local tl_helper="$HOME/src/terminal/tools/tl.mjs"
+        if [[ -f "$tl_helper" && -r "$tl_helper" ]] && command -v node >/dev/null 2>&1; then
+            node "$tl_helper" "$@"
+        else
+            tmux ls "$@"
+        fi
     }
 
     cdx() {

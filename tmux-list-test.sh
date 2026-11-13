@@ -3,7 +3,7 @@
 __tmux_list_test_main() (
     set -e
     local repo_dir test_root shell_name shell_bin tmux_bin call_result default_socket named_socket custom_socket empty_socket
-    local default_id named_id custom_id empty_id client_one='' client_two='' stopped_server='' value actual expected socket
+    local default_id named_id custom_id empty_id client_one='' client_two='' stopped_server='' value actual expected socket alias_socket
     local owned_sockets=()
     repo_dir=$(CDPATH='' cd -- "$1" && pwd -P)
     # Keep Unix socket paths below macOS's 104-byte limit, even with a long TMPDIR.
@@ -78,6 +78,18 @@ EOF
     printf '%s\n' "$actual" | grep -F -x "$expected"
     [ "$(printf '%s\n' "$actual" | grep -F -c 'socket#(touch injected)]')" -eq 1 ]
     [ ! -e injected ]
+    # A standard alias and the discovered original may be the same Unix socket inode.
+    alias_socket="$test_root/tmux-$(id -u)/socket-alias"
+    if ln "$custom_socket" "$alias_socket" 2>/dev/null; then
+        actual=$("$shell_bin" "$repo_dir/scripts/tmux-list.sh")
+        [ "$(printf '%s\n' "$actual" | grep -F -c 'literal [] $value #(touch injected)')" -eq 1 ]
+        actual=$(TMUX= "$shell_bin" "$repo_dir/scripts/tmux-list.sh")
+        [ "$(printf '%s\n' "$actual" | grep -F -c 'literal [] $value #(touch injected)')" -eq 1 ]
+        [ "$(printf '%s\n' "$actual" | grep -F -c 'duplicate name')" -eq 2 ]
+        rm "$alias_socket"
+    else
+        printf '%s\n' 'Socket hard links are unsupported on this filesystem; alias case skipped.'
+    fi
     if "$shell_bin" "$repo_dir/scripts/tmux-list.sh" --bad-option >/dev/null; then exit 1; else [ "$?" -eq 2 ]; fi
     "$shell_bin" "$repo_dir/scripts/tmux-list.sh" --help >/dev/null
 

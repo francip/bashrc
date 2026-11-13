@@ -88,6 +88,7 @@ descriptors and `/proc/net/unix` for custom sockets. macOS uses its built-in
 `lsof` for custom discovery. Without either metadata source, standard/current
 servers still work and the helper reports incomplete discovery. Custom server
 paths stay explicit so duplicate names remain distinguishable.
+Socket paths that are hard links to the same socket are listed once.
 
 It tries available system/Homebrew clients for version compatibility. Probes
 use tmux's no-start flag, have a two-second deadline, and never remove stale

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Local CLI discovery is separate from the web broker's stricter admission checks.
 __tmux_list_main() (
-    local uid directory socket process name executable link inode label format
+    local uid directory socket process name executable link inode label format seen_socket
     local temporary_root command_pid timer_pid result complete=1 found=0 seen=$'\n'
     local processed=0 descriptors=0 inodes=' ' started=$SECONDS queried
-    local binaries=() sockets=() directories=() live_sockets=() unique_binaries=()
+    local binaries=() sockets=() directories=() live_sockets=() unique_binaries=() unique_sockets=()
     if [ -n "${ZSH_VERSION:-}" ]; then setopt nonomatch; fi
 
     if [ "$#" -gt 0 ]; then
@@ -108,6 +108,11 @@ __tmux_list_main() (
         socket="$directory/${socket##*/}"
         case $seen in *$'\n'"$socket"$'\n'*) continue ;; esac
         seen="$seen$socket"$'\n'
+        # Published aliases can be hard links to an already discovered socket.
+        for seen_socket in "${unique_sockets[@]}"; do
+            if [ "$socket" -ef "$seen_socket" ]; then continue 2; fi
+        done
+        unique_sockets+=("$socket")
         processed=$((processed + 1))
         if [ "$processed" -gt 64 ] || [ "$((SECONDS - started))" -ge 5 ]; then complete=0; break; fi
         label=$socket

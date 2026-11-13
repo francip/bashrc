@@ -116,7 +116,7 @@ __tmux_list_main() (
             if [ "$directory" = "$name" ]; then label=${socket##*/}; break; fi
         done
         # Escape format markers in socket names, including #(shell-command).
-        label=${label//#/##}
+        label=${label//"#"/"##"}
         format='#{session_name}  ['"$label"']  #{?session_attached,attached (#{session_attached} #{?#{==:#{session_attached},1},client,clients}),detached}'
         queried=0
         for executable in "${unique_binaries[@]}"; do

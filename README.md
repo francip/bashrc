@@ -73,17 +73,31 @@ the received password before running their command.
 
 ## tmux session listing
 
-`tl` uses `node "$HOME/src/terminal/tools/tl.mjs"` when that helper file is
-readable and Node is available. The helper lists sessions across tmux servers
-owned by the current user. Use `tl --help` for its supported options.
+`tl` uses the shell helper in `scripts/tmux-list.sh`. It requires Bash, tmux
+and standard OS tools; no Node, Python or terminal repository checkout is needed.
+Each session gets one line with its name, server name and attachment status:
 
-Without the helper or Node, `tl` falls back to `tmux ls`, which lists sessions
-on the current or default server only. This repository does not install Node
-or the terminal helper. Arguments pass unchanged to the selected command;
-helper errors are returned directly rather than triggering the fallback.
+```text
+main  [default]  attached (1 client)
+work  [kortexa-terminal]  detached
+```
 
-Run the isolated routing and fallback tests with `bash ./tmux-list-test.sh`
-and `zsh ./tmux-list-test.sh`. They use local fixtures and never contact tmux.
+The helper checks the current socket and standard named sockets under `/tmp`,
+`TMUX_TMPDIR` and `TMPDIR`. Linux and WSL also inspect owned tmux process
+descriptors and `/proc/net/unix` for custom sockets. macOS uses its built-in
+`lsof` for custom discovery. Without either metadata source, standard/current
+servers still work and the helper reports incomplete discovery. Custom server
+paths stay explicit so duplicate names remain distinguishable.
+
+It tries available system/Homebrew clients for version compatibility. Probes
+use tmux's no-start flag, have a two-second deadline, and never remove stale
+sockets or change sessions. Discovery stops at 64 socket candidates or a
+five-second scan budget. `tl --help` describes the command; other arguments
+return status 2. Missing tmux returns 127; incomplete discovery returns 1.
+
+Run `bash ./tmux-list-test.sh` and `zsh ./tmux-list-test.sh` (where installed).
+They test wrapper routing and create isolated test-owned tmux servers for
+named/custom sockets, duplicate and unusual names, and multiple attachments.
 
 ## Known hacks
 

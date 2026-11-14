@@ -155,15 +155,9 @@ EOF
         ssh -t "$@" 'exec env TMUX_AUTO_ATTACH=0 "${SHELL:-/bin/sh}" -l'
     }
 
-    # Switch to tmux session (default: "main", or pass a name); create if needed
+    # Attach across tmux servers (default: "main"); pass a server for duplicate names.
     t() {
-        local name="${1:-main}"
-        if [ -n "$TMUX" ]; then
-            tmux new-session -ds "$name" 2>/dev/null
-            tmux switch-client -t "$name"
-        else
-            tmux new-session -As "$name"
-        fi
+        bash "$(__get_aliases_dir)/scripts/tmux-attach.sh" "$@"
     }
 
     # Detach from tmux (phone-friendly alternative to Ctrl-B D)

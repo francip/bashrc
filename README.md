@@ -71,7 +71,30 @@ Interactive SSH clients without the saved password still get the normal
 keychain password prompt. Command-only SSH sessions unlock the keychain from
 the received password before running their command.
 
-## tmux session listing
+## tmux sessions
+
+`t [session [server]]` attaches to an exact session name across the same servers
+that `tl` lists. For example:
+
+```bash
+t ktx-v1-TJkuhflquQq7RlyhA0GD0ana24-yIynr
+```
+
+If the name exists on multiple servers, `t` lists the matches and asks for the
+server label or full socket path shown by `tl`:
+
+```bash
+t main default
+t main kortexa-terminal-homebrew
+```
+
+The default session name is `main`. If no session matches, `t` creates it on the
+current/default server. An explicit server selector requires an existing session.
+Incomplete discovery stops attachment and creation so a hidden session does not
+accidentally get a duplicate. `t --help` shows usage.
+
+Within the same server, `t` switches the current client. Across servers, it opens
+another tmux client; detaching returns to the original shell/session.
 
 `tl` uses the shell helper in `scripts/tmux-list.sh`. It requires Bash, tmux
 and standard OS tools; no Node, Python or terminal repository checkout is needed.
@@ -96,9 +119,12 @@ sockets or change sessions. Discovery stops at 64 socket candidates or a
 five-second scan budget. `tl --help` describes the command; other arguments
 return status 2. Missing tmux returns 127; incomplete discovery returns 1.
 
-Run `bash ./tmux-list-test.sh` and `zsh ./tmux-list-test.sh` (where installed).
-They test wrapper routing and create isolated test-owned tmux servers for
-named/custom sockets, duplicate and unusual names, and multiple attachments.
+Run `bash ./tmux-list-test.sh` and `bash ./tests/tmux-attach-test.sh`, and repeat
+with `zsh` where installed. They test wrapper routing and create isolated
+test-owned tmux servers for named/custom sockets, duplicate and unusual names,
+multiple attachments, same-server switching, cross-server attachment, and
+creation of missing sessions. Both commands share `scripts/tmux-sessions.sh`
+for discovery and client compatibility.
 
 ## Known hacks
 

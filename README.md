@@ -73,6 +73,16 @@ the received password before running their command.
 
 ## tmux sessions
 
+Interactive SSH logins automatically attach to tmux unless the source terminal
+already reports a `screen*` or `tmux*` terminal type. SSH carries that terminal
+type across machines, so connections from tmux (including the web terminal) or
+screen skip a second tmux layer in both Bash and Zsh. A custom tmux configuration
+that sets `TERM` to an unrelated type will not be detected.
+Use `ssht host` to explicitly start remote tmux, or `sshn host` to skip it.
+
+Run `bash tests/tmux-auto-attach-test.sh` and repeat with `zsh` to check SSH
+auto-attach decisions without opening connections or starting tmux servers.
+
 `t [session [server]]` attaches to an exact session name across the same servers
 that `tl` lists. For example:
 

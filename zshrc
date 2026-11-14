@@ -113,7 +113,9 @@ __zshrc_main() {
     # TMUX_AUTO_ATTACH=0 disables it.
     # TMUX_AUTO_ATTACH_SESSION changes the base session (default: main).
     # TMUX_AUTO_ATTACH_MODE=shared|auto|dedicated controls session sharing.
-    if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 ]]; then
+    # SSH carries the source TERM; skip when it is already inside tmux or screen.
+    if [[ -n $SSH_CONNECTION && -z $TMUX && $- == *i* && $TMUX_AUTO_ATTACH != 0 &&
+          $TERM != screen* && $TERM != tmux* ]]; then
         if command -v tmux >/dev/null 2>&1; then
             TMUX_ATTACH_SESSION=$(__tmux_auto_attach_target_session)
             exec tmux new-session -As "$TMUX_ATTACH_SESSION"
